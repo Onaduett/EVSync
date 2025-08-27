@@ -38,9 +38,22 @@
 		AACD66012E5EF136000F751C /* EVSyncUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EVSyncUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AAE75E0F2E5F950B00AE5420 /* Exceptions for "EVSync" folder in "EVSync" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Font/Info.plist,
+			);
+			target = AACD65E92E5EF134000F751C /* EVSync */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AACD65EC2E5EF134000F751C /* EVSync */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AAE75E0F2E5F950B00AE5420 /* Exceptions for "EVSync" folder in "EVSync" target */,
+			);
 			path = EVSync;
 			sourceTree = "<group>";
 		};
@@ -432,6 +445,7 @@
 				DEVELOPMENT_TEAM = 9A5KNKZDC8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EVSync/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -465,6 +479,7 @@
 				DEVELOPMENT_TEAM = 9A5KNKZDC8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EVSync/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

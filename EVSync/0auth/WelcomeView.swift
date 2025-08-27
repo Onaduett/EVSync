@@ -30,17 +30,19 @@ struct WelcomeView: View {
                 
                 VStack(spacing: 0) {
                     Spacer()
-                    Spacer() // Space for logo/image
+                    Spacer()
                     
                     VStack(spacing: 20) {
                         // Logo
                         Text("EVSync")
-                            .font(.system(size: 48, weight: .semibold, design: .default))
+                            .font(.custom("Nunito Sans", size: 48))
+                            .fontWeight(.bold)
                             .foregroundColor(.black)
                         
                         VStack(spacing: 20) {
                             Text(authState == .enterEmail ? "Log in or Sign up" : (authState == .signIn ? "Welcome back!" : "Create your account"))
-                                .font(.system(size: 18, weight: .medium))
+                                .font(.custom("Nunito Sans", size: 18))
+                                .fontWeight(.medium)
                                 .foregroundColor(.black)
                             
                             VStack(spacing: 16) {
@@ -48,13 +50,14 @@ struct WelcomeView: View {
                                 VStack(alignment: .leading, spacing: 8) {
                                     if authState != .enterEmail {
                                         Text("Email")
-                                            .font(.system(size: 14, weight: .medium))
+                                            .font(.custom("Nunito Sans", size: 14))
+                                            .fontWeight(.medium)
                                             .foregroundColor(.black)
                                             .padding(.horizontal, 16)
                                     }
                                     
                                     TextField(authState == .enterEmail ? "Email" : "Enter your email", text: $email)
-                                        .font(.system(size: 16))
+                                        .font(.custom("Nunito Sans", size: 16))
                                         .padding(.horizontal, 16)
                                         .padding(.vertical, 16)
                                         .overlay(
@@ -74,12 +77,13 @@ struct WelcomeView: View {
                                 if authState == .signIn || authState == .signUp {
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text(authState == .signIn ? "Password" : "Create a password")
-                                            .font(.system(size: 14, weight: .medium))
+                                            .font(.custom("Nunito Sans", size: 14))
+                                            .fontWeight(.medium)
                                             .foregroundColor(.black)
                                             .padding(.horizontal, 16)
                                         
                                         SecureField("Enter your password", text: $password)
-                                            .font(.system(size: 16))
+                                            .font(.custom("Nunito Sans", size: 16))
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 16)
                                             .overlay(
@@ -93,7 +97,7 @@ struct WelcomeView: View {
                                         
                                         if authState == .signUp {
                                             Text("Password must be at least 6 characters")
-                                                .font(.system(size: 12))
+                                                .font(.custom("Nunito Sans", size: 12))
                                                 .foregroundColor(.gray)
                                                 .padding(.horizontal, 16)
                                         }
@@ -107,12 +111,13 @@ struct WelcomeView: View {
                                 if authState == .signUp {
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text("Confirm password")
-                                            .font(.system(size: 14, weight: .medium))
+                                            .font(.custom("Nunito Sans", size: 14))
+                                            .fontWeight(.medium)
                                             .foregroundColor(.black)
                                             .padding(.horizontal, 16)
                                         
                                         SecureField("Confirm your password", text: $confirmPassword)
-                                            .font(.system(size: 16))
+                                            .font(.custom("Nunito Sans", size: 16))
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 16)
                                             .overlay(
@@ -129,7 +134,7 @@ struct WelcomeView: View {
                                                     .font(.system(size: 12))
                                                     .foregroundColor(password == confirmPassword ? .green : .red)
                                                 Text(password == confirmPassword ? "Passwords match" : "Passwords don't match")
-                                                    .font(.system(size: 12))
+                                                    .font(.custom("Nunito Sans", size: 12))
                                                     .foregroundColor(password == confirmPassword ? .green : .red)
                                             }
                                             .padding(.horizontal, 16)
@@ -147,7 +152,7 @@ struct WelcomeView: View {
                                         Button("Forgot Password?") {
                                             authManager.resetPassword(email: email)
                                         }
-                                        .font(.system(size: 14))
+                                        .font(.custom("Nunito Sans", size: 14))
                                         .foregroundColor(.gray)
                                     }
                                     .padding(.horizontal, 20)
@@ -155,7 +160,7 @@ struct WelcomeView: View {
                                 
                                 if let errorMessage = authManager.errorMessage {
                                     Text(errorMessage)
-                                        .font(.system(size: 14))
+                                        .font(.custom("Nunito Sans", size: 14))
                                         .foregroundColor(.red)
                                         .multilineTextAlignment(.center)
                                 }
@@ -169,7 +174,8 @@ struct WelcomeView: View {
                                         .scaleEffect(0.9)
                                 } else {
                                     Text(getContinueButtonText())
-                                        .font(.system(size: 16, weight: .medium))
+                                        .font(.custom("Nunito Sans", size: 16))
+                                        .fontWeight(.medium)
                                         .foregroundColor(.white)
                                 }
                             }
@@ -188,7 +194,8 @@ struct WelcomeView: View {
                                     }
                                 }) {
                                     Text("← Back to email")
-                                        .font(.system(size: 14, weight: .medium))
+                                        .font(.custom("Nunito Sans", size: 14))
+                                        .fontWeight(.medium)
                                         .foregroundColor(.gray)
                                 }
                             }
@@ -202,7 +209,7 @@ struct WelcomeView: View {
                                             .foregroundColor(.gray.opacity(0.3))
                                         
                                         Text("or use")
-                                            .font(.system(size: 14))
+                                            .font(.custom("Nunito Sans", size: 14))
                                             .foregroundColor(.gray)
                                             .padding(.horizontal, 16)
                                         
@@ -223,7 +230,8 @@ struct WelcomeView: View {
                                                     .resizable()
                                                     .frame(width: 16, height: 16)
                                                 Text("Sign in with Google")
-                                                    .font(.system(size: 14, weight: .medium))
+                                                    .font(.custom("Nunito Sans", size: 14))
+                                                    .fontWeight(.medium)
                                                     .foregroundColor(.black)
                                             }
                                             .frame(maxWidth: .infinity)
@@ -244,7 +252,8 @@ struct WelcomeView: View {
                                                 Image(systemName: "applelogo")
                                                     .foregroundColor(.black)
                                                 Text("Sign in with Apple")
-                                                    .font(.system(size: 14, weight: .medium))
+                                                    .font(.custom("Nunito Sans", size: 14))
+                                                    .fontWeight(.medium)
                                                     .foregroundColor(.black)
                                             }
                                             .frame(maxWidth: .infinity)
@@ -273,7 +282,7 @@ struct WelcomeView: View {
                     // Terms and conditions (only show in signup state)
                     if authState == .signUp {
                         Text("By signing up, you agree to our Terms of Service and Privacy Policy")
-                            .font(.system(size: 12))
+                            .font(.custom("Nunito Sans", size: 12))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 30)
