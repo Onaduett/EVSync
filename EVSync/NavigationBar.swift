@@ -64,7 +64,7 @@ struct CustomGlassTabBar: View {
                 .shadow(color: .black.opacity(0.25), radius: 15, x: 0, y: 8)
                 .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
         }
-        .padding(.bottom, 8)
+        .padding(.bottom, 15)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTab)
     }
 }

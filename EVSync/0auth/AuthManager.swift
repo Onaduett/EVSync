@@ -39,19 +39,16 @@ class AuthenticationManager: ObservableObject {
     }
     
     func checkUserExists(email: String) async throws -> Bool {
-        // For Supabase, we'll try to sign in and catch the error
-        // This is a simple way to check if user exists
         do {
-            _ = try await supabase.auth.signInWithOTP(email: email)
-            return true
+            let response = try await supabase.rpc("check_user_exists", params: ["email_input": email]).execute()
+            
+            let jsonString = String(data: response.data, encoding: .utf8) ?? ""
+            let exists = jsonString.trimmingCharacters(in: .whitespacesAndNewlines) == "true"
+            
+            return exists
         } catch {
-            // If error contains "user not found" or similar, return false
-            if error.localizedDescription.contains("Invalid") ||
-               error.localizedDescription.contains("not found") ||
-               error.localizedDescription.contains("User not found") {
-                return false
-            }
-            throw error
+            print("Error checking user exists: \(error)")
+            return false
         }
     }
     
