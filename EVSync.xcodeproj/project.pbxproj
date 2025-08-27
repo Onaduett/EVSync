@@ -42,7 +42,7 @@
 		AAE75E0F2E5F950B00AE5420 /* Exceptions for "EVSync" folder in "EVSync" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Font/Info.plist,
+				Info.plist,
 			);
 			target = AACD65E92E5EF134000F751C /* EVSync */;
 		};

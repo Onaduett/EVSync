@@ -9,120 +9,6 @@ import SwiftUI
 import MapKit
 import Supabase
 
-// MARK: - Database Models
-struct DatabaseChargingStation: Identifiable, Codable {
-    let id: UUID
-    let name: String
-    let address: String
-    let latitude: Double
-    let longitude: Double
-    let connector_types: [String]
-    let power_kw: Int?
-    let is_available: Bool
-    let price_per_kwh: Double?
-    let station_operator: String?
-    let created_at: String
-    let updated_at: String
-    
-    // Convert to UI model
-    func toChargingStation() -> ChargingStation {
-        let connectorTypes = connector_types.compactMap { ConnectorType(rawValue: $0) }
-        let availability: StationAvailability = is_available ? .available : .occupied
-        
-        return ChargingStation(
-            id: id,
-            name: name,
-            address: address,
-            coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
-            connectorTypes: connectorTypes,
-            availability: availability,
-            power: power_kw != nil ? "\(power_kw!) kW" : "Unknown",
-            price: price_per_kwh != nil ? String(format: "%.1f ₸/kWh", price_per_kwh!) : "Contact for pricing",
-            amenities: generateAmenities(),
-            operatingHours: "24/7", // Default since not in DB
-            phoneNumber: nil, // Not in current DB schema
-            provider: station_operator ?? "EVSync Network" // Fixed: using station_operator instead of operator
-        )
-    }
-    
-    private func generateAmenities() -> [String] {
-        var amenities = ["EV Charging"]
-        
-        // Add amenities based on location name/address
-        if name.lowercased().contains("mall") || address.lowercased().contains("mall") {
-            amenities.append(contentsOf: ["Shopping Mall", "Restaurant", "WiFi"])
-        }
-        if name.lowercased().contains("airport") || address.lowercased().contains("airport") {
-            amenities.append(contentsOf: ["Airport", "24h Service"])
-        }
-        if name.lowercased().contains("park") {
-            amenities.append("Parking")
-        }
-        if power_kw != nil && power_kw! >= 100 {
-            amenities.append("Fast Charging")
-        }
-        
-        return amenities
-    }
-}
-
-
-
-// MARK: - Charging Station UI Model
-struct ChargingStation: Identifiable, Equatable {
-    let id: UUID
-    let name: String
-    let address: String
-    let coordinate: CLLocationCoordinate2D
-    let connectorTypes: [ConnectorType]
-    let availability: StationAvailability
-    let power: String
-    let price: String
-    let amenities: [String]
-    let operatingHours: String
-    let phoneNumber: String?
-    let provider: String
-    
-    // Equatable conformance
-    static func == (lhs: ChargingStation, rhs: ChargingStation) -> Bool {
-        return lhs.id == rhs.id
-    }
-}
-
-enum ConnectorType: String, CaseIterable {
-    case ccs = "CCS"
-    case chademo = "CHAdeMO"
-    case type2 = "Type2"
-    case tesla = "Tesla"
-    
-    var icon: String {
-        switch self {
-        case .ccs: return "bolt.car"
-        case .chademo: return "bolt.car.fill"
-        case .type2: return "car.2"
-        case .tesla: return "bolt.slash"
-        }
-    }
-}
-
-enum StationAvailability: String, CaseIterable {
-    case available = "Available"
-    case occupied = "Occupied"
-    case outOfService = "Out of Service"
-    case maintenance = "Maintenance"
-    
-    var color: Color {
-        switch self {
-        case .available: return .green
-        case .occupied: return .orange
-        case .outOfService: return .red
-        case .maintenance: return .yellow
-        }
-    }
-}
-
-
-
 struct MapView: View {
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076),
@@ -165,6 +51,7 @@ struct MapView: View {
             if isLoading {
                 VStack {
                     ProgressView("Loading charging stations...")
+                        .font(.custom("Nunito Sans", size: 16))
                         .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 12)
@@ -179,14 +66,15 @@ struct MapView: View {
             if let errorMessage = errorMessage {
                 VStack {
                     Text("Error")
-                        .font(.headline)
+                        .font(.custom("Nunito Sans", size: 18).weight(.bold))
                         .foregroundColor(.red)
                     Text(errorMessage)
-                        .font(.subheadline)
+                        .font(.custom("Nunito Sans", size: 14))
                         .multilineTextAlignment(.center)
                     Button("Retry") {
                         loadChargingStations()
                     }
+                    .font(.custom("Nunito Sans", size: 16))
                     .padding(.top, 8)
                 }
                 .padding()
@@ -197,50 +85,17 @@ struct MapView: View {
                 .padding()
             }
             
-            // Header with glassmorphism effect
+            // Centered title on map
             if !isLoading && errorMessage == nil {
-                VStack(spacing: 0) {
+                VStack {
                     HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("EV Charging Stations")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary)
-                            
-                            Text("\(chargingStations.count) stations nearby")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        
                         Spacer()
-                        
-                        // Refresh button
-                        Button(action: {
-                            loadChargingStations()
-                        }) {
-                            Image(systemName: "arrow.clockwise")
-                                .font(.title2)
-                                .foregroundColor(.blue)
-                        }
-                        
-                        // Filter/Search button
-                        Button(action: {
-                            // Add filter functionality
-                        }) {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .font(.title2)
-                                .foregroundColor(.blue)
-                        }
+                        Text("Charge&Go")
+                            .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                            .foregroundColor(.white)
+                        Spacer()
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(.ultraThinMaterial)
-                            .shadow(radius: 10, x: 0, y: 5)
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
+                    .padding(.top, 1)
                     
                     Spacer()
                 }
