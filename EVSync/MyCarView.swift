@@ -7,10 +7,8 @@
 
 import SwiftUI
 
-// MARK: - Ensure ConnectorType is Codable (if not already in MapView.swift)
 extension ConnectorType: Codable {}
 
-// MARK: - Car Models
 struct ElectricVehicle: Identifiable, Codable {
     let id: UUID
     let make: String

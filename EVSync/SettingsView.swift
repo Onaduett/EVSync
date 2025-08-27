@@ -7,6 +7,24 @@
 
 import SwiftUI
 
+struct SettingsHeader: View {
+    var body: some View {
+        HStack {
+            Text("Charge&Go")
+                .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                .foregroundColor(.gray)
+            
+            Spacer()
+            
+            Text("Settings")
+                .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+        .padding(.bottom, 10)
+    }
+}
 
 struct SettingsView: View {
     @EnvironmentObject var authManager: AuthenticationManager
@@ -19,7 +37,9 @@ struct SettingsView: View {
     let themes = ["Light", "Dark", "Auto"]
     
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            SettingsHeader()
+            
             Form {
                 Section("Account") {
                     if let user = authManager.user {
@@ -71,8 +91,8 @@ struct SettingsView: View {
                     }
                 }
             }
-            .navigationTitle("Settings")
         }
+        .navigationBarHidden(true)
     }
 }
 
