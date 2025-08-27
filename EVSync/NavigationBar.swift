@@ -1,7 +1,6 @@
 
 import SwiftUI
 
-
 struct NavigationBar: View {
     @State private var selectedTab = 0
     
@@ -16,8 +15,11 @@ struct NavigationBar: View {
             }
             .ignoresSafeArea(.all)
             
-            // Custom glass tab bar
-            CustomGlassTabBar(selectedTab: $selectedTab)
+            VStack {
+                Spacer()
+                CustomGlassTabBar(selectedTab: $selectedTab)
+            }
+            .ignoresSafeArea(.all)
         }
     }
 }
@@ -62,12 +64,11 @@ struct CustomGlassTabBar: View {
                 .shadow(color: .black.opacity(0.25), radius: 15, x: 0, y: 8)
                 .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
         }
-        .padding(.bottom, 40)
+        .padding(.bottom, 8)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTab)
     }
 }
 
-// Glass Effect Extension
 extension View {
     func glassEffect() -> some View {
         self
