@@ -12,6 +12,13 @@ struct NavigationBar: View {
                 
                 SettingsView()
                     .tag(1)
+                
+                MyCarView()
+                    .tag(2)
+                
+                SettingsView()
+                    .tag(3)
+                
             }
             .ignoresSafeArea(.all)
             
@@ -29,7 +36,9 @@ struct CustomGlassTabBar: View {
     
     private let tabs = [
         (icon: "map", title: "Maps", tag: 0),
-        (icon: "gear", title: "Settings", tag: 1)
+        (icon: "ev.charger", title: "Favourite", tag: 1),
+        (icon: "car.side", title: "My Car", tag: 2),
+        (icon: "person.crop.circle", title: "Account", tag: 3)
     ]
     
     var body: some View {
@@ -55,7 +64,7 @@ struct CustomGlassTabBar: View {
                 .buttonStyle(PlainButtonStyle())
             }
         }
-        .frame(width: 200, height: 70)
+        .frame(width: 330, height: 70)
         .background {
             // Glass effect
             RoundedRectangle(cornerRadius: 35)
