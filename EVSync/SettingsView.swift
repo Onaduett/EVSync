@@ -28,13 +28,12 @@ struct SettingsHeader: View {
 
 struct SettingsView: View {
     @EnvironmentObject var authManager: AuthenticationManager
-    @State private var notificationsEnabled = true
-    @State private var locationEnabled = false
-    @State private var selectedMapType = 0
-    @State private var selectedTheme = 2 // Auto by default
+    @EnvironmentObject var themeManager: ThemeManager
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
+    @AppStorage("locationEnabled") private var locationEnabled = false
+    @AppStorage("selectedMapType") private var selectedMapType = 0
     
     let mapTypes = ["Standard", "Satellite", "Hybrid"]
-    let themes = ["Light", "Dark", "Auto"]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -60,9 +59,16 @@ struct SettingsView: View {
                 }
                 
                 Section("Appearance") {
-                    Picker("Theme", selection: $selectedTheme) {
-                        ForEach(0..<themes.count, id: \.self) { index in
-                            Text(themes[index])
+                    Picker("Theme", selection: Binding(
+                        get: { themeManager.currentTheme.rawValue },
+                        set: { newValue in
+                            if let theme = ThemeManager.AppTheme(rawValue: newValue) {
+                                themeManager.setTheme(theme)
+                            }
+                        }
+                    )) {
+                        ForEach(ThemeManager.AppTheme.allCases, id: \.rawValue) { theme in
+                            Text(theme.name).tag(theme.rawValue)
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
@@ -93,6 +99,24 @@ struct SettingsView: View {
             }
         }
         .navigationBarHidden(true)
+        .preferredColorScheme(themeManager.currentTheme.colorScheme)
     }
 }
 
+#Preview {
+    PreviewWrapper()
+}
+
+struct PreviewWrapper: View {
+    @StateObject private var authManager = AuthenticationManager()
+    @StateObject private var themeManager = ThemeManager()
+    
+    var body: some View {
+        SettingsView()
+            .environmentObject(authManager)
+            .environmentObject(themeManager)
+            .onAppear {
+                authManager.isAuthenticated = true
+            }
+    }
+}

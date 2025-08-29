@@ -772,6 +772,7 @@ struct ChargingHistoryView: View {
 
 // MARK: - Sample Data
 let sampleCars: [ElectricVehicle] = [
+    // ПРЕМИУМ СЕДАНЫ
     ElectricVehicle(
         make: "Tesla",
         model: "Model 3",
@@ -779,10 +780,45 @@ let sampleCars: [ElectricVehicle] = [
         batteryCapacity: 75.0,
         range: 448,
         efficiency: 14.3,
-        supportedChargers: [.ccs, .tesla],
+        supportedChargers: [.ccs2, .tesla, .type2, .nacs], // Tesla поддерживает свои + стандартные через адаптер
         maxChargingSpeed: 250,
         image: "tesla_model3"
     ),
+    ElectricVehicle(
+        make: "Tesla",
+        model: "Model S",
+        year: 2024,
+        batteryCapacity: 100.0,
+        range: 652,
+        efficiency: 15.3,
+        supportedChargers: [.ccs2, .tesla, .type2, .nacs],
+        maxChargingSpeed: 250,
+        image: "tesla_models"
+    ),
+    ElectricVehicle(
+        make: "Mercedes",
+        model: "EQS",
+        year: 2024,
+        batteryCapacity: 107.8,
+        range: 770,
+        efficiency: 14.0,
+        supportedChargers: [.ccs2, .type2, .schuko], // Европейские стандарты + бытовая розетка
+        maxChargingSpeed: 200,
+        image: "mercedes_eqs"
+    ),
+    ElectricVehicle(
+        make: "BMW",
+        model: "iX",
+        year: 2024,
+        batteryCapacity: 111.5,
+        range: 630,
+        efficiency: 17.7,
+        supportedChargers: [.ccs2, .type2, .schuko],
+        maxChargingSpeed: 195,
+        image: "bmw_ix"
+    ),
+    
+    // КИТАЙСКИЕ БРЕНДЫ (популярные в КZ)
     ElectricVehicle(
         make: "BYD",
         model: "Seal",
@@ -790,10 +826,45 @@ let sampleCars: [ElectricVehicle] = [
         batteryCapacity: 82.5,
         range: 570,
         efficiency: 14.5,
-        supportedChargers: [.ccs, .type2],
+        supportedChargers: [.ccs2, .type2, .gbT, .schuko], // Китайские авто часто поддерживают GB/T
         maxChargingSpeed: 150,
         image: "byd_seal"
     ),
+    ElectricVehicle(
+        make: "BYD",
+        model: "Han",
+        year: 2024,
+        batteryCapacity: 85.4,
+        range: 605,
+        efficiency: 14.1,
+        supportedChargers: [.ccs2, .type2, .gbT, .schuko],
+        maxChargingSpeed: 120,
+        image: "byd_han"
+    ),
+    ElectricVehicle(
+        make: "NIO",
+        model: "ET7",
+        year: 2024,
+        batteryCapacity: 100.0,
+        range: 580,
+        efficiency: 17.2,
+        supportedChargers: [.ccs2, .type2, .gbT, .chademo], // NIO часто поддерживает CHAdeMO
+        maxChargingSpeed: 126,
+        image: "nio_et7"
+    ),
+    ElectricVehicle(
+        make: "Zeekr",
+        model: "001",
+        year: 2024,
+        batteryCapacity: 100.0,
+        range: 620,
+        efficiency: 16.1,
+        supportedChargers: [.ccs2, .type2, .gbT],
+        maxChargingSpeed: 200,
+        image: "zeekr_001"
+    ),
+    
+    // КОРЕЙСКИЕ БРЕНДЫ
     ElectricVehicle(
         make: "Hyundai",
         model: "IONIQ 5",
@@ -801,10 +872,45 @@ let sampleCars: [ElectricVehicle] = [
         batteryCapacity: 72.6,
         range: 481,
         efficiency: 15.1,
-        supportedChargers: [.ccs, .type2],
+        supportedChargers: [.ccs2, .type2, .schuko, .cee], // Корейцы любят совместимость
         maxChargingSpeed: 233,
         image: "ioniq5"
     ),
+    ElectricVehicle(
+        make: "Hyundai",
+        model: "IONIQ 6",
+        year: 2024,
+        batteryCapacity: 77.4,
+        range: 614,
+        efficiency: 12.6,
+        supportedChargers: [.ccs2, .type2, .schuko],
+        maxChargingSpeed: 233,
+        image: "ioniq6"
+    ),
+    ElectricVehicle(
+        make: "Kia",
+        model: "EV6",
+        year: 2024,
+        batteryCapacity: 77.4,
+        range: 528,
+        efficiency: 14.7,
+        supportedChargers: [.ccs2, .type2, .schuko],
+        maxChargingSpeed: 233,
+        image: "kia_ev6"
+    ),
+    ElectricVehicle(
+        make: "Genesis",
+        model: "GV70",
+        year: 2024,
+        batteryCapacity: 77.4,
+        range: 455,
+        efficiency: 17.0,
+        supportedChargers: [.ccs2, .type2, .schuko],
+        maxChargingSpeed: 233,
+        image: "genesis_gv70"
+    ),
+    
+    // НЕМЕЦКИЕ ПРЕМИУМ
     ElectricVehicle(
         make: "BMW",
         model: "iX3",
@@ -812,9 +918,173 @@ let sampleCars: [ElectricVehicle] = [
         batteryCapacity: 80.0,
         range: 460,
         efficiency: 17.4,
-        supportedChargers: [.ccs, .type2],
+        supportedChargers: [.ccs2, .type2, .schuko],
         maxChargingSpeed: 150,
         image: "bmw_ix3"
+    ),
+    ElectricVehicle(
+        make: "BMW",
+        model: "i4",
+        year: 2024,
+        batteryCapacity: 83.9,
+        range: 590,
+        efficiency: 14.2,
+        supportedChargers: [.ccs2, .type2, .schuko],
+        maxChargingSpeed: 205,
+        image: "bmw_i4"
+    ),
+    ElectricVehicle(
+        make: "Audi",
+        model: "e-tron GT",
+        year: 2024,
+        batteryCapacity: 93.4,
+        range: 488,
+        efficiency: 19.1,
+        supportedChargers: [.ccs2, .type2, .schuko],
+        maxChargingSpeed: 270,
+        image: "audi_etron_gt"
+    ),
+    ElectricVehicle(
+        make: "Porsche",
+        model: "Taycan",
+        year: 2024,
+        batteryCapacity: 93.4,
+        range: 504,
+        efficiency: 18.5,
+        supportedChargers: [.ccs2, .type2, .schuko, .cee32], // Порше может поддерживать мощные CEE
+        maxChargingSpeed: 270,
+        image: "porsche_taycan"
+    ),
+    
+    // ЯПОНСКИЕ БРЕНДЫ (с CHAdeMO)
+    ElectricVehicle(
+        make: "Nissan",
+        model: "Ariya",
+        year: 2024,
+        batteryCapacity: 87.0,
+        range: 500,
+        efficiency: 17.4,
+        supportedChargers: [.ccs2, .chademo, .type2, .schuko], // Nissan исторически CHAdeMO
+        maxChargingSpeed: 130,
+        image: "nissan_ariya"
+    ),
+    ElectricVehicle(
+        make: "Nissan",
+        model: "Leaf",
+        year: 2023,
+        batteryCapacity: 62.0,
+        range: 385,
+        efficiency: 16.1,
+        supportedChargers: [.chademo, .type2, .type1, .schuko], // Старый Leaf поддерживал Type1
+        maxChargingSpeed: 100,
+        image: "nissan_leaf"
+    ),
+    ElectricVehicle(
+        make: "Lexus",
+        model: "RZ 450e",
+        year: 2024,
+        batteryCapacity: 71.4,
+        range: 440,
+        efficiency: 16.2,
+        supportedChargers: [.ccs2, .chademo, .type2], // Lexus переходит на CCS но оставляет CHAdeMO
+        maxChargingSpeed: 150,
+        image: "lexus_rz"
+    ),
+    
+    // АМЕРИКАНСКИЕ БРЕНДЫ
+    ElectricVehicle(
+        make: "Ford",
+        model: "Mustang Mach-E",
+        year: 2024,
+        batteryCapacity: 91.0,
+        range: 600,
+        efficiency: 15.2,
+        supportedChargers: [.ccs2, .type2, .nacs], // Ford переходит на NACS для совместимости с Tesla
+        maxChargingSpeed: 150,
+        image: "ford_mach_e"
+    ),
+    ElectricVehicle(
+        make: "Cadillac",
+        model: "Lyriq",
+        year: 2024,
+        batteryCapacity: 102.0,
+        range: 502,
+        efficiency: 20.3,
+        supportedChargers: [.ccs2, .type2, .nacs],
+        maxChargingSpeed: 190,
+        image: "cadillac_lyriq"
+    ),
+    
+    // БЮДЖЕТНЫЕ ВАРИАНТЫ (больше стандартных разъемов)
+    ElectricVehicle(
+        make: "Dacia",
+        model: "Spring",
+        year: 2024,
+        batteryCapacity: 26.8,
+        range: 230,
+        efficiency: 11.7,
+        supportedChargers: [.ccs2, .type2, .schuko, .cee], // Бюджетники поддерживают больше "простых" разъемов
+        maxChargingSpeed: 30,
+        image: "dacia_spring"
+    ),
+    ElectricVehicle(
+        make: "Citroen",
+        model: "e-C4",
+        year: 2024,
+        batteryCapacity: 54.0,
+        range: 420,
+        efficiency: 12.9,
+        supportedChargers: [.ccs2, .type2, .schuko, .cee],
+        maxChargingSpeed: 100,
+        image: "citroen_ec4"
+    ),
+    
+    // ВНЕДОРОЖНИКИ/КРОССОВЕРЫ
+    ElectricVehicle(
+        make: "Volkswagen",
+        model: "ID.4",
+        year: 2024,
+        batteryCapacity: 77.0,
+        range: 520,
+        efficiency: 14.8,
+        supportedChargers: [.ccs2, .type2, .schuko],
+        maxChargingSpeed: 135,
+        image: "vw_id4"
+    ),
+    ElectricVehicle(
+        make: "Volvo",
+        model: "XC40 Recharge",
+        year: 2024,
+        batteryCapacity: 82.0,
+        range: 460,
+        efficiency: 17.8,
+        supportedChargers: [.ccs2, .type2, .schuko],
+        maxChargingSpeed: 150,
+        image: "volvo_xc40"
+    ),
+    
+    // КОММЕРЧЕСКИЙ ТРАНСПОРТ (мощные разъемы)
+    ElectricVehicle(
+        make: "Mercedes",
+        model: "eSprinter",
+        year: 2024,
+        batteryCapacity: 113.0,
+        range: 440,
+        efficiency: 25.7,
+        supportedChargers: [.ccs2, .type2, .cee32, .cee63, .schuko], // Коммерческий транспорт нуждается в мощных разъемах
+        maxChargingSpeed: 115,
+        image: "mercedes_esprinter"
+    ),
+    ElectricVehicle(
+        make: "Rivian",
+        model: "R1T",
+        year: 2024,
+        batteryCapacity: 135.0,
+        range: 516,
+        efficiency: 26.2,
+        supportedChargers: [.ccs2, .nacs, .type2], // Американские пикапы
+        maxChargingSpeed: 210,
+        image: "rivian_r1t"
     )
 ]
 

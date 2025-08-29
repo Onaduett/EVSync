@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 struct NavigationBar: View {
@@ -10,7 +9,7 @@ struct NavigationBar: View {
                 MapView()
                     .tag(0)
                 
-                SettingsView()
+                FavoriteStationsView()
                     .tag(1)
                 
                 MyCarView()
@@ -112,10 +111,10 @@ extension View {
     }
 }
 
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationBar()
             .environmentObject(AuthenticationManager())
+            .environmentObject(ThemeManager()) 
     }
 }
