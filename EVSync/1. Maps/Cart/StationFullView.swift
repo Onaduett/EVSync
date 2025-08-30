@@ -173,7 +173,6 @@ struct StationFullDetailView: View {
             
             // Action Buttons - Three button layout
             VStack(spacing: 12) {
-                // Top row with Call and Add/Remove Favorites
                 HStack(spacing: 12) {
                     Button(action: {
                         callStation()
@@ -215,7 +214,6 @@ struct StationFullDetailView: View {
                         .padding(.vertical, 12)
                         .background(isFavorited ? Color.red : Color.red.opacity(0.1))
                         .cornerRadius(12)
-                        .animation(.easeInOut(duration: 0.2), value: isFavorited)
                     }
                     .disabled(isLoadingFavorite)
                 }
@@ -264,36 +262,30 @@ struct StationFullDetailView: View {
         }
     }
     
-    @MainActor
     private func toggleFavorite() async {
         let stationId = station.id
         
         isLoadingFavorite = true
         
         do {
-            // Use the new toggle method that handles everything
-            let newStatus = try await supabaseManager.toggleStationFavorite(stationId: stationId)
-            isFavorited = newStatus
-            
-            // Post notification to refresh favorites list
-            NotificationCenter.default.post(name: .favoritesChanged, object: nil)
-            
-            print("✅ Successfully toggled favorite to: \(newStatus)")
-            
-            // Haptic feedback
-            let impactFeedback = UIImpactFeedbackGenerator(style: newStatus ? .medium : .light)
-            impactFeedback.impactOccurred()
-            
-        } catch {
-            print("❌ Error toggling favorite: \(error)")
-            // On error, re-check the actual status from database
-            do {
-                let actualStatus = try await supabaseManager.isStationFavorited(stationId: stationId)
-                isFavorited = actualStatus
-                print("🔄 Re-checked status after error: \(actualStatus)")
-            } catch {
-                print("❌ Error re-checking status: \(error)")
+            if isFavorited {
+                let favorites = try await supabaseManager.getFavoriteStations()
+                if let favorite = favorites.first(where: { $0.stationId == stationId }) {
+                    try await supabaseManager.removeFromFavorites(favoriteId: favorite.id)
+                    isFavorited = false
+                    
+                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                    impactFeedback.impactOccurred()
+                }
+            } else {
+                try await supabaseManager.addToFavorites(stationId: stationId)
+                isFavorited = true
+                
+                let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                impactFeedback.impactOccurred()
             }
+        } catch {
+            print("Error toggling favorite: \(error)")
         }
         
         isLoadingFavorite = false
