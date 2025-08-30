@@ -38,6 +38,7 @@ struct CustomGlassTabBar: View {
         (icon: "ev.charger", title: "Favourite", tag: 1),
         (icon: "car.side", title: "My Car", tag: 2),
         (icon: "person.crop.circle", title: "Account", tag: 3)
+        
     ]
     
     var body: some View {

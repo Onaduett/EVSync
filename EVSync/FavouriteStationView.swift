@@ -26,7 +26,7 @@ struct UserFavorite: Codable, Identifiable {
     }
 }
 
-// MARK: - Supabase Manager
+// MARK: - Enhanced Supabase Manager
 class SupabaseManager: ObservableObject {
     static let shared = SupabaseManager()
     
@@ -39,58 +39,150 @@ class SupabaseManager: ObservableObject {
     
     // Get user's favorite stations
     func getFavoriteStations() async throws -> [UserFavorite] {
+        let user = try await client.auth.user()
+        let userId = user.id
+        
+        print("📋 Loading favorites for user: \(userId)")
+        
         let response: [UserFavorite] = try await client
             .from("user_favorites")
             .select("*, charging_stations(*)")
+            .eq("user_id", value: userId.uuidString)
+            .order("created_at", ascending: false)
             .execute()
             .value
         
+        print("📋 Found \(response.count) favorite stations")
         return response
     }
     
-    // Add station to favorites
+    // Remove station from favorites
+    func removeFromFavorites(favoriteId: UUID) async throws {
+        print("➖ Removing favorite with ID: \(favoriteId)")
+        
+        try await client
+            .from("user_favorites")
+            .delete()
+            .eq("id", value: favoriteId.uuidString)
+            .execute()
+        
+        print("✅ Successfully removed from favorites")
+    }
+    
+    // Remove station from favorites by station ID
+    func removeFromFavoritesByStationId(stationId: UUID) async throws {
+        let user = try await client.auth.user()
+        let userId = user.id
+        
+        print("➖ Removing from favorites: user \(userId), station \(stationId)")
+        
+        try await client
+            .from("user_favorites")
+            .delete()
+            .eq("user_id", value: userId.uuidString)
+            .eq("station_id", value: stationId.uuidString)
+            .execute()
+        
+        print("✅ Successfully removed from favorites by station ID")
+    }
+    
+    // Check if station is favorited - FIXED VERSION
+    func isStationFavorited(stationId: UUID) async throws -> Bool {
+        do {
+            let user = try await client.auth.user()
+            let userId = user.id
+            
+            print("🔍 Checking favorite status for user: \(userId), station: \(stationId)")
+            
+            let response: [UserFavorite] = try await client
+                .from("user_favorites")
+                .select("id, user_id, station_id")
+                .eq("user_id", value: userId.uuidString)
+                .eq("station_id", value: stationId.uuidString)
+                .execute()
+                .value
+            
+            let isFavorited = !response.isEmpty
+            print("🔍 Query result: found \(response.count) records, isFavorited: \(isFavorited)")
+            
+            if !response.isEmpty {
+                let record = response[0]
+                print("🔍 First record - ID: \(record.id), UserID: \(record.userId), StationID: \(record.stationId)")
+            }
+            
+            return isFavorited
+        } catch {
+            print("❌ Error in isStationFavorited: \(error)")
+            return false
+        }
+    }
+    
+
+    func toggleStationFavorite(stationId: UUID) async throws -> Bool {
+        print("🔄 Toggling favorite for station: \(stationId)")
+        
+        let currentStatus = try await isStationFavorited(stationId: stationId)
+        print("🔄 Current status: \(currentStatus)")
+        
+        if currentStatus {
+            // Remove from favorites
+            try await removeFromFavoritesByStationId(stationId: stationId)
+            print("🔄 Removed from favorites, new status: false")
+            return false
+        } else {
+            // Add to favorites with duplicate handling
+            do {
+                try await addToFavorites(stationId: stationId)
+                print("🔄 Added to favorites, new status: true")
+                return true
+            } catch let error as PostgrestError {
+                // Handle duplicate key constraint violation
+                if error.code == "23505" {
+                    print("⚠️ Duplicate constraint error - station already favorited")
+                    // Station is already favorited, return true
+                    return true
+                } else {
+                    throw error
+                }
+            }
+        }
+    }
+
+    // Also improve the addToFavorites method
     func addToFavorites(stationId: UUID) async throws {
         let user = try await client.auth.user()
         let userId = user.id
+        
+        print("➕ Adding to favorites: user \(userId), station \(stationId)")
+        
+        // Double-check if already exists to prevent duplicate error
+        let exists = try await isStationFavorited(stationId: stationId)
+        if exists {
+            print("⚠️ Station already in favorites, skipping add")
+            return
+        }
         
         let favorite = [
             "user_id": userId.uuidString,
             "station_id": stationId.uuidString
         ]
         
-        try await client
-            .from("user_favorites")
-            .insert(favorite)
-            .execute()
-    }
-    
-    // Remove station from favorites
-    func removeFromFavorites(favoriteId: UUID) async throws {
-        try await client
-            .from("user_favorites")
-            .delete()
-            .eq("id", value: favoriteId.uuidString)
-            .execute()
-    }
-    
-    // Check if station is favorited
-    func isStationFavorited(stationId: UUID) async throws -> Bool {
         do {
-            let user = try await client.auth.user()
-            let userId = user.id
-            
-            let response: [UserFavorite] = try await client
+            try await client
                 .from("user_favorites")
-                .select("id")
-                .eq("user_id", value: userId.uuidString)
-                .eq("station_id", value: stationId.uuidString)
+                .insert(favorite)
                 .execute()
-                .value
             
-            return !response.isEmpty
-        } catch {
-            // If user is not authenticated, return false
-            return false
+            print("✅ Successfully added to favorites")
+        } catch let error as PostgrestError {
+            // Handle duplicate key constraint violation gracefully
+            if error.code == "23505" {
+                print("⚠️ Duplicate constraint error - station was already favorited by another process")
+                // This is not really an error, just means station is already favorited
+                return
+            } else {
+                throw error
+            }
         }
     }
 }
@@ -114,6 +206,8 @@ struct FavoriteHeader: View {
         .padding(.bottom, 10)
     }
 }
+
+// MARK: - Main Favorite Stations View
 struct FavoriteStationsView: View {
     @StateObject private var supabaseManager = SupabaseManager.shared
     @State private var favoriteStations: [UserFavorite] = []
@@ -189,6 +283,12 @@ struct FavoriteStationsView: View {
         .refreshable {
             await loadFavoriteStations()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .favoritesChanged)) { _ in
+            // Refresh when favorites change from other screens
+            Task {
+                await loadFavoriteStations()
+            }
+        }
         .alert("Error", isPresented: $showingError) {
             Button("OK") { }
         } message: {
@@ -201,24 +301,47 @@ struct FavoriteStationsView: View {
                     .presentationDragIndicator(.visible)
             }
         }
+        .onChange(of: showingStationDetail) { isShowing in
+            // Refresh favorites when detail sheet is dismissed
+            if !isShowing {
+                Task {
+                    await loadFavoriteStations()
+                }
+            }
+        }
     }
     
+    @MainActor
     private func loadFavoriteStations() async {
         isLoading = true
+        print("🔄 Loading favorite stations...")
+        
         do {
             favoriteStations = try await supabaseManager.getFavoriteStations()
+            print("✅ Loaded \(favoriteStations.count) favorite stations")
         } catch {
+            print("❌ Error loading favorites: \(error)")
             errorMessage = error.localizedDescription
             showingError = true
         }
+        
         isLoading = false
     }
     
+    @MainActor
     private func removeFavorite(_ favoriteId: UUID) async {
+        print("🗑️ Removing favorite: \(favoriteId)")
+        
         do {
             try await supabaseManager.removeFromFavorites(favoriteId: favoriteId)
             await loadFavoriteStations() // Refresh the list
+            
+            // Post notification that favorites changed
+            NotificationCenter.default.post(name: .favoritesChanged, object: nil)
+            
+            print("✅ Successfully removed favorite and refreshed list")
         } catch {
+            print("❌ Error removing favorite: \(error)")
             errorMessage = error.localizedDescription
             showingError = true
         }
@@ -306,16 +429,23 @@ struct FavoriteStationCard: View {
                         Task {
                             isRemoving = true
                             await onRemove(favorite.id)
+                            // Post notification that favorites changed
+                            NotificationCenter.default.post(name: .favoritesChanged, object: nil)
                             isRemoving = false
                         }
                     }) {
-                        Image(systemName: isRemoving ? "heart.slash" : "heart.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(isRemoving ? .gray : .red)
-                            .scaleEffect(isRemoving ? 0.8 : 1.0)
-                            .animation(.easeInOut(duration: 0.2), value: isRemoving)
+                        if isRemoving {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                                .tint(.white)
+                        } else {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.red)
+                        }
                     }
                     .disabled(isRemoving)
+                    .frame(width: 30, height: 30)
                 }
                 
                 // Station status
@@ -411,6 +541,11 @@ struct DetailChip: View {
         .background(color.opacity(0.2))
         .clipShape(Capsule())
     }
+}
+
+// MARK: - Notification Extension
+extension Notification.Name {
+    static let favoritesChanged = Notification.Name("favoritesChanged")
 }
 
 // MARK: - Preview

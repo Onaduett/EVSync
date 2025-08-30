@@ -215,6 +215,7 @@ struct StationFullDetailView: View {
                         .padding(.vertical, 12)
                         .background(isFavorited ? Color.red : Color.red.opacity(0.1))
                         .cornerRadius(12)
+                        .animation(.easeInOut(duration: 0.2), value: isFavorited)
                     }
                     .disabled(isLoadingFavorite)
                 }
@@ -263,35 +264,36 @@ struct StationFullDetailView: View {
         }
     }
     
+    @MainActor
     private func toggleFavorite() async {
         let stationId = station.id
         
         isLoadingFavorite = true
         
         do {
-            if isFavorited {
-                // Remove from favorites - we need to find the favorite ID first
-                let favorites = try await supabaseManager.getFavoriteStations()
-                if let favorite = favorites.first(where: { $0.stationId == stationId }) {
-                    try await supabaseManager.removeFromFavorites(favoriteId: favorite.id)
-                    isFavorited = false
-                    
-                    // Haptic feedback
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                    impactFeedback.impactOccurred()
-                }
-            } else {
-                // Add to favorites
-                try await supabaseManager.addToFavorites(stationId: stationId)
-                isFavorited = true
-                
-                // Haptic feedback
-                let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                impactFeedback.impactOccurred()
-            }
+            // Use the new toggle method that handles everything
+            let newStatus = try await supabaseManager.toggleStationFavorite(stationId: stationId)
+            isFavorited = newStatus
+            
+            // Post notification to refresh favorites list
+            NotificationCenter.default.post(name: .favoritesChanged, object: nil)
+            
+            print("✅ Successfully toggled favorite to: \(newStatus)")
+            
+            // Haptic feedback
+            let impactFeedback = UIImpactFeedbackGenerator(style: newStatus ? .medium : .light)
+            impactFeedback.impactOccurred()
+            
         } catch {
-            // Handle error - you might want to show an alert or toast
-            print("Error toggling favorite: \(error)")
+            print("❌ Error toggling favorite: \(error)")
+            // On error, re-check the actual status from database
+            do {
+                let actualStatus = try await supabaseManager.isStationFavorited(stationId: stationId)
+                isFavorited = actualStatus
+                print("🔄 Re-checked status after error: \(actualStatus)")
+            } catch {
+                print("❌ Error re-checking status: \(error)")
+            }
         }
         
         isLoadingFavorite = false
