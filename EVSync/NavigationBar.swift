@@ -32,14 +32,34 @@ struct NavigationBar: View {
 
 struct CustomGlassTabBar: View {
     @Binding var selectedTab: Int
+    @EnvironmentObject var themeManager: ThemeManager
+    @Environment(\.colorScheme) var colorScheme
     
     private let tabs = [
         (icon: "map", title: "Maps", tag: 0),
         (icon: "ev.charger", title: "Favourite", tag: 1),
         (icon: "car.side", title: "My Car", tag: 2),
         (icon: "person.crop.circle", title: "Account", tag: 3)
-        
     ]
+    
+    private var effectiveColorScheme: ColorScheme {
+        switch themeManager.currentTheme {
+        case .light:
+            return .light
+        case .dark:
+            return .dark
+        case .auto:
+            return colorScheme
+        }
+    }
+    
+    private var selectedIconColor: Color {
+        effectiveColorScheme == .dark ? .white : .primary
+    }
+    
+    private var unselectedIconColor: Color {
+        effectiveColorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7)
+    }
     
     var body: some View {
         HStack(spacing: 0) {
@@ -52,12 +72,12 @@ struct CustomGlassTabBar: View {
                     VStack(spacing: 6) {
                         Image(systemName: tab.icon)
                             .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(selectedTab == tab.tag ? .white : .white.opacity(0.7))
+                            .foregroundColor(selectedTab == tab.tag ? selectedIconColor : unselectedIconColor)
                             .scaleEffect(selectedTab == tab.tag ? 1.05 : 1.0)
                         
                         Text(tab.title)
                             .font(.system(size: 11, weight: selectedTab == tab.tag ? .semibold : .medium))
-                            .foregroundColor(selectedTab == tab.tag ? .white : .white.opacity(0.7))
+                            .foregroundColor(selectedTab == tab.tag ? selectedIconColor : unselectedIconColor)
                     }
                     .frame(width: 80, height: 50)
                 }
