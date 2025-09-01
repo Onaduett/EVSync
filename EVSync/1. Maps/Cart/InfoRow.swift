@@ -15,7 +15,7 @@ struct InfoRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
-                .foregroundColor(.blue)
+                .foregroundColor(.primary)
                 .font(.subheadline)
                 .frame(width: 20)
             

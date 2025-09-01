@@ -95,21 +95,28 @@ struct StationFullDetailView: View {
             
             Divider()
             
-            VStack(alignment: .leading, spacing: 8) {
+            // Station Information - Consistent layout
+            VStack(alignment: .leading, spacing: 12) {
                 InfoRow(icon: "location", title: "Address", value: station.address)
+                InfoRow(icon: "clock", title: "Hours", value: station.operatingHours)
                 
-                HStack(alignment: .top, spacing: 20) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        InfoRow(icon: "clock", title: "Hours", value: station.operatingHours)
-                        InfoRow(icon: "bolt", title: "Power", value: station.power)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                // Power and Price in consistent style
+                HStack(spacing: 20) {
+                    InfoRowWithChip(
+                        icon: "bolt",
+                        title: "Power",
+                        chipIcon: "bolt.fill",
+                        chipText: station.power,
+                        chipColor: .green
+                    )
                     
-                    VStack(alignment: .leading, spacing: 8) {
-                        InfoRow(icon: "tenge.circle", title: "Price", value: station.price)
-                        InfoRow(icon: "building.2", title: "Company", value: station.provider)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    InfoRowWithChip(
+                        icon: "creditcard",
+                        title: "Price",
+                        chipIcon: "tenge",
+                        chipText: station.price,
+                        chipColor: .blue
+                    )
                 }
                 
                 if let phone = station.phoneNumber {
@@ -120,24 +127,30 @@ struct StationFullDetailView: View {
             Divider()
             
             // Connector Types
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text("Connector Types")
                     .font(.custom("Nunito Sans", size: 17))
+                    .fontWeight(.semibold)
                     .foregroundColor(.primary)
                 
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 6) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
                     ForEach(station.connectorTypes, id: \.self) { connector in
-                        HStack {
+                        HStack(spacing: 8) {
                             Image(systemName: connector.icon)
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.blue)
+                            
                             Text(connector.rawValue)
-                                .font(.custom("Nunito Sans", size: 15))
+                                .font(.custom("Nunito Sans", size: 14))
+                                .fontWeight(.medium)
+                                .foregroundColor(.primary)
+                            
                             Spacer()
                         }
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.vertical, 8)
                         .background(
-                            RoundedRectangle(cornerRadius: 8)
+                            RoundedRectangle(cornerRadius: 10)
                                 .fill(Color(.systemGray6))
                         )
                     }
@@ -148,17 +161,19 @@ struct StationFullDetailView: View {
             
             // Amenities
             if !station.amenities.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text("Amenities")
                         .font(.custom("Nunito Sans", size: 17))
+                        .fontWeight(.semibold)
                         .foregroundColor(.primary)
                     
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 4) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 6) {
                         ForEach(station.amenities, id: \.self) { amenity in
                             Text(amenity)
                                 .font(.custom("Nunito Sans", size: 12))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
+                                .fontWeight(.medium)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
                                 .background(
                                     Capsule()
                                         .fill(Color.blue.opacity(0.1))
@@ -171,66 +186,71 @@ struct StationFullDetailView: View {
                 Divider()
             }
             
-            // Action Buttons - Three button layout
+            // Action Buttons - Improved layout
             VStack(spacing: 12) {
                 HStack(spacing: 12) {
+                    // Call Button
                     Button(action: {
                         callStation()
                     }) {
-                        HStack {
+                        HStack(spacing: 6) {
                             Image(systemName: "phone.fill")
+                                .font(.system(size: 14, weight: .semibold))
                             Text("Call")
+                                .font(.custom("Nunito Sans", size: 15))
+                                .fontWeight(.semibold)
                         }
-                        .font(.custom("Nunito Sans", size: 15))
-                        .fontWeight(.semibold)
                         .foregroundColor(.blue)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 14)
                         .background(Color.blue.opacity(0.1))
                         .cornerRadius(12)
                     }
                     .disabled(station.phoneNumber == nil)
                     
+                    // Favorite Button
                     Button(action: {
                         Task {
                             await toggleFavorite()
                         }
                     }) {
-                        HStack {
+                        HStack(spacing: 6) {
                             if isLoadingFavorite {
                                 ProgressView()
                                     .scaleEffect(0.8)
                                     .tint(isFavorited ? .white : .red)
                             } else {
                                 Image(systemName: isFavorited ? "heart.fill" : "heart")
+                                    .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(isFavorited ? .white : .red)
                             }
                             Text(isFavorited ? "Saved" : "Save")
+                                .font(.custom("Nunito Sans", size: 15))
+                                .fontWeight(.semibold)
                         }
-                        .font(.custom("Nunito Sans", size: 15))
-                        .fontWeight(.semibold)
                         .foregroundColor(isFavorited ? .white : .red)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 14)
                         .background(isFavorited ? Color.red : Color.red.opacity(0.1))
                         .cornerRadius(12)
                     }
                     .disabled(isLoadingFavorite)
                 }
                 
-                // Bottom row with Navigate button (full width)
+                // Navigate button (full width)
                 Button(action: {
                     navigateToStation()
                 }) {
-                    HStack {
+                    HStack(spacing: 6) {
                         Image(systemName: "location.fill")
+                            .font(.system(size: 14, weight: .semibold))
                         Text("Navigate")
+                            .font(.custom("Nunito Sans", size: 16))
+                            .fontWeight(.semibold)
                     }
-                    .font(.custom("Nunito Sans", size: 15))
-                    .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                    .padding(.vertical, 16)
                     .background(Color.blue)
                     .cornerRadius(12)
                 }
@@ -289,5 +309,58 @@ struct StationFullDetailView: View {
         }
         
         isLoadingFavorite = false
+    }
+}
+
+
+
+// MARK: - InfoRowWithChip Component
+struct InfoRowWithChip: View {
+    let icon: String
+    let title: String
+    let chipIcon: String
+    let chipText: String
+    let chipColor: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.primary)
+                    .frame(width: 16)
+                
+                Text(title)
+                    .font(.custom("Nunito Sans", size: 13))
+                    .foregroundColor(.secondary)
+            }
+            
+            DetailChip(icon: chipIcon, text: chipText, color: chipColor)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Detail Chip
+struct DetailChip: View {
+    let icon: String
+    let text: String
+    let color: Color
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(color)
+            
+            Text(text)
+                .font(.custom("Nunito Sans", size: 14))
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(color.opacity(0.15))
+        .clipShape(Capsule())
     }
 }

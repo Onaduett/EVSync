@@ -78,29 +78,13 @@ struct StationPreviewView: View {
                 }
             }
             
-            // Quick info in two columns
+            // Quick info in two columns with DetailChip styling
             HStack(spacing: 16) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Image(systemName: "tengesign.circle")
-                            .foregroundColor(.white)
-                        Text(station.price)
-                            .font(.custom("Nunito Sans", size: 15))
-                            .fontWeight(.medium)
-                    }
-                }
+                DetailChip(icon: "tenge", text: station.price, color: .blue)
                 
                 Spacer()
                 
-                VStack(alignment: .trailing, spacing: 4) {
-                    HStack {
-                        Image(systemName: "bolt")
-                            .foregroundColor(.green)
-                        Text(station.power)
-                            .font(.custom("Nunito Sans", size: 15))
-                            .fontWeight(.medium)
-                    }
-                }
+                DetailChip(icon: "bolt.fill", text: station.power, color: .green)
             }
             
             // Connector types (compact view)
@@ -161,3 +145,4 @@ struct StationPreviewView: View {
         }
     }
 }
+

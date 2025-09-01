@@ -1,0 +1,150 @@
+//
+//  MapUIComponents.swift
+//  EVSync
+//
+//  Created by Daulet Yerkinov on 27.08.25.
+//
+
+import SwiftUI
+
+// MARK: - Map Gradient Overlay
+struct MapGradientOverlay: View {
+    @Environment(\.colorScheme) var colorScheme
+    
+    var body: some View {
+        LinearGradient(
+            gradient: Gradient(stops: [
+                .init(color: colorScheme == .dark ? .black : .white, location: 0.0),
+                .init(color: colorScheme == .dark ? .black.opacity(0.5) : .white.opacity(0.5), location: 0.3),
+                .init(color: .clear, location: 1.0)
+            ]),
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(height: 120)
+        .ignoresSafeArea(edges: .top)
+    }
+}
+
+// MARK: - Loading Overlay
+struct LoadingOverlay: View {
+    var body: some View {
+        VStack {
+            ProgressView("Loading charging stations...")
+                .font(.custom("Nunito Sans", size: 16))
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(.ultraThinMaterial)
+                )
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.3))
+    }
+}
+
+// MARK: - Error Overlay
+struct ErrorOverlay: View {
+    let message: String
+    let retryAction: () -> Void
+    
+    var body: some View {
+        VStack {
+            Text("Error")
+                .font(.custom("Nunito Sans", size: 18).weight(.bold))
+                .foregroundColor(.red)
+            Text(message)
+                .font(.custom("Nunito Sans", size: 14))
+                .multilineTextAlignment(.center)
+            Button("Retry") {
+                retryAction()
+            }
+            .font(.custom("Nunito Sans", size: 16))
+            .padding(.top, 8)
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.ultraThinMaterial)
+        )
+        .padding()
+    }
+}
+
+// MARK: - Map Header
+struct MapHeader: View {
+    @Environment(\.colorScheme) var colorScheme
+    let selectedConnectorTypes: Set<ConnectorType>
+    @Binding var showingFilterOptions: Bool
+    
+    var body: some View {
+        VStack {
+            ZStack {
+                // Centered title
+                HStack {
+                    Spacer()
+                    Text("Charge&Go")
+                        .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                    Spacer()
+                }
+                
+                // Filter button aligned to trailing edge
+                HStack {
+                    Spacer()
+                    
+                    Button(action: {
+                        showingFilterOptions.toggle()
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                                .font(.system(size: 18))
+                            if !selectedConnectorTypes.isEmpty {
+                                Text("\(selectedConnectorTypes.count)")
+                                    .font(.custom("Nunito Sans", size: 12).weight(.semibold))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .clipShape(Circle())
+                            }
+                        }
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(.ultraThinMaterial)
+                        )
+                    }
+                    .padding(.trailing, 16)
+                }
+            }
+            .padding(.top, 0)
+        }
+    }
+}
+
+// MARK: - Filter Options Overlay
+struct FilterOptionsOverlay: View {
+    let availableTypes: [ConnectorType]
+    @Binding var selectedTypes: Set<ConnectorType>
+    @Binding var isShowing: Bool
+    
+    var body: some View {
+        VStack {
+            FilterOptionsView(
+                availableTypes: availableTypes,
+                selectedTypes: $selectedTypes,
+                isShowing: $isShowing
+            )
+            .transition(.move(edge: .top).combined(with: .opacity))
+            
+            Spacer()
+        }
+        .background(Color.black.opacity(0.3))
+        .onTapGesture {
+            isShowing = false
+        }
+    }
+}

@@ -125,17 +125,6 @@ struct FavoriteStationsView: View {
     
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: [
-                    Color(red: 0.1, green: 0.1, blue: 0.2),
-                    Color(red: 0.05, green: 0.05, blue: 0.1)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-            
             VStack(spacing: 0) {
                 // Custom Header
                 FavoriteHeader()
@@ -389,29 +378,6 @@ struct FavoriteStationCard: View {
     }
 }
 
-// MARK: - Detail Chip
-struct DetailChip: View {
-    let icon: String
-    let text: String
-    let color: Color
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(color)
-            
-            Text(text)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(.white)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(color.opacity(0.2))
-        .clipShape(Capsule())
-    }
-}
 
 // MARK: - Preview
 struct FavoriteStationsView_Previews: PreviewProvider {
