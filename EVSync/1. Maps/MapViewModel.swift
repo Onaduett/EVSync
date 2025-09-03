@@ -42,7 +42,6 @@ class MapViewModel: ObservableObject {
         selectedStation = station
         showingStationDetail = true
         
-        // Animate to selected station
         withAnimation(.easeInOut(duration: 0.5)) {
             region.center = station.coordinate
         }
@@ -64,7 +63,6 @@ class MapViewModel: ObservableObject {
                 self.filteredStations = self.chargingStations
                 self.isLoading = false
                 
-                // Keep the map focused on Almaty region instead of fitting all stations
                 setAlmatyRegion()
                 
             } catch {

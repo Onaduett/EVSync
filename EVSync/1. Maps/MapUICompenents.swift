@@ -80,7 +80,6 @@ struct MapHeader: View {
     var body: some View {
         VStack {
             ZStack {
-                // Centered title
                 HStack {
                     Spacer()
                     Text("Charge&Go")
@@ -89,7 +88,6 @@ struct MapHeader: View {
                     Spacer()
                 }
                 
-                // Filter button aligned to trailing edge
                 HStack {
                     Spacer()
                     

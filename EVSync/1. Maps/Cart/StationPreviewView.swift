@@ -15,9 +15,7 @@ struct StationPreviewView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Draggable Handle at top
             VStack(spacing: 9) {
-                // Handle strip
                 RoundedRectangle(cornerRadius: 2.5)
                     .fill(Color.secondary.opacity(0.3))
                     .frame(width: 40, height: 5)
@@ -32,7 +30,6 @@ struct StationPreviewView: View {
                     .onChanged { value in
                         dragOffset = value.translation.height
                         
-                        // Haptic feedback when reaching threshold
                         if dragOffset < -50 && dragOffset > -55 {
                             let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                             impactFeedback.impactOccurred()
@@ -53,7 +50,6 @@ struct StationPreviewView: View {
                 }
             }
             
-            // Header
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(station.name)
@@ -78,9 +74,8 @@ struct StationPreviewView: View {
                 }
             }
             
-            // Quick info in two columns with DetailChip styling
             HStack(spacing: 16) {
-                DetailChip(icon: "tenge", text: station.price, color: .blue)
+                PriceChip(text: station.price)
                 
                 Spacer()
                 
@@ -92,9 +87,11 @@ struct StationPreviewView: View {
                 HStack(spacing: 8) {
                     ForEach(station.connectorTypes, id: \.self) { connector in
                         HStack(spacing: 4) {
-                            Image(systemName: connector.icon)
+                            Image(connector.icon)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 14, height: 14)
                                 .foregroundColor(.blue)
-                                .font(.caption)
                             Text(connector.rawValue)
                                 .font(.custom("Nunito Sans", size: 12))
                                 .fontWeight(.medium)

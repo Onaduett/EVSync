@@ -110,12 +110,10 @@ struct StationFullDetailView: View {
                         chipColor: .green
                     )
                     
-                    InfoRowWithChip(
+                    InfoRowWithPriceChip(
                         icon: "creditcard",
                         title: "Price",
-                        chipIcon: "tenge",
-                        chipText: station.price,
-                        chipColor: .blue
+                        priceText: station.price
                     )
                 }
                 
@@ -136,8 +134,10 @@ struct StationFullDetailView: View {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
                     ForEach(station.connectorTypes, id: \.self) { connector in
                         HStack(spacing: 8) {
-                            Image(systemName: connector.icon)
-                                .font(.system(size: 14, weight: .medium))
+                            Image(connector.icon)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 14, height: 14)
                                 .foregroundColor(.blue)
                             
                             Text(connector.rawValue)
@@ -159,7 +159,7 @@ struct StationFullDetailView: View {
             
             Divider()
             
-            // Amenities
+            // Amenities - Updated to use left-aligned flow layout
             if !station.amenities.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Amenities")
@@ -167,7 +167,8 @@ struct StationFullDetailView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
                     
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 6) {
+                    // Use FlowLayout for better left alignment
+                    FlowLayout(alignment: .leading, spacing: 6) {
                         ForEach(station.amenities, id: \.self) { amenity in
                             Text(amenity)
                                 .font(.custom("Nunito Sans", size: 12))
@@ -237,20 +238,19 @@ struct StationFullDetailView: View {
                     .disabled(isLoadingFavorite)
                 }
                 
-                // Navigate button (full width)
+                // Navigate button (full width) - Updated to match preview exactly
                 Button(action: {
                     navigateToStation()
                 }) {
-                    HStack(spacing: 6) {
+                    HStack {
                         Image(systemName: "location.fill")
-                            .font(.system(size: 14, weight: .semibold))
                         Text("Navigate")
-                            .font(.custom("Nunito Sans", size: 16))
-                            .fontWeight(.semibold)
                     }
+                    .font(.custom("Nunito Sans", size: 15))
+                    .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
+                    .padding(.vertical, 12)
                     .background(Color.blue)
                     .cornerRadius(12)
                 }
@@ -312,7 +312,64 @@ struct StationFullDetailView: View {
     }
 }
 
+// MARK: - FlowLayout for Amenities
+struct FlowLayout: Layout {
+    var alignment: Alignment = .center
+    var spacing: CGFloat = 8
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = FlowResult(
+            in: proposal.replacingUnspecifiedDimensions().width,
+            subviews: subviews,
+            alignment: alignment,
+            spacing: spacing
+        )
+        return result.bounds
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = FlowResult(
+            in: bounds.width,
+            subviews: subviews,
+            alignment: alignment,
+            spacing: spacing
+        )
+        for index in subviews.indices {
+            let offset = result.offsets[index]
+            subviews[index].place(at: CGPoint(x: bounds.minX + offset.x, y: bounds.minY + offset.y), proposal: .unspecified)
+        }
+    }
+}
 
+struct FlowResult {
+    var bounds = CGSize.zero
+    var offsets: [CGPoint] = []
+    
+    init(in maxWidth: CGFloat, subviews: LayoutSubviews, alignment: Alignment, spacing: CGFloat) {
+        var currentPosition = CGPoint.zero
+        var lineHeight: CGFloat = 0
+        var maxX: CGFloat = 0
+        
+        for subview in subviews {
+            let subviewSize = subview.sizeThatFits(.unspecified)
+            
+            if currentPosition.x + subviewSize.width > maxWidth && currentPosition.x > 0 {
+                // Move to next line
+                currentPosition.x = 0
+                currentPosition.y += lineHeight + spacing
+                lineHeight = 0
+            }
+            
+            offsets.append(currentPosition)
+            
+            currentPosition.x += subviewSize.width + spacing
+            lineHeight = max(lineHeight, subviewSize.height)
+            maxX = max(maxX, currentPosition.x - spacing)
+        }
+        
+        bounds = CGSize(width: maxX, height: currentPosition.y + lineHeight)
+    }
+}
 
 // MARK: - InfoRowWithChip Component
 struct InfoRowWithChip: View {
@@ -341,6 +398,31 @@ struct InfoRowWithChip: View {
     }
 }
 
+// MARK: - InfoRowWithPriceChip Component
+struct InfoRowWithPriceChip: View {
+    let icon: String
+    let title: String
+    let priceText: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.primary)
+                    .frame(width: 16)
+                
+                Text(title)
+                    .font(.custom("Nunito Sans", size: 13))
+                    .foregroundColor(.secondary)
+            }
+            
+            PriceChip(text: priceText)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
 // MARK: - Detail Chip
 struct DetailChip: View {
     let icon: String
@@ -361,6 +443,29 @@ struct DetailChip: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(color.opacity(0.15))
+        .clipShape(Capsule())
+    }
+}
+
+// MARK: - Price Chip
+struct PriceChip: View {
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            Text(text.replacingOccurrences(of: "/kWh", with: ""))
+                .font(.custom("Nunito Sans", size: 14))
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+            
+            Text("/kWh")
+                .font(.custom("Nunito Sans", size: 14))
+                .fontWeight(.semibold)
+                .foregroundColor(.blue)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(Color.blue.opacity(0.15))
         .clipShape(Capsule())
     }
 }

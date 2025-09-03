@@ -53,7 +53,6 @@ struct StationDetailCard: View {
         do {
             isFavorited = try await supabaseManager.isStationFavorited(stationId: stationId)
         } catch {
-            // Handle error silently or show a subtle indicator
             print("Error checking favorite status: \(error)")
         }
     }
