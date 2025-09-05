@@ -100,7 +100,7 @@ struct FavoriteHeader: View {
     var body: some View {
         HStack {
             Text("Charge&Go")
-                .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                .font(.custom("Lexend-SemiBold", size: 20))
                 .foregroundColor(.gray)
             
             Spacer()
@@ -114,14 +114,17 @@ struct FavoriteHeader: View {
         .padding(.bottom, 10)
     }
 }
+
 struct FavoriteStationsView: View {
     @StateObject private var supabaseManager = SupabaseManager.shared
     @State private var favoriteStations: [UserFavorite] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var showingError = false
-    @State private var selectedStation: ChargingStation?
-    @State private var showingStationDetail = false
+    
+    // Navigation bindings
+    @Binding var selectedTab: Int
+    @Binding var selectedStationFromFavorites: ChargingStation?
     
     var body: some View {
         ZStack {
@@ -143,7 +146,7 @@ struct FavoriteStationsView: View {
                     Spacer()
                 } else if favoriteStations.isEmpty {
                     Spacer()
-                    EmptyFavoritesView()
+                    EmptyFavoritesView(selectedTab: $selectedTab)
                     Spacer()
                 } else {
                     ScrollView {
@@ -157,8 +160,9 @@ struct FavoriteStationsView: View {
                                             await removeFavorite(favoriteId)
                                         },
                                         onTap: { station in
-                                            selectedStation = station
-                                            showingStationDetail = true
+                                            // Navigate to map and show station detail
+                                            selectedStationFromFavorites = station
+                                            selectedTab = 0 // Switch to map tab
                                         }
                                     )
                                 }
@@ -182,13 +186,6 @@ struct FavoriteStationsView: View {
             Button("OK") { }
         } message: {
             Text(errorMessage ?? "An unknown error occurred")
-        }
-        .sheet(isPresented: $showingStationDetail) {
-            if let station = selectedStation {
-                StationDetailCard(station: station, showingDetail: $showingStationDetail)
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
-            }
         }
     }
     
@@ -216,6 +213,8 @@ struct FavoriteStationsView: View {
 
 // MARK: - Empty State View
 struct EmptyFavoritesView: View {
+    @Binding var selectedTab: Int
+    
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "heart.slash")
@@ -235,9 +234,9 @@ struct EmptyFavoritesView: View {
                     .padding(.horizontal, 40)
             }
             
-            // Suggestion to go to map
+            // Button to navigate to map
             Button(action: {
-                // This would need to be handled by parent view to switch tabs
+                selectedTab = 0 // Assuming map view is at index 0
             }) {
                 HStack {
                     Image(systemName: "map")
@@ -378,10 +377,12 @@ struct FavoriteStationCard: View {
     }
 }
 
-
 // MARK: - Preview
 struct FavoriteStationsView_Previews: PreviewProvider {
     static var previews: some View {
-        FavoriteStationsView()
+        FavoriteStationsView(
+            selectedTab: .constant(1),
+            selectedStationFromFavorites: .constant(nil)
+        )
     }
 }

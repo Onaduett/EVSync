@@ -2,6 +2,7 @@ import SwiftUI
 
 struct NavigationBar: View {
     @State private var selectedTab = 0
+    @State private var selectedStationFromFavorites: ChargingStation?
     @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
@@ -9,15 +10,16 @@ struct NavigationBar: View {
             Group {
                 switch selectedTab {
                 case 0:
-                    MapView()
+                    MapView(selectedStationFromFavorites: $selectedStationFromFavorites)
                 case 1:
-                    FavoriteStationsView()
+                    FavoriteStationsView(
+                        selectedTab: $selectedTab, selectedStationFromFavorites: $selectedStationFromFavorites)
                 case 2:
                     MyCarView()
                 case 3:
                     SettingsView()
                 default:
-                    MapView()
+                    MapView(selectedStationFromFavorites: $selectedStationFromFavorites)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -29,7 +31,7 @@ struct NavigationBar: View {
             VStack {
                 Spacer()
                 CustomGlassTabBar(selectedTab: $selectedTab)
-                    .padding(.bottom, -20) // Отступ от нижнего края экрана
+                    .padding(.bottom, -20)
             }
         }
         .ignoresSafeArea(.keyboard)

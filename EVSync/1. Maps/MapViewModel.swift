@@ -132,4 +132,5 @@ class MapViewModel: ObservableObject {
             region = MKCoordinateRegion(center: center, span: span)
         }
     }
+
 }

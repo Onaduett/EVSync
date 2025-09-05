@@ -12,6 +12,7 @@ import Supabase
 struct MapView: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject private var viewModel = MapViewModel()
+    @Binding var selectedStationFromFavorites: ChargingStation?
     
     var body: some View {
         GeometryReader { geometry in
@@ -80,6 +81,28 @@ struct MapView: View {
         .onChange(of: viewModel.selectedConnectorTypes) { _ in
             viewModel.applyFilters()
         }
+        .onChange(of: selectedStationFromFavorites) { station in
+            if let station = station {
+                // Center map on the selected station
+                viewModel.centerMapOnStation(station)
+                // Select the station to show detail
+                viewModel.selectStation(station)
+                // Clear the binding
+                selectedStationFromFavorites = nil
+            }
+        }
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showingFilterOptions)
+    }
+}
+
+// MARK: - MapViewModel extension
+extension MapViewModel {
+    func centerMapOnStation(_ station: ChargingStation) {
+        withAnimation(.easeInOut(duration: 1.0)) {
+            region = MKCoordinateRegion(
+                center: station.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+        }
     }
 }
