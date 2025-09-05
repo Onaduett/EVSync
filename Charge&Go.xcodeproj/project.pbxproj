@@ -33,18 +33,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AACD65EA2E5EF134000F751C /* EVSync.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EVSync.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AACD65F72E5EF136000F751C /* EVSyncTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EVSyncTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AACD66012E5EF136000F751C /* EVSyncUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EVSyncUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AACD65EA2E5EF134000F751C /* Charge&Go.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Charge&Go.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AACD65F72E5EF136000F751C /* Charge&GoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Charge&GoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AACD66012E5EF136000F751C /* Charge&GoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Charge&GoUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		AAE75E0F2E5F950B00AE5420 /* Exceptions for "EVSync" folder in "EVSync" target */ = {
+		AAE75E0F2E5F950B00AE5420 /* Exceptions for "EVSync" folder in "Charge&Go" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = AACD65E92E5EF134000F751C /* EVSync */;
+			target = AACD65E92E5EF134000F751C /* Charge&Go */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -52,7 +52,7 @@
 		AACD65EC2E5EF134000F751C /* EVSync */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				AAE75E0F2E5F950B00AE5420 /* Exceptions for "EVSync" folder in "EVSync" target */,
+				AAE75E0F2E5F950B00AE5420 /* Exceptions for "EVSync" folder in "Charge&Go" target */,
 			);
 			path = EVSync;
 			sourceTree = "<group>";
@@ -114,9 +114,9 @@
 		AACD65EB2E5EF134000F751C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AACD65EA2E5EF134000F751C /* EVSync.app */,
-				AACD65F72E5EF136000F751C /* EVSyncTests.xctest */,
-				AACD66012E5EF136000F751C /* EVSyncUITests.xctest */,
+				AACD65EA2E5EF134000F751C /* Charge&Go.app */,
+				AACD65F72E5EF136000F751C /* Charge&GoTests.xctest */,
+				AACD66012E5EF136000F751C /* Charge&GoUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -131,9 +131,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AACD65E92E5EF134000F751C /* EVSync */ = {
+		AACD65E92E5EF134000F751C /* Charge&Go */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AACD660B2E5EF136000F751C /* Build configuration list for PBXNativeTarget "EVSync" */;
+			buildConfigurationList = AACD660B2E5EF136000F751C /* Build configuration list for PBXNativeTarget "Charge&Go" */;
 			buildPhases = (
 				AACD65E62E5EF134000F751C /* Sources */,
 				AACD65E72E5EF134000F751C /* Frameworks */,
@@ -146,7 +146,7 @@
 			fileSystemSynchronizedGroups = (
 				AACD65EC2E5EF134000F751C /* EVSync */,
 			);
-			name = EVSync;
+			name = "Charge&Go";
 			packageProductDependencies = (
 				AAE75D422E5F63C300AE5420 /* Auth */,
 				AAE75D442E5F63C300AE5420 /* Functions */,
@@ -156,12 +156,12 @@
 				AAE75DBC2E5F653100AE5420 /* Supabase */,
 			);
 			productName = EVSync;
-			productReference = AACD65EA2E5EF134000F751C /* EVSync.app */;
+			productReference = AACD65EA2E5EF134000F751C /* Charge&Go.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AACD65F62E5EF136000F751C /* EVSyncTests */ = {
+		AACD65F62E5EF136000F751C /* Charge&GoTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AACD660E2E5EF136000F751C /* Build configuration list for PBXNativeTarget "EVSyncTests" */;
+			buildConfigurationList = AACD660E2E5EF136000F751C /* Build configuration list for PBXNativeTarget "Charge&GoTests" */;
 			buildPhases = (
 				AACD65F32E5EF136000F751C /* Sources */,
 				AACD65F42E5EF136000F751C /* Frameworks */,
@@ -175,16 +175,16 @@
 			fileSystemSynchronizedGroups = (
 				AACD65FA2E5EF136000F751C /* EVSyncTests */,
 			);
-			name = EVSyncTests;
+			name = "Charge&GoTests";
 			packageProductDependencies = (
 			);
 			productName = EVSyncTests;
-			productReference = AACD65F72E5EF136000F751C /* EVSyncTests.xctest */;
+			productReference = AACD65F72E5EF136000F751C /* Charge&GoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		AACD66002E5EF136000F751C /* EVSyncUITests */ = {
+		AACD66002E5EF136000F751C /* Charge&GoUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AACD66112E5EF136000F751C /* Build configuration list for PBXNativeTarget "EVSyncUITests" */;
+			buildConfigurationList = AACD66112E5EF136000F751C /* Build configuration list for PBXNativeTarget "Charge&GoUITests" */;
 			buildPhases = (
 				AACD65FD2E5EF136000F751C /* Sources */,
 				AACD65FE2E5EF136000F751C /* Frameworks */,
@@ -198,11 +198,11 @@
 			fileSystemSynchronizedGroups = (
 				AACD66042E5EF136000F751C /* EVSyncUITests */,
 			);
-			name = EVSyncUITests;
+			name = "Charge&GoUITests";
 			packageProductDependencies = (
 			);
 			productName = EVSyncUITests;
-			productReference = AACD66012E5EF136000F751C /* EVSyncUITests.xctest */;
+			productReference = AACD66012E5EF136000F751C /* Charge&GoUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -228,7 +228,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AACD65E52E5EF133000F751C /* Build configuration list for PBXProject "EVSync" */;
+			buildConfigurationList = AACD65E52E5EF133000F751C /* Build configuration list for PBXProject "Charge&Go" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -245,9 +245,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AACD65E92E5EF134000F751C /* EVSync */,
-				AACD65F62E5EF136000F751C /* EVSyncTests */,
-				AACD66002E5EF136000F751C /* EVSyncUITests */,
+				AACD65E92E5EF134000F751C /* Charge&Go */,
+				AACD65F62E5EF136000F751C /* Charge&GoTests */,
+				AACD66002E5EF136000F751C /* Charge&GoUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -303,12 +303,12 @@
 /* Begin PBXTargetDependency section */
 		AACD65F92E5EF136000F751C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AACD65E92E5EF134000F751C /* EVSync */;
+			target = AACD65E92E5EF134000F751C /* Charge&Go */;
 			targetProxy = AACD65F82E5EF136000F751C /* PBXContainerItemProxy */;
 		};
 		AACD66032E5EF136000F751C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AACD65E92E5EF134000F751C /* EVSync */;
+			target = AACD65E92E5EF134000F751C /* Charge&Go */;
 			targetProxy = AACD66022E5EF136000F751C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -446,6 +446,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EVSync/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Charge&Go";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -457,7 +458,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Daulet.EVSync;
+				PRODUCT_BUNDLE_IDENTIFIER = Daulet.ChargeandGo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -480,6 +481,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EVSync/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Charge&Go";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -491,7 +493,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Daulet.EVSync;
+				PRODUCT_BUNDLE_IDENTIFIER = Daulet.ChargeandGo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -518,7 +520,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EVSync.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EVSync";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Charge&Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Charge&Go";
 			};
 			name = Debug;
 		};
@@ -537,7 +539,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EVSync.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EVSync";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Charge&Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Charge&Go";
 			};
 			name = Release;
 		};
@@ -578,7 +580,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AACD65E52E5EF133000F751C /* Build configuration list for PBXProject "EVSync" */ = {
+		AACD65E52E5EF133000F751C /* Build configuration list for PBXProject "Charge&Go" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AACD66092E5EF136000F751C /* Debug */,
@@ -587,7 +589,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AACD660B2E5EF136000F751C /* Build configuration list for PBXNativeTarget "EVSync" */ = {
+		AACD660B2E5EF136000F751C /* Build configuration list for PBXNativeTarget "Charge&Go" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AACD660C2E5EF136000F751C /* Debug */,
@@ -596,7 +598,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AACD660E2E5EF136000F751C /* Build configuration list for PBXNativeTarget "EVSyncTests" */ = {
+		AACD660E2E5EF136000F751C /* Build configuration list for PBXNativeTarget "Charge&GoTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AACD660F2E5EF136000F751C /* Debug */,
@@ -605,7 +607,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AACD66112E5EF136000F751C /* Build configuration list for PBXNativeTarget "EVSyncUITests" */ = {
+		AACD66112E5EF136000F751C /* Build configuration list for PBXNativeTarget "Charge&GoUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AACD66122E5EF136000F751C /* Debug */,

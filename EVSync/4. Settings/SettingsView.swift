@@ -55,169 +55,170 @@ struct SettingsView: View {
     let mapTypes = ["Standard", "Satellite", "Hybrid"]
     
     var body: some View {
-        ZStack(alignment: .top) {
-            // Main content
-            VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: 24) {
-                        // Top spacing for header
-                        Rectangle()
-                            .fill(Color.clear)
-                            .frame(height: 80)
-                        
-                        // Profile Card
-                        VStack(spacing: 16) {
-                            // Avatar placeholder
-                            Circle()
-                                .fill(Color.primary.opacity(0.15))
-                                .frame(width: 80, height: 80)
-                                .overlay(
-                                    Text(String(authManager.user?.email?.prefix(1).uppercased() ?? "U"))
-                                        .font(.custom("Nunito Sans", size: 32).weight(.bold))
-                                        .foregroundColor(.primary)
-                                )
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                // Main content с отступом для таб-бара
+                VStack(spacing: 0) {
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            // Top spacing для header
+                            Rectangle()
+                                .fill(Color.clear)
+                                .frame(height: 80)
                             
-                            VStack(spacing: 6) {
-                                Text("Account")
-                                    .font(.custom("Nunito Sans", size: 18).weight(.bold))
-                                    .foregroundColor(.primary)
+                            // Profile Card
+                            VStack(spacing: 16) {
+                                // Avatar placeholder
+                                Circle()
+                                    .fill(Color.primary.opacity(0.15))
+                                    .frame(width: 80, height: 80)
+                                    .overlay(
+                                        Text(String(authManager.user?.email?.prefix(1).uppercased() ?? "U"))
+                                            .font(.custom("Nunito Sans", size: 32).weight(.bold))
+                                            .foregroundColor(.primary)
+                                    )
                                 
-                                Text(authManager.user?.email ?? "user@example.com")
-                                    .font(.custom("Nunito Sans", size: 14))
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            // Sign Out Button
-                            Button(action: {
-                                authManager.signOut()
-                            }) {
-                                HStack {
-                                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                                        .font(.system(size: 14, weight: .medium))
-                                    Text("Sign Out")
-                                        .font(.custom("Nunito Sans", size: 14).weight(.medium))
-                                }
-                                .foregroundColor(.primary)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .stroke(Color.primary.opacity(0.3), lineWidth: 1)
-                                )
-                            }
-                        }
-                        .padding(.vertical, 24)
-                        .padding(.horizontal, 20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.primary.opacity(0.05))
-                        )
-                        .padding(.horizontal, 20)
-                        
-                        // Settings Sections
-                        VStack(spacing: 16) {
-                            // Appearance
-                            SettingsSection(title: "Appearance", icon: "paintbrush.fill") {
-                                VStack(spacing: 12) {
-                                    HStack {
-                                        Text("Theme")
-                                            .font(.custom("Nunito Sans", size: 14).weight(.medium))
-                                            .foregroundColor(.primary)
-                                        Spacer()
-                                    }
+                                VStack(spacing: 6) {
+                                    Text("Account")
+                                        .font(.custom("Nunito Sans", size: 18).weight(.bold))
+                                        .foregroundColor(.primary)
                                     
-                                    HStack(spacing: 8) {
-                                        ForEach(ThemeManager.AppTheme.allCases, id: \.rawValue) { theme in
-                                            ThemeButton(
-                                                title: theme.name,
-                                                isSelected: themeManager.currentTheme == theme,
-                                                themeManager: themeManager,
-                                                theme: theme
-                                            )
+                                    Text(authManager.user?.email ?? "user@example.com")
+                                        .font(.custom("Nunito Sans", size: 14))
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                // Sign Out Button
+                                Button(action: {
+                                    authManager.signOut()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                                            .font(.system(size: 14, weight: .medium))
+                                        Text("Sign Out")
+                                            .font(.custom("Nunito Sans", size: 14).weight(.medium))
+                                    }
+                                    .foregroundColor(.primary)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(Color.primary.opacity(0.3), lineWidth: 1)
+                                    )
+                                }
+                            }
+                            .padding(.vertical, 24)
+                            .padding(.horizontal, 20)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.primary.opacity(0.05))
+                            )
+                            .padding(.horizontal, 20)
+                            
+                            // Settings Sections
+                            VStack(spacing: 16) {
+                                // Appearance
+                                SettingsSection(title: "Appearance", icon: "paintbrush.fill") {
+                                    VStack(spacing: 12) {
+                                        HStack {
+                                            Text("Theme")
+                                                .font(.custom("Nunito Sans", size: 14).weight(.medium))
+                                                .foregroundColor(.primary)
+                                            Spacer()
                                         }
-                                    }
-                                }
-                            }
-                            
-                            // Preferences
-                            SettingsSection(title: "Preferences", icon: "slider.horizontal.3") {
-                                VStack(spacing: 0) {
-                                    PreferenceRow(
-                                        title: "Notifications",
-                                        subtitle: "Get alerts for charging status",
-                                        isOn: $notificationsEnabled,
-                                        showDivider: true
-                                    )
-                                    
-                                    PreferenceRow(
-                                        title: "Location Services",
-                                        subtitle: "Find nearby charging stations",
-                                        isOn: $locationEnabled,
-                                        showDivider: false
-                                    )
-                                }
-                            }
-                            
-                            // Map Settings
-                            SettingsSection(title: "Map", icon: "map.fill") {
-                                VStack(spacing: 12) {
-                                    HStack {
-                                        Text("Map Type")
-                                            .font(.custom("Nunito Sans", size: 14).weight(.medium))
-                                            .foregroundColor(.primary)
-                                        Spacer()
-                                    }
-                                    
-                                    HStack(spacing: 6) {
-                                        ForEach(0..<mapTypes.count, id: \.self) { index in
-                                            MapTypeButton(
-                                                title: mapTypes[index],
-                                                isSelected: selectedMapType == index
-                                            ) {
-                                                selectedMapType = index
+                                        
+                                        HStack(spacing: 8) {
+                                            ForEach(ThemeManager.AppTheme.allCases, id: \.rawValue) { theme in
+                                                ThemeButton(
+                                                    title: theme.name,
+                                                    isSelected: themeManager.currentTheme == theme,
+                                                    themeManager: themeManager,
+                                                    theme: theme
+                                                )
                                             }
                                         }
                                     }
                                 }
-                            }
-                            
-                            // About
-                            SettingsSection(title: "About", icon: "info.circle.fill") {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Version")
-                                            .font(.custom("Nunito Sans", size: 14).weight(.medium))
-                                            .foregroundColor(.primary)
-                                        Text("Current app version")
-                                            .font(.custom("Nunito Sans", size: 12))
-                                            .foregroundColor(.secondary)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text("1.0.0")
-                                        .font(.custom("Nunito Sans", size: 14).weight(.medium))
-                                        .foregroundColor(.secondary)
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 6)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .fill(Color.primary.opacity(0.1))
+                                
+                                // Preferences
+                                SettingsSection(title: "Preferences", icon: "slider.horizontal.3") {
+                                    VStack(spacing: 0) {
+                                        PreferenceRow(
+                                            title: "Notifications",
+                                            subtitle: "Get alerts for charging status",
+                                            isOn: $notificationsEnabled,
+                                            showDivider: true
                                         )
+                                        
+                                        PreferenceRow(
+                                            title: "Location Services",
+                                            subtitle: "Find nearby charging stations",
+                                            isOn: $locationEnabled,
+                                            showDivider: false
+                                        )
+                                    }
+                                }
+                                
+                                // Map Settings
+                                SettingsSection(title: "Map", icon: "map.fill") {
+                                    VStack(spacing: 12) {
+                                        HStack {
+                                            Text("Map Type")
+                                                .font(.custom("Nunito Sans", size: 14).weight(.medium))
+                                                .foregroundColor(.primary)
+                                            Spacer()
+                                        }
+                                        
+                                        HStack(spacing: 6) {
+                                            ForEach(0..<mapTypes.count, id: \.self) { index in
+                                                MapTypeButton(
+                                                    title: mapTypes[index],
+                                                    isSelected: selectedMapType == index
+                                                ) {
+                                                    selectedMapType = index
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                // About
+                                SettingsSection(title: "About", icon: "info.circle.fill") {
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text("Version")
+                                                .font(.custom("Nunito Sans", size: 14).weight(.medium))
+                                                .foregroundColor(.primary)
+                                            Text("Current app version")
+                                                .font(.custom("Nunito Sans", size: 12))
+                                                .foregroundColor(.secondary)
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        Text("1.0.0")
+                                            .font(.custom("Nunito Sans", size: 14).weight(.medium))
+                                            .foregroundColor(.secondary)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .fill(Color.primary.opacity(0.1))
+                                            )
+                                    }
                                 }
                             }
                         }
+                        .padding(.top, 20)
                     }
-                    .padding(.top, 20)
-                    .padding(.bottom, 40)
                 }
+                
+                SettingsGradientOverlay()
+                SettingsHeader()
             }
-            
-            SettingsGradientOverlay()
-            SettingsHeader()
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .preferredColorScheme(themeManager.currentTheme.colorScheme)
+        // УБИРАЕМ .preferredColorScheme отсюда - теперь оно применяется на уровне NavigationBar
     }
     
     // MARK: - Supporting Views
@@ -268,7 +269,9 @@ struct SettingsView: View {
         
         var body: some View {
             Button(action: {
-                themeManager.setTheme(theme)
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    themeManager.setTheme(theme)
+                }
             }) {
                 Text(title)
                     .font(.custom("Nunito Sans", size: 12).weight(.medium))

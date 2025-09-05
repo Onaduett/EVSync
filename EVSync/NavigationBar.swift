@@ -2,31 +2,38 @@ import SwiftUI
 
 struct NavigationBar: View {
     @State private var selectedTab = 0
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            TabView(selection: $selectedTab) {
-                MapView()
-                    .tag(0)
-                
-                FavoriteStationsView()
-                    .tag(1)
-                
-                MyCarView()
-                    .tag(2)
-                
-                SettingsView()
-                    .tag(3)
-                
+        ZStack {
+            Group {
+                switch selectedTab {
+                case 0:
+                    MapView()
+                case 1:
+                    FavoriteStationsView()
+                case 2:
+                    MyCarView()
+                case 3:
+                    SettingsView()
+                default:
+                    MapView()
+                }
             }
-            .ignoresSafeArea(.all)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .safeAreaInset(edge: .bottom) {
+                Color.clear
+                    .frame(height: 70)
+            }
             
             VStack {
                 Spacer()
                 CustomGlassTabBar(selectedTab: $selectedTab)
+                    .padding(.bottom, -20) // Отступ от нижнего края экрана
             }
-            .ignoresSafeArea(.all)
         }
+        .ignoresSafeArea(.keyboard)
+        .preferredColorScheme(themeManager.currentTheme.colorScheme)
     }
 }
 
@@ -65,7 +72,7 @@ struct CustomGlassTabBar: View {
         HStack(spacing: 0) {
             ForEach(tabs, id: \.tag) { tab in
                 Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    withAnimation(.easeInOut(duration: 0.2)) {
                         selectedTab = tab.tag
                     }
                 }) {
@@ -93,7 +100,6 @@ struct CustomGlassTabBar: View {
                 .shadow(color: .black.opacity(0.25), radius: 15, x: 0, y: 8)
                 .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
         }
-        .padding(.bottom, 15)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTab)
     }
 }
@@ -136,6 +142,6 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationBar()
             .environmentObject(AuthenticationManager())
-            .environmentObject(ThemeManager()) 
+            .environmentObject(ThemeManager())
     }
 }
