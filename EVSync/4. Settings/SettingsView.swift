@@ -30,12 +30,12 @@ struct SettingsHeader: View {
     var body: some View {
         HStack {
             Text("Charge&Go")
-                .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                .font(.custom("Lexend-SemiBold", size: 20))
                 .foregroundColor(.gray)
             
             Spacer()
             
-            Text("Settings")
+            Text("Account")
                 .font(.custom("Nunito Sans", size: 20).weight(.bold))
                 .foregroundColor(.primary)
         }
@@ -213,10 +213,7 @@ struct SettingsView: View {
                 }
             }
             
-            // Gradient overlay - pinned to top
             SettingsGradientOverlay()
-            
-            // Header - pinned on top of gradient
             SettingsHeader()
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
