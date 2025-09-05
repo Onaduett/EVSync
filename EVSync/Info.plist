@@ -5,6 +5,7 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf</string>
+		<string>Lexend-SemiBold.ttf</string>
 	</array>
 </dict>
 </plist>

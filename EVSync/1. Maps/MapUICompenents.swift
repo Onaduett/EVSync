@@ -83,7 +83,7 @@ struct MapHeader: View {
                 HStack {
                     Spacer()
                     Text("Charge&Go")
-                        .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                        .font(.custom("Lexend-SemiBold", size: 20))
                         .foregroundColor(colorScheme == .dark ? .white : .black)
                     Spacer()
                 }
