@@ -332,8 +332,11 @@ struct FavoriteStationCard: View {
                         HStack(spacing: 8) {
                             ForEach(station.connectorTypes, id: \.self) { connector in
                                 HStack(spacing: 4) {
-                                    Image(systemName: connector.icon)
-                                        .font(.caption2)
+                                    Image(connector.icon)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 14, height: 14)
+                                        .foregroundColor(.blue)
                                     Text(connector.rawValue)
                                         .font(.caption2)
                                 }
