@@ -10,7 +10,15 @@ import Foundation
 
 // Theme Manager to handle app-wide theme changes
 class ThemeManager: ObservableObject {
-    @Published var currentTheme: AppTheme = .auto
+    @Published var currentTheme: AppTheme = .auto {
+        didSet {
+            // Сохраняем тему при изменении
+            userDefaults.set(currentTheme.rawValue, forKey: themeKey)
+            
+            // Принудительно обновляем UI
+            objectWillChange.send()
+        }
+    }
     
     enum AppTheme: Int, CaseIterable {
         case light = 0
@@ -44,7 +52,10 @@ class ThemeManager: ObservableObject {
     }
     
     func setTheme(_ theme: AppTheme) {
-        currentTheme = theme
-        userDefaults.set(theme.rawValue, forKey: themeKey)
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                self.currentTheme = theme
+            }
+        }
     }
 }

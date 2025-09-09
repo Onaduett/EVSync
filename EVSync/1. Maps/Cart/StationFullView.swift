@@ -179,7 +179,7 @@ struct StationFullDetailView: View {
                                     Capsule()
                                         .fill(Color.blue.opacity(0.1))
                                 )
-                                .foregroundColor(.blue)
+                                .foregroundColor(.teal)
                         }
                     }
                 }

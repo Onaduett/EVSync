@@ -107,7 +107,7 @@ struct FavoriteHeader: View {
             
             Text("Favourite")
                 .font(.custom("Nunito Sans", size: 20).weight(.bold))
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
         }
         .padding(.horizontal, 20)
         .padding(.top, 20)

@@ -83,11 +83,8 @@ struct MapView: View {
         }
         .onChange(of: selectedStationFromFavorites) { station in
             if let station = station {
-                // Center map on the selected station
                 viewModel.centerMapOnStation(station)
-                // Select the station to show detail
                 viewModel.selectStation(station)
-                // Clear the binding
                 selectedStationFromFavorites = nil
             }
         }

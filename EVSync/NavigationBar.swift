@@ -31,11 +31,10 @@ struct NavigationBar: View {
             VStack {
                 Spacer()
                 CustomGlassTabBar(selectedTab: $selectedTab)
-                    .padding(.bottom, -20)
+                    .padding(.bottom, -15)
             }
         }
         .ignoresSafeArea(.keyboard)
-        .preferredColorScheme(themeManager.currentTheme.colorScheme)
     }
 }
 
@@ -103,6 +102,7 @@ struct CustomGlassTabBar: View {
                 .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTab)
+        .animation(.easeInOut(duration: 0.3), value: themeManager.currentTheme)
     }
 }
 

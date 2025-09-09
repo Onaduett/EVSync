@@ -79,6 +79,7 @@ struct MyVehicleHeader: View {
 }
 
 struct MyCarView: View {
+    @AppStorage("selectedCarId") private var selectedCarId: String = ""
     @State private var selectedCar: ElectricVehicle = sampleCars[0]
     @State private var showingCarSelection = false
     @State private var chargingSessions: [ChargingSession] = sampleChargingSessions
@@ -91,7 +92,6 @@ struct MyCarView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
-                // Main content
                 VStack(spacing: 0) {
                     ScrollView {
                         VStack(spacing: 9) {
@@ -99,19 +99,17 @@ struct MyCarView: View {
                                 .fill(Color.clear)
                                 .frame(height: 50)
                             
-                            // Car photo with complete left fade and animation
                             ZStack {
                                 Image(selectedCar.image)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
-                                    .frame(height: 280)
+                                    .frame(height: geometry.size.width * 0.7) // Make height proportional to screen width
                                     .frame(maxWidth: .infinity)
                                     .clipped()
                                     .cornerRadius(12)
                                     .opacity(imageOpacity)
                                     .animation(.easeInOut(duration: 0.8), value: imageOpacity)
                                 
-                                // Complete left fade overlay (from full opacity to 0)
                                 LinearGradient(
                                     gradient: Gradient(stops: [
                                         .init(color: Color(.systemBackground), location: 0.0),
@@ -123,11 +121,11 @@ struct MyCarView: View {
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
-                                .frame(height: 280)
+                                .frame(height: geometry.size.width * 0.7) // Same proportional height
                                 .frame(maxWidth: .infinity)
                                 .cornerRadius(12)
                                 .opacity(imageOpacity)
-                                .animation(.easeInOut(duration: 0.8), value: imageOpacity)
+                                .animation(.easeInOut(duration: 0.5), value: imageOpacity)
                             }
                             
                             carInfoCard
@@ -144,12 +142,13 @@ struct MyCarView: View {
             }
         }
         .onAppear {
+            loadSelectedCar()
             withAnimation(.easeInOut(duration: 0.8)) {
                 imageOpacity = 1.0
             }
         }
         .onChange(of: selectedCar.id) { _ in
-            // Reset animation when car changes
+            saveSelectedCar()
             imageOpacity = 0.0
             withAnimation(.easeInOut(duration: 0.8)) {
                 imageOpacity = 1.0
@@ -158,6 +157,18 @@ struct MyCarView: View {
         .sheet(isPresented: $showingCarSelection) {
             CarSelectionView(selectedCar: $selectedCar)
         }
+    }
+    
+    // MARK: - Persistence Methods
+    private func loadSelectedCar() {
+        if !selectedCarId.isEmpty,
+           let savedCar = sampleCars.first(where: { $0.id.uuidString == selectedCarId }) {
+            selectedCar = savedCar
+        }
+    }
+    
+    private func saveSelectedCar() {
+        selectedCarId = selectedCar.id.uuidString
     }
     
     // MARK: - Car Info Card
@@ -204,25 +215,29 @@ struct MyCarView: View {
                     SpecificationItem(
                         icon: "battery.100",
                         title: "Battery Capacity",
-                        value: "\(Int(selectedCar.batteryCapacity)) kWh"
+                        value: "\(Int(selectedCar.batteryCapacity)) kWh",
+                        iconColor: .teal
                     )
                     
                     SpecificationItem(
                         icon: "speedometer",
                         title: "Efficiency",
-                        value: String(format: "%.1f kWh/100km", selectedCar.efficiency)
+                        value: String(format: "%.1f kWh/100km", selectedCar.efficiency),
+                        iconColor: .teal
                     )
                     
                     SpecificationItem(
                         icon: "bolt.fill",
                         title: "Max Charging",
-                        value: "\(selectedCar.maxChargingSpeed) kW"
+                        value: "\(selectedCar.maxChargingSpeed) kW",
+                        iconColor: .green
                     )
                     
                     SpecificationItem(
                         icon: "road.lanes",
                         title: "Range",
-                        value: "\(selectedCar.range) km"
+                        value: "\(selectedCar.range) km",
+                        iconColor: .green
                     )
                 }
             }
@@ -292,11 +307,12 @@ struct SpecificationItem: View {
     let icon: String
     let title: String
     let value: String
+    let iconColor: Color
     
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .foregroundColor(.blue)
+                .foregroundColor(iconColor)
                 .frame(width: 16)
             
             VStack(alignment: .leading, spacing: 2) {

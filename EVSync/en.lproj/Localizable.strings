@@ -1,0 +1,78 @@
+//
+//  localizable.strings (ENG)
+//  Charge&Go
+//
+//  Created by Daulet Yerkinov on 08.09.25.
+//
+
+
+// Settings Screen
+"account" = "Account";
+"sign_out" = "Sign Out";
+"appearance" = "Appearance";
+"theme" = "Theme";
+"preferences" = "Preferences";
+"notifications" = "Notifications";
+"notifications_subtitle" = "Get alerts for charging status";
+"location_services" = "Location Services";
+"location_services_subtitle" = "Find nearby charging stations";
+"privacy_legal" = "Privacy & Legal";
+"privacy_legal_subtitle" = "Your privacy and security matter to us";
+"privacy_policy" = "Privacy Policy";
+"privacy_policy_subtitle" = "Read our privacy policy";
+"privacy_policy_description" = "How we handle your personal data";
+"terms_of_service" = "Terms of Service";
+"terms_of_service_description" = "Terms and conditions of use";
+"data_protection" = "Data Protection";
+"data_protection_description" = "Your rights and our commitments";
+"about" = "About";
+"version" = "Version";
+"version_subtitle" = "Current app version";
+"done" = "Done";
+"language" = "Language";
+"language_subtitle" = "Set the interface language";
+
+// Theme names
+"system" = "System";
+"light" = "Light";
+"dark" = "Dark";
+
+// Privacy Policy
+"privacy_policy_title" = "Privacy Policy";
+"last_updated" = "Last updated: September 2025";
+"information_we_collect" = "Information We Collect";
+"information_we_collect_content" = "We collect information you provide directly to us, such as when you create an account, update your profile, or contact us for support.";
+"how_we_use_information" = "How We Use Your Information";
+"how_we_use_information_content" = "We use the information we collect to provide, maintain, and improve our services, process transactions, and communicate with you.";
+"location_data" = "Location Data";
+"location_data_content" = "With your permission, we collect location data to help you find nearby charging stations. You can disable location services at any time in your device settings.";
+"data_security" = "Data Security";
+"data_security_content" = "We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.";
+"contact_us" = "Contact Us";
+"contact_us_content" = "If you have any questions about this Privacy Policy, please contact us at privacy@chargeandgo.com";
+
+// Terms of Service
+"acceptance_of_terms" = "Acceptance of Terms";
+"acceptance_of_terms_content" = "By accessing and using Charge&Go, you accept and agree to be bound by the terms and provision of this agreement.";
+"use_license" = "Use License";
+"use_license_content" = "Permission is granted to temporarily download one copy of Charge&Go per device for personal, non-commercial transitory viewing only.";
+"user_account" = "User Account";
+"user_account_content" = "You are responsible for safeguarding the password and for maintaining the confidentiality of your account.";
+"prohibited_uses" = "Prohibited Uses";
+"prohibited_uses_content" = "You may not use our service for any unlawful purpose or to solicit others to perform acts that would be unlawful.";
+"contact_information" = "Contact Information";
+"contact_information_content" = "Questions about the Terms of Service should be sent to us at legal@chargeandgo.com";
+
+// Data Protection
+"your_rights" = "Your Rights";
+"your_rights_content" = "You have the right to access, update, or delete your personal information. You may also request data portability.";
+"data_retention" = "Data Retention";
+"data_retention_content" = "We retain your personal information only for as long as necessary to provide our services and comply with legal obligations.";
+"data_sharing" = "Data Sharing";
+"data_sharing_content" = "We do not sell, trade, or otherwise transfer your personal information to third parties without your explicit consent.";
+"security_measures" = "Security Measures";
+"security_measures_content" = "We employ industry-standard encryption and security protocols to protect your data during transmission and storage.";
+"data_requests" = "Data Requests";
+"data_requests_content" = "To exercise your data protection rights, contact us at dataprotection@chargeandgo.com";
+
+
