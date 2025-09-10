@@ -17,17 +17,16 @@ struct MapView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
-                // Map with dynamic style
-                Map(coordinateRegion: $viewModel.region,
-                    interactionModes: .all,
-                    annotationItems: viewModel.filteredStations) { station in
-                    MapAnnotation(coordinate: station.coordinate) {
-                        ChargingStationAnnotation(
-                            station: station,
-                            isSelected: viewModel.selectedStation?.id == station.id
-                        )
-                        .onTapGesture {
-                            viewModel.selectStation(station)
+                Map(initialPosition: .region(viewModel.region)) {
+                    ForEach(viewModel.filteredStations) { station in
+                        Annotation("", coordinate: station.coordinate) {
+                            ChargingStationAnnotation(
+                                station: station,
+                                isSelected: viewModel.selectedStation?.id == station.id
+                            )
+                            .onTapGesture {
+                                viewModel.selectStation(station)
+                            }
                         }
                     }
                 }
@@ -40,14 +39,12 @@ struct MapView: View {
                     LoadingOverlay()
                 }
                 
-                // Error overlay
                 if let errorMessage = viewModel.errorMessage {
                     ErrorOverlay(message: errorMessage) {
                         viewModel.loadChargingStations()
                     }
                 }
                 
-                // Header with new layout: Filter left, Theme toggle right
                 if !viewModel.isLoading && viewModel.errorMessage == nil {
                     VStack {
                         MapHeader(
@@ -59,7 +56,6 @@ struct MapView: View {
                     }
                 }
                 
-                // Filter options sheet
                 if viewModel.showingFilterOptions {
                     FilterOptionsOverlay(
                         availableTypes: viewModel.availableConnectorTypes,
@@ -68,7 +64,6 @@ struct MapView: View {
                     )
                 }
                 
-                // Station Detail Card
                 if viewModel.showingStationDetail, let station = viewModel.selectedStation {
                     VStack {
                         Spacer()
@@ -82,10 +77,10 @@ struct MapView: View {
         .onAppear {
             viewModel.loadChargingStations()
         }
-        .onChange(of: viewModel.selectedConnectorTypes) { _ in
+        .onChange(of: viewModel.selectedConnectorTypes) {
             viewModel.applyFilters()
         }
-        .onChange(of: selectedStationFromFavorites) { station in
+        .onChange(of: selectedStationFromFavorites) { _, station in
             if let station = station {
                 viewModel.centerMapOnStation(station)
                 viewModel.selectStation(station)

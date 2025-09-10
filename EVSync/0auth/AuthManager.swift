@@ -29,7 +29,7 @@ class AuthenticationManager: ObservableObject {
         Task {
             do {
                 let session = try await supabase.auth.session
-                self.isAuthenticated = session.user != nil
+                self.isAuthenticated = true
                 self.user = session.user
             } catch {
                 self.isAuthenticated = false

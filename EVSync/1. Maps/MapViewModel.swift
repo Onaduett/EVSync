@@ -58,21 +58,21 @@ class MapViewModel: ObservableObject {
     func loadChargingStations() {
         isLoading = true
         errorMessage = nil
-        
+
         Task {
             do {
-                let response: [DatabaseChargingStation] = try await supabase.database
+                let response: [DatabaseChargingStation] = try await supabase
                     .from("charging_stations")
                     .select()
                     .execute()
                     .value
-                
+
                 self.chargingStations = response.map { $0.toChargingStation() }
                 self.filteredStations = self.chargingStations
                 self.isLoading = false
-                
+
                 setAlmatyRegion()
-                
+
             } catch {
                 self.errorMessage = "Failed to load charging stations: \(error.localizedDescription)"
                 self.isLoading = false

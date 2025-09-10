@@ -149,7 +149,7 @@ struct MyCarView: View {
                 imageOpacity = 1.0
             }
         }
-        .onChange(of: selectedCar.id) { _ in
+        .onChange(of: selectedCar.id) {
             saveSelectedCar()
             imageOpacity = 0.0
             withAnimation(.easeInOut(duration: 0.8)) {
