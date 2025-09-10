@@ -73,3 +73,153 @@
 "security_measures_content" = "Біз деректеріңізді беру және сақтау кезінде қорғау үшін салалық стандарттағы шифрлау және қауіпсіздік протоколдарын қолданамыз.";
 "data_requests" = "Деректерге қатысты сұраулар";
 "data_requests_content" = "Деректерді қорғау құқықтарыңызды пайдалану үшін бізге dataprotection@chargeandgo.com мекенжайы арқылы хабарласыңыз";
+
+// MARK: - MY CAR
+
+/*
+  Localizable.strings (Kazakh)
+  EVSync
+*/
+
+// MARK: - Navigation & Headers
+"my_car" = "Менің Көлігім";
+
+// MARK: - Vehicle Information
+"specifications" = "Сипаттамалар";
+"compatible_connectors" = "Үйлесімді Қосқыштар";
+"select_vehicle" = "Көлікті Таңдау";
+"done" = "Дайын";
+
+// MARK: - Specifications
+"battery_capacity" = "Батарея Сыйымдылығы";
+"efficiency" = "Тиімділік";
+"max_charging" = "Макс Зарядтау";
+"range" = "Қашықтық";
+
+// MARK: - Units
+"kwh_unit" = "кВт·сағ";
+"kw_unit" = "кВт";
+"km_unit" = "км";
+"efficiency_unit" = "кВт·сағ/100км";
+"range_unit" = "км қашықтық";
+
+// MARK: - Vehicle Selection
+"vehicle_info_format" = "%@ қашықтық • %@ кВт·сағ";
+
+// MARK: - Charging Sessions
+"total_sessions" = "Жалпы Сессиялар";
+"total_energy_charged" = "Жалпы Зарядталған Энергия";
+"total_cost" = "Жалпы Құн";
+"average_cost" = "Орташа Құн";
+"co2_saved" = "CO₂ Үнемделген";
+"equivalent_gasoline" = "Бензин Баламасы";
+
+// MARK: - Environmental Stats
+"co2_emissions_avoided" = "CO₂ Шығарындыларынан Сақталған";
+"gasoline_saved" = "Бензин Үнемделген";
+"kg_unit" = "кг";
+"liters_unit" = "л";
+
+// MARK: - Charging Session Details
+"energy_added" = "Қосылған Энергия";
+"charging_speed" = "Зарядтау Жылдамдығы";
+"cost" = "Құны";
+"duration" = "Ұзақтығы";
+"location" = "Орын";
+
+// MARK: - Time Units
+"minutes" = "мин";
+"hours" = "сағ";
+"seconds" = "сек";
+
+"maps_tool" = "Карты";
+"favourite_tool" = "Тандауларым";
+"my_car_tool" = "Көлігім";
+
+/* Localizable.strings - Kazakh */
+
+/* Favorites View */
+"favorites_title" = "Таңдаулылар";
+"loading_favorites" = "Таңдаулыларды жүктеу...";
+"no_favorite_stations" = "Таңдаулы станциялар жоқ";
+"no_favorite_stations_description" = "Мұнда көру үшін карта көрінісінен станцияларды таңдаулыларыңызға қосыңыз";
+"explore_map" = "Картаны зерттеу";
+
+/* Welcome View */
+"log_in_or_sign_up" = "Кіру немесе тіркелу";
+"welcome_back" = "Қайта оралуыңызбен!";
+"create_account_title" = "Аккаунт жасау";
+
+/* Form Labels */
+"email_label" = "Электрондық пошта";
+"password_label" = "Құпия сөз";
+"create_password_label" = "Құпия сөз жасаңыз";
+"confirm_password_label" = "Құпия сөзді растау";
+
+/* Placeholders */
+"email_placeholder" = "Электрондық пошта";
+"enter_email_placeholder" = "Электрондық поштаңызды енгізіңіз";
+"enter_password_placeholder" = "Құпия сөзіңізді енгізіңіз";
+"confirm_password_placeholder" = "Құпия сөзіңізді растаңыз";
+
+/* Password validation */
+"password_requirement" = "Құпия сөз кемінде 6 таңбадан тұруы тиіс";
+"passwords_match" = "Құпия сөздер сәйкес келеді";
+"passwords_dont_match" = "Құпия сөздер сәйкес келмейді";
+
+/* Buttons */
+"continue_button" = "Жалғастыру";
+"sign_in_button" = "Кіру";
+"create_account_button" = "Аккаунт жасау";
+"back_to_email" = "← Электрондық поштаға оралу";
+"forgot_password" = "Құпия сөзді ұмыттыңыз ба?";
+
+/* Social Login */
+"or_use" = "немесе";
+"sign_in_with_google" = "Google арқылы кіру";
+"sign_in_with_apple" = "Apple арқылы кіру";
+
+/* Terms and Conditions */
+"terms_and_conditions" = "Тіркелу арқылы сіз біздің Қызмет көрсету шарттары мен Құпиялылық саясатымызбен келісесіз";
+
+/* Error Messages */
+"error_title" = "Қате";
+"ok_button" = "Жарайды";
+"unknown_error" = "Белгісіз қате орын алды";
+"passwords_do_not_match_error" = "Құпия сөздер сәйкес келмейді";
+"invalid_email_error" = "Жарамды электрондық пошта мекенжайын енгізіңіз";
+"unable_to_verify_account_error" = "Аккаунт мәртебесін тексеру мүмкін емес";
+
+//MAPS
+/* Station Information */
+"station_address" = "Мекенжайы";
+"operating_hours" = "Жұмыс уақыты";
+"power" = "Қуат";
+"price" = "Баға";
+"phone" = "Телефон";
+"connector_types" = "Қосқыш түрлері";
+"amenities" = "Қызметтер";
+"kwh" = "кВт·сағ";
+
+/* Actions */
+"call" = "Қоңырау";
+"save" = "Сақтау";
+"saved" = "Сақталды";
+"navigate" = "Жол тарту";
+
+/* Station Status */
+"status_available" = "Қолжетімді";
+"status_occupied" = "Бос емес";
+"status_out_of_service" = "Жұмсамайды";
+"status_maintenance" = "Қолжетімсіз: Техникалық қызмет";
+
+/* Amenities */
+"amenity_wifi" = "Wi-Fi";
+"amenity_restroom" = "Дәретхана";
+"amenity_restaurant" = "Мейрамхана";
+"amenity_shopping_mall" = "Дүкендер";
+"amenity_parking" = "Автотұрақ";
+"amenity_24/7" = "Тәулік бойы";
+"amenity_covered" = "Жабық";
+"amenity_fast_charging" = "Жылдам қуаттау: DC";
+"amenity_ev_charging" = "Электромобиль қуаттау: AC";

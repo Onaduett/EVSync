@@ -4,6 +4,8 @@ struct NavigationBar: View {
     @State private var selectedTab = 0
     @State private var selectedStationFromFavorites: ChargingStation?
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var languageManager: LanguageManager
+
     
     var body: some View {
         ZStack {
@@ -41,14 +43,17 @@ struct NavigationBar: View {
 struct CustomGlassTabBar: View {
     @Binding var selectedTab: Int
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.colorScheme) var colorScheme
     
-    private let tabs = [
-        (icon: "map", title: "Maps", tag: 0),
-        (icon: "ev.charger", title: "Favourite", tag: 1),
-        (icon: "car.side", title: "My Car", tag: 2),
-        (icon: "person.crop.circle", title: "Account", tag: 3)
-    ]
+    private var tabs: [(icon: String, title: String, tag: Int)] {
+        [
+            (icon: "map", title: languageManager.localizedString("maps_tool"), tag: 0),
+            (icon: "ev.charger", title: languageManager.localizedString("favourite_tool"), tag: 1),
+            (icon: "car.side", title: languageManager.localizedString("my_car_tool"), tag: 2),
+            (icon: "person.crop.circle", title: languageManager.localizedString("account"), tag: 3)
+        ]
+    }
     
     private var effectiveColorScheme: ColorScheme {
         switch themeManager.currentTheme {
@@ -145,5 +150,6 @@ struct ContentView_Previews: PreviewProvider {
         NavigationBar()
             .environmentObject(AuthenticationManager())
             .environmentObject(ThemeManager())
+            .environmentObject(LanguageManager())
     }
 }

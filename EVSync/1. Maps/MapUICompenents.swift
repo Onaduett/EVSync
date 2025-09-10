@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 // MARK: - Map Gradient Overlay
 struct MapGradientOverlay: View {
@@ -76,37 +77,53 @@ struct MapHeader: View {
     @Environment(\.colorScheme) var colorScheme
     let selectedConnectorTypes: Set<ConnectorType>
     @Binding var showingFilterOptions: Bool
+    @Binding var mapStyle: MKMapType
     
     var body: some View {
         VStack {
-            ZStack {
-                HStack {
-                    Spacer()
-                    Text("Charge&Go")
-                        .font(.custom("Lexend-SemiBold", size: 20))
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                    Spacer()
-                }
-                
-                HStack {
-                    Spacer()
-                    
-                    Button(action: {
-                        showingFilterOptions.toggle()
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .font(.system(size: 18))
-                            if !selectedConnectorTypes.isEmpty {
-                                Text("\(selectedConnectorTypes.count)")
-                                    .font(.custom("Nunito Sans", size: 12).weight(.semibold))
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .clipShape(Circle())
-                            }
+            HStack {
+                // Filter button on the left
+                Button(action: {
+                    showingFilterOptions.toggle()
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.system(size: 18))
+                        if !selectedConnectorTypes.isEmpty {
+                            Text("\(selectedConnectorTypes.count)")
+                                .font(.custom("Nunito Sans", size: 12).weight(.semibold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .clipShape(Circle())
                         }
+                    }
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(.ultraThinMaterial)
+                    )
+                }
+                .padding(.leading, 16)
+                
+                Spacer()
+                
+                // App title in center
+                Text("Charge&Go")
+                    .font(.custom("Lexend-SemiBold", size: 20))
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
+                
+                Spacer()
+                
+                // Map theme toggle on the right
+                Button(action: {
+                    toggleMapStyle()
+                }) {
+                    Image(systemName: mapStyle == .standard ? "map" : "map.fill")
+                        .font(.system(size: 18))
                         .foregroundColor(colorScheme == .dark ? .white : .black)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
@@ -114,11 +131,25 @@ struct MapHeader: View {
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(.ultraThinMaterial)
                         )
-                    }
-                    .padding(.trailing, 16)
                 }
+                .padding(.trailing, 16)
             }
             .padding(.top, 0)
+        }
+    }
+    
+    private func toggleMapStyle() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            switch mapStyle {
+            case .standard:
+                mapStyle = .satellite
+            case .satellite:
+                mapStyle = .hybrid
+            case .hybrid:
+                mapStyle = .standard
+            default:
+                mapStyle = .standard
+            }
         }
     }
 }

@@ -8,14 +8,11 @@
 import SwiftUI
 import Foundation
 
-// Theme Manager to handle app-wide theme changes
 class ThemeManager: ObservableObject {
     @Published var currentTheme: AppTheme = .auto {
         didSet {
-            // Сохраняем тему при изменении
             userDefaults.set(currentTheme.rawValue, forKey: themeKey)
             
-            // Принудительно обновляем UI
             objectWillChange.send()
         }
     }
@@ -46,7 +43,6 @@ class ThemeManager: ObservableObject {
     private let themeKey = "selectedTheme"
     
     init() {
-        // Load saved theme preference
         let savedTheme = userDefaults.integer(forKey: themeKey)
         self.currentTheme = AppTheme(rawValue: savedTheme) ?? .auto
     }

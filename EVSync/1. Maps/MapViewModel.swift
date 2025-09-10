@@ -24,6 +24,7 @@ class MapViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showingFilterOptions = false
     @Published var selectedConnectorTypes: Set<ConnectorType> = []
+    @Published var mapStyle: MKMapType = .standard
     
     private let almatyCenter = CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076)
     private let almatySpan = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
@@ -44,6 +45,13 @@ class MapViewModel: ObservableObject {
         
         withAnimation(.easeInOut(duration: 0.5)) {
             region.center = station.coordinate
+        }
+    }
+    
+    func centerMapOnStation(_ station: ChargingStation) {
+        withAnimation(.easeInOut(duration: 0.5)) {
+            region.center = station.coordinate
+            region.span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
         }
     }
     
@@ -132,5 +140,4 @@ class MapViewModel: ObservableObject {
             region = MKCoordinateRegion(center: center, span: span)
         }
     }
-
 }

@@ -1,5 +1,5 @@
 //
-//  StationAviability.swift
+//  StationAvailability.swift
 //  EVSync
 //
 //  Created by Daulet Yerkinov on 28.08.25.
@@ -19,6 +19,19 @@ enum StationAvailability: String, CaseIterable {
         case .occupied: return .orange
         case .outOfService: return .red
         case .maintenance: return .yellow
+        }
+    }
+    
+    func localizedString(using languageManager: LanguageManager) -> String {
+        switch self {
+        case .available:
+            return languageManager.localizedString("status_available")
+        case .occupied:
+            return languageManager.localizedString("status_occupied")
+        case .outOfService:
+            return languageManager.localizedString("status_out_of_service")
+        case .maintenance:
+            return languageManager.localizedString("status_maintenance")
         }
     }
 }

@@ -10,6 +10,7 @@ import SwiftUI
 struct WelcomeView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var languageManager: LanguageManager
     
     @State private var email = ""
     @State private var password = ""
@@ -41,7 +42,7 @@ struct WelcomeView: View {
                             .foregroundColor(.primary)
                         
                         VStack(spacing: 20) {
-                            Text(authState == .enterEmail ? "Log in or Sign up" : (authState == .signIn ? "Welcome back!" : "Create your account"))
+                            Text(getAuthStateTitle())
                                 .font(.custom("Nunito Sans", size: 18))
                                 .fontWeight(.medium)
                                 .foregroundColor(.primary)
@@ -50,14 +51,14 @@ struct WelcomeView: View {
                                 // Email Field
                                 VStack(alignment: .leading, spacing: 8) {
                                     if authState != .enterEmail {
-                                        Text("Email")
+                                        Text(languageManager.localizedString("email_label"))
                                             .font(.custom("Nunito Sans", size: 14))
                                             .fontWeight(.medium)
                                             .foregroundColor(.primary)
                                             .padding(.horizontal, 16)
                                     }
                                     
-                                    TextField(authState == .enterEmail ? "Email" : "Enter your email", text: $email)
+                                    TextField(getEmailPlaceholder(), text: $email)
                                         .font(.custom("Nunito Sans", size: 16))
                                         .foregroundColor(.primary)
                                         .padding(.horizontal, 16)
@@ -78,13 +79,13 @@ struct WelcomeView: View {
                                 // Password Field (appears after email check)
                                 if authState == .signIn || authState == .signUp {
                                     VStack(alignment: .leading, spacing: 8) {
-                                        Text(authState == .signIn ? "Password" : "Create a password")
+                                        Text(getPasswordLabel())
                                             .font(.custom("Nunito Sans", size: 14))
                                             .fontWeight(.medium)
                                             .foregroundColor(.primary)
                                             .padding(.horizontal, 16)
                                         
-                                        SecureField("Enter your password", text: $password)
+                                        SecureField(languageManager.localizedString("enter_password_placeholder"), text: $password)
                                             .font(.custom("Nunito Sans", size: 16))
                                             .foregroundColor(.primary)
                                             .padding(.horizontal, 16)
@@ -99,7 +100,7 @@ struct WelcomeView: View {
                                             .textContentType(authState == .signUp ? .newPassword : .password)
                                         
                                         if authState == .signUp {
-                                            Text("Password must be at least 6 characters")
+                                            Text(languageManager.localizedString("password_requirement"))
                                                 .font(.custom("Nunito Sans", size: 12))
                                                 .foregroundColor(.secondary)
                                                 .padding(.horizontal, 16)
@@ -113,13 +114,13 @@ struct WelcomeView: View {
                                 
                                 if authState == .signUp {
                                     VStack(alignment: .leading, spacing: 8) {
-                                        Text("Confirm password")
+                                        Text(languageManager.localizedString("confirm_password_label"))
                                             .font(.custom("Nunito Sans", size: 14))
                                             .fontWeight(.medium)
                                             .foregroundColor(.primary)
                                             .padding(.horizontal, 16)
                                         
-                                        SecureField("Confirm your password", text: $confirmPassword)
+                                        SecureField(languageManager.localizedString("confirm_password_placeholder"), text: $confirmPassword)
                                             .font(.custom("Nunito Sans", size: 16))
                                             .foregroundColor(.primary)
                                             .padding(.horizontal, 16)
@@ -137,7 +138,7 @@ struct WelcomeView: View {
                                                 Image(systemName: password == confirmPassword ? "checkmark.circle.fill" : "xmark.circle.fill")
                                                     .font(.system(size: 12))
                                                     .foregroundColor(password == confirmPassword ? .green : .red)
-                                                Text(password == confirmPassword ? "Passwords match" : "Passwords don't match")
+                                                Text(password == confirmPassword ? languageManager.localizedString("passwords_match") : languageManager.localizedString("passwords_dont_match"))
                                                     .font(.custom("Nunito Sans", size: 12))
                                                     .foregroundColor(password == confirmPassword ? .green : .red)
                                             }
@@ -153,7 +154,7 @@ struct WelcomeView: View {
                                 if authState == .signIn {
                                     HStack {
                                         Spacer()
-                                        Button("Forgot Password?") {
+                                        Button(languageManager.localizedString("forgot_password")) {
                                             authManager.resetPassword(email: email)
                                         }
                                         .font(.custom("Nunito Sans", size: 14))
@@ -197,7 +198,7 @@ struct WelcomeView: View {
                                         resetToEmailEntry()
                                     }
                                 }) {
-                                    Text("← Back to email")
+                                    Text(languageManager.localizedString("back_to_email"))
                                         .font(.custom("Nunito Sans", size: 14))
                                         .fontWeight(.medium)
                                         .foregroundColor(.secondary)
@@ -212,7 +213,7 @@ struct WelcomeView: View {
                                             .frame(height: 1)
                                             .foregroundColor(.secondary.opacity(0.3))
                                         
-                                        Text("or use")
+                                        Text(languageManager.localizedString("or_use"))
                                             .font(.custom("Nunito Sans", size: 14))
                                             .foregroundColor(.secondary)
                                             .padding(.horizontal, 16)
@@ -230,10 +231,10 @@ struct WelcomeView: View {
                                             authManager.signInWithGoogle()
                                         }) {
                                             HStack(spacing: 8) {
-                                                Image("google_logo") // You'll need to add this image asset
+                                                Image("google_logo")
                                                     .resizable()
                                                     .frame(width: 16, height: 16)
-                                                Text("Sign in with Google")
+                                                Text(languageManager.localizedString("sign_in_with_google"))
                                                     .font(.custom("Nunito Sans", size: 14))
                                                     .fontWeight(.medium)
                                                     .foregroundColor(.primary)
@@ -255,7 +256,7 @@ struct WelcomeView: View {
                                             HStack(spacing: 8) {
                                                 Image(systemName: "applelogo")
                                                     .foregroundColor(.primary)
-                                                Text("Sign in with Apple")
+                                                Text(languageManager.localizedString("sign_in_with_apple"))
                                                     .font(.custom("Nunito Sans", size: 14))
                                                     .fontWeight(.medium)
                                                     .foregroundColor(.primary)
@@ -285,7 +286,7 @@ struct WelcomeView: View {
                     
                     // Terms and conditions (only show in signup state)
                     if authState == .signUp {
-                        Text("By signing up, you agree to our Terms of Service and Privacy Policy")
+                        Text(languageManager.localizedString("terms_and_conditions"))
                             .font(.custom("Nunito Sans", size: 12))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
@@ -315,11 +316,45 @@ struct WelcomeView: View {
     
     private var continueButtonTextColor: Color {
         if isContinueButtonEnabled {
-            // Активная кнопка: в светлой теме черный фон с белым текстом, в темной - белый фон с черным текстом
             return Color(UIColor.systemBackground)
         } else {
-            // Неактивная кнопка: серый текст в любой теме
             return .secondary
+        }
+    }
+    
+    // MARK: - Localized Text Methods
+    
+    private func getAuthStateTitle() -> String {
+        switch authState {
+        case .enterEmail:
+            return languageManager.localizedString("log_in_or_sign_up")
+        case .signIn:
+            return languageManager.localizedString("welcome_back")
+        case .signUp:
+            return languageManager.localizedString("create_account_title")
+        }
+    }
+    
+    private func getEmailPlaceholder() -> String {
+        return authState == .enterEmail ?
+            languageManager.localizedString("email_placeholder") :
+            languageManager.localizedString("enter_email_placeholder")
+    }
+    
+    private func getPasswordLabel() -> String {
+        return authState == .signIn ?
+            languageManager.localizedString("password_label") :
+            languageManager.localizedString("create_password_label")
+    }
+    
+    private func getContinueButtonText() -> String {
+        switch authState {
+        case .enterEmail:
+            return languageManager.localizedString("continue_button")
+        case .signIn:
+            return languageManager.localizedString("sign_in_button")
+        case .signUp:
+            return languageManager.localizedString("create_account_button")
         }
     }
     
@@ -333,7 +368,7 @@ struct WelcomeView: View {
             authManager.signIn(email: email, password: password)
         case .signUp:
             if password != confirmPassword {
-                authManager.errorMessage = "Passwords do not match"
+                authManager.errorMessage = languageManager.localizedString("passwords_do_not_match_error")
                 return
             }
             authManager.signUp(email: email, password: password)
@@ -342,7 +377,7 @@ struct WelcomeView: View {
     
     private func checkUserExists() {
         guard isValidEmail(email) else {
-            authManager.errorMessage = "Please enter a valid email address"
+            authManager.errorMessage = languageManager.localizedString("invalid_email_error")
             return
         }
         
@@ -365,7 +400,7 @@ struct WelcomeView: View {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         authState = .signUp
                     }
-                    authManager.errorMessage = "Unable to verify account status"
+                    authManager.errorMessage = languageManager.localizedString("unable_to_verify_account_error")
                 }
             }
         }
@@ -376,17 +411,6 @@ struct WelcomeView: View {
         password = ""
         confirmPassword = ""
         authManager.errorMessage = nil
-    }
-    
-    private func getContinueButtonText() -> String {
-        switch authState {
-        case .enterEmail:
-            return "Continue"
-        case .signIn:
-            return "Sign In"
-        case .signUp:
-            return "Create Account"
-        }
     }
     
     private var isContinueButtonEnabled: Bool {

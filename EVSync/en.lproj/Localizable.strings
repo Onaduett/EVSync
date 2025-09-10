@@ -6,7 +6,7 @@
 //
 
 
-// Settings Screen
+// MARK: - SETTINGS
 "account" = "Account";
 "sign_out" = "Sign Out";
 "appearance" = "Appearance";
@@ -75,4 +75,149 @@
 "data_requests" = "Data Requests";
 "data_requests_content" = "To exercise your data protection rights, contact us at dataprotection@chargeandgo.com";
 
+
+// MARK: - MY CAR
+
+"my_car" = "My Car";
+
+// MARK: - Vehicle Information
+"specifications" = "Specifications";
+"compatible_connectors" = "Compatible Connectors";
+"select_vehicle" = "Select Vehicle";
+"done" = "Done";
+
+// MARK: - Specifications
+"battery_capacity" = "Battery Capacity";
+"efficiency" = "Efficiency";
+"max_charging" = "Max Charging";
+"range" = "Range";
+
+// MARK: - Units
+"kwh_unit" = "kWh";
+"kw_unit" = "kW";
+"km_unit" = "km";
+"efficiency_unit" = "kWh/100km";
+"range_unit" = "km range";
+
+// MARK: - Vehicle Selection
+"vehicle_info_format" = "%@ range • %@ kWh";
+
+// MARK: - Charging Sessions
+"total_sessions" = "Total Sessions";
+"total_energy_charged" = "Total Energy Charged";
+"total_cost" = "Total Cost";
+"average_cost" = "Average Cost";
+"co2_saved" = "CO₂ Saved";
+"equivalent_gasoline" = "Gasoline Equivalent";
+
+// MARK: - Environmental Stats
+"co2_emissions_avoided" = "CO₂ Emissions Avoided";
+"gasoline_saved" = "Gasoline Saved";
+"kg_unit" = "kg";
+"liters_unit" = "L";
+
+// MARK: - Charging Session Details
+"energy_added" = "Energy Added";
+"charging_speed" = "Charging Speed";
+"cost" = "Cost";
+"duration" = "Duration";
+"location" = "Location";
+
+// MARK: - Time Units
+"minutes" = "min";
+"hours" = "h";
+"seconds" = "s";
+
+// MARK: TOOLBAR
+"maps_tool" = "Maps";
+"favourite_tool" = "Favourites";
+"my_car_tool" = "My Car";
+
+/* Localizable.strings - English */
+
+/* Favorites View */
+"favorites_title" = "Favourite";
+"loading_favorites" = "Loading favorites...";
+"no_favorite_stations" = "No Favorite Stations";
+"no_favorite_stations_description" = "Add stations to your favorites from the map view to see them here";
+"explore_map" = "Explore Map";
+
+/* Welcome View */
+"log_in_or_sign_up" = "Log in or Sign up";
+"welcome_back" = "Welcome back!";
+"create_account_title" = "Create your account";
+
+/* Form Labels */
+"email_label" = "Email";
+"password_label" = "Password";
+"create_password_label" = "Create a password";
+"confirm_password_label" = "Confirm password";
+
+/* Placeholders */
+"email_placeholder" = "Email";
+"enter_email_placeholder" = "Enter your email";
+"enter_password_placeholder" = "Enter your password";
+"confirm_password_placeholder" = "Confirm your password";
+
+/* Password validation */
+"password_requirement" = "Password must be at least 6 characters";
+"passwords_match" = "Passwords match";
+"passwords_dont_match" = "Passwords don't match";
+
+/* Buttons */
+"continue_button" = "Continue";
+"sign_in_button" = "Sign In";
+"create_account_button" = "Create Account";
+"back_to_email" = "← Back to email";
+"forgot_password" = "Forgot Password?";
+
+/* Social Login */
+"or_use" = "or use";
+"sign_in_with_google" = "Sign in with Google";
+"sign_in_with_apple" = "Sign in with Apple";
+
+/* Terms and Conditions */
+"terms_and_conditions" = "By signing up, you agree to our Terms of Service and Privacy Policy";
+
+/* Error Messages */
+"error_title" = "Error";
+"ok_button" = "OK";
+"unknown_error" = "An unknown error occurred";
+"passwords_do_not_match_error" = "Passwords do not match";
+"invalid_email_error" = "Please enter a valid email address";
+"unable_to_verify_account_error" = "Unable to verify account status";
+
+//MAPS
+/* Station Information */
+"station_address" = "Address";
+"operating_hours" = "Hours";
+"power" = "Power";
+"price" = "Price";
+"phone" = "Phone";
+"connector_types" = "Connector Types";
+"amenities" = "Amenities";
+"kwh" = "kWh";
+
+/* Actions */
+"call" = "Call";
+"save" = "Save";
+"saved" = "Saved";
+"navigate" = "Navigate";
+
+/* Station Status */
+"status_available" = "Available";
+"status_occupied" = "Occupied";
+"status_out_of_service" = "Out of Service";
+"status_maintenance" = "Not Available: Maintanace";
+
+/* Amenities */
+"amenity_wifi" = "WiFi";
+"amenity_restroom" = "Restroom";
+"amenity_restaurant" = "Restaurant";
+"amenity_shopping_mall" = "Shopping";
+"amenity_parking" = "Parking";
+"amenity_24/7" = "24/7";
+"amenity_covered" = "Covered";
+"amenity_fast_charging" = "Fast Charging: DC";
+"amenity_ev_charging" = "EV Charging: AC";
 

@@ -73,3 +73,147 @@
 "security_measures_content" = "Мы используем отраслевые стандарты шифрования и протоколы безопасности для защиты ваших данных при передаче и хранении.";
 "data_requests" = "Запросы на обработку данных";
 "data_requests_content" = "Чтобы воспользоваться своими правами на защиту данных, свяжитесь с нами по адресу dataprotection@chargeandgo.com";
+
+
+// MARK: - MyCar
+"my_car" = "Мой Автомобиль";
+
+// MARK: - Vehicle Information
+"specifications" = "Характеристики";
+"compatible_connectors" = "Совместимые Разъёмы";
+"select_vehicle" = "Выбрать Автомобиль";
+"done" = "Готово";
+
+// MARK: - Specifications
+"battery_capacity" = "Ёмкость Батареи";
+"efficiency" = "Эффективность";
+"max_charging" = "Макс Зарядка";
+"range" = "Запас Хода";
+
+// MARK: - Units
+"kwh_unit" = "кВт·ч";
+"kw_unit" = "кВт";
+"km_unit" = "км";
+"efficiency_unit" = "кВт·ч/100км";
+"range_unit" = "км запас хода";
+
+// MARK: - Vehicle Selection
+"vehicle_info_format" = "%@ запас хода • %@ кВт·ч";
+
+// MARK: - Charging Sessions
+"total_sessions" = "Всего Сессий";
+"total_energy_charged" = "Всего Заряжено Энергии";
+"total_cost" = "Общая Стоимость";
+"average_cost" = "Средняя Стоимость";
+"co2_saved" = "CO₂ Сэкономлено";
+"equivalent_gasoline" = "Эквивалент Бензина";
+
+// MARK: - Environmental Stats
+"co2_emissions_avoided" = "Выбросы CO₂ Предотвращены";
+"gasoline_saved" = "Бензин Сэкономлен";
+"kg_unit" = "кг";
+"liters_unit" = "л";
+
+// MARK: - Charging Session Details
+"energy_added" = "Добавлено Энергии";
+"charging_speed" = "Скорость Зарядки";
+"cost" = "Стоимость";
+"duration" = "Продолжительность";
+"location" = "Местоположение";
+
+// MARK: - Time Units
+"minutes" = "мин";
+"hours" = "ч";
+"seconds" = "сек";
+
+"maps_tool" = "Карты";
+"favourite_tool" = "Мои Станции";
+"my_car_tool" = "Мое Авто";
+
+/* Localizable.strings - Russian */
+
+/* Favorites View */
+"favorites_title" = "Избранное";
+"loading_favorites" = "Загрузка избранного...";
+"no_favorite_stations" = "Нет избранных станций";
+"no_favorite_stations_description" = "Добавьте станции в избранное из вида карты, чтобы видеть их здесь";
+"explore_map" = "Исследовать карту";
+
+/* Welcome View */
+"log_in_or_sign_up" = "Войти или зарегистрироваться";
+"welcome_back" = "С возвращением!";
+"create_account_title" = "Создать аккаунт";
+
+/* Form Labels */
+"email_label" = "Электронная почта";
+"password_label" = "Пароль";
+"create_password_label" = "Создать пароль";
+"confirm_password_label" = "Подтвердить пароль";
+
+/* Placeholders */
+"email_placeholder" = "Электронная почта";
+"enter_email_placeholder" = "Введите вашу электронную почту";
+"enter_password_placeholder" = "Введите ваш пароль";
+"confirm_password_placeholder" = "Подтвердите ваш пароль";
+
+/* Password validation */
+"password_requirement" = "Пароль должен содержать не менее 6 символов";
+"passwords_match" = "Пароли совпадают";
+"passwords_dont_match" = "Пароли не совпадают";
+
+/* Buttons */
+"continue_button" = "Продолжить";
+"sign_in_button" = "Войти";
+"create_account_button" = "Создать аккаунт";
+"back_to_email" = "← Вернуться к почте";
+"forgot_password" = "Забыли пароль?";
+
+/* Social Login */
+"or_use" = "или";
+"sign_in_with_google" = "Войти через Google";
+"sign_in_with_apple" = "Войти через Apple";
+
+/* Terms and Conditions */
+"terms_and_conditions" = "Регистрируясь, вы соглашаетесь с нашими Условиями обслуживания и Политикой конфиденциальности";
+
+/* Error Messages */
+"error_title" = "Ошибка";
+"ok_button" = "ОК";
+"unknown_error" = "Произошла неизвестная ошибка";
+"passwords_do_not_match_error" = "Пароли не совпадают";
+"invalid_email_error" = "Пожалуйста, введите действительный адрес электронной почты";
+"unable_to_verify_account_error" = "Не удается проверить статус аккаунта";
+
+//MAPS
+/* Station Information */
+"station_address" = "Адрес";
+"operating_hours" = "Часы работы";
+"power" = "Мощность";
+"price" = "Цена";
+"phone" = "Телефон";
+"connector_types" = "Типы разъемов";
+"amenities" = "Удобства";
+"kwh" = "кВт·ч";
+
+/* Actions */
+"call" = "Позвонить";
+"save" = "Сохранить";
+"saved" = "Сохранено";
+"navigate" = "Навигация";
+
+/* Station Status */
+"status_available" = "Доступна";
+"status_occupied" = "Занята";
+"status_out_of_service" = "Не работает";
+"status_maintenance" = "Недоступна: Техническое обслуживание";
+
+/* Amenities */
+"amenity_wifi" = "Wi-Fi";
+"amenity_restroom" = "Туалет";
+"amenity_restaurant" = "Ресторан";
+"amenity_shopping_mall" = "Магазины";
+"amenity_parking" = "Парковка";
+"amenity_24/7" = "Круглосуточно";
+"amenity_covered" = "Крытая";
+"amenity_fast_charging" = "Быстрая зарядка: DC";
+"amenity_ev_charging" = "Зарядка для EV: AC";

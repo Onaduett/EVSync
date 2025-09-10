@@ -11,6 +11,7 @@ struct StationPreviewView: View {
     let station: ChargingStation
     @Binding var showingDetail: Bool
     @Binding var showingFullDetail: Bool
+    @StateObject private var languageManager = LanguageManager()
     @State private var dragOffset: CGFloat = 0
     
     var body: some View {
@@ -75,7 +76,7 @@ struct StationPreviewView: View {
             }
             
             HStack(spacing: 16) {
-                PriceChip(text: station.price)
+                PriceChip(text: station.price, languageManager: languageManager)
                 
                 Spacer()
                 
@@ -113,7 +114,7 @@ struct StationPreviewView: View {
             }) {
                 HStack {
                     Image(systemName: "location.fill")
-                    Text("Navigate")
+                    Text(languageManager.localizedString("navigate"))
                 }
                 .font(.custom("Nunito Sans", size: 15))
                 .fontWeight(.semibold)
@@ -142,4 +143,3 @@ struct StationPreviewView: View {
         }
     }
 }
-

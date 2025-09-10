@@ -10,20 +10,20 @@ import SwiftUI
 struct MainContentView: View {
     @StateObject private var authManager = AuthenticationManager()
     @StateObject private var themeManager = ThemeManager()
+    @StateObject private var languageManager = LanguageManager()
     
     var body: some View {
         Group {
             if authManager.isAuthenticated {
                 NavigationBar()
-                    // Убираем .id(themeManager.currentTheme) - это вызывает полную перерисовку
             } else {
                 WelcomeView()
             }
         }
         .environmentObject(authManager)
         .environmentObject(themeManager)
+        .environmentObject(languageManager)
         .preferredColorScheme(themeManager.currentTheme.colorScheme)
-        // Анимация применится автоматически благодаря @Published в ThemeManager
     }
 }
 

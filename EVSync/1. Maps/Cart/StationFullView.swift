@@ -14,6 +14,7 @@ struct StationFullDetailView: View {
     @Binding var isFavorited: Bool
     @Binding var isLoadingFavorite: Bool
     let supabaseManager: SupabaseManager
+    @StateObject private var languageManager = LanguageManager()
     @State private var dragOffset: CGFloat = 0
     
     var body: some View {
@@ -85,7 +86,7 @@ struct StationFullDetailView: View {
                     .fill(station.availability.color)
                     .frame(width: 12, height: 12)
                 
-                Text(station.availability.rawValue)
+                Text(station.availability.localizedString(using: languageManager))
                     .font(.custom("Nunito Sans", size: 15))
                     .fontWeight(.semibold)
                     .foregroundColor(station.availability.color)
@@ -97,14 +98,22 @@ struct StationFullDetailView: View {
             
             // Station Information - Consistent layout
             VStack(alignment: .leading, spacing: 12) {
-                InfoRow(icon: "location", title: "Address", value: station.address)
-                InfoRow(icon: "clock", title: "Hours", value: station.operatingHours)
+                InfoRow(
+                    icon: "location",
+                    title: languageManager.localizedString("station_address"),
+                    value: station.address
+                )
+                InfoRow(
+                    icon: "clock",
+                    title: languageManager.localizedString("operating_hours"),
+                    value: station.operatingHours
+                )
                 
                 // Power and Price in consistent style
                 HStack(spacing: 20) {
                     InfoRowWithChip(
                         icon: "bolt",
-                        title: "Power",
+                        title: languageManager.localizedString("power"),
                         chipIcon: "bolt.fill",
                         chipText: station.power,
                         chipColor: .green
@@ -112,13 +121,17 @@ struct StationFullDetailView: View {
                     
                     InfoRowWithPriceChip(
                         icon: "creditcard",
-                        title: "Price",
+                        title: languageManager.localizedString("price"),
                         priceText: station.price
                     )
                 }
                 
                 if let phone = station.phoneNumber {
-                    InfoRow(icon: "phone", title: "Phone", value: phone)
+                    InfoRow(
+                        icon: "phone",
+                        title: languageManager.localizedString("phone"),
+                        value: phone
+                    )
                 }
             }
             
@@ -126,7 +139,7 @@ struct StationFullDetailView: View {
             
             // Connector Types
             VStack(alignment: .leading, spacing: 8) {
-                Text("Connector Types")
+                Text(languageManager.localizedString("connector_types"))
                     .font(.custom("Nunito Sans", size: 17))
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
@@ -162,7 +175,7 @@ struct StationFullDetailView: View {
             // Amenities - Updated to use left-aligned flow layout
             if !station.amenities.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Amenities")
+                    Text(languageManager.localizedString("amenities"))
                         .font(.custom("Nunito Sans", size: 17))
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
@@ -170,7 +183,7 @@ struct StationFullDetailView: View {
                     // Use FlowLayout for better left alignment
                     FlowLayout(alignment: .leading, spacing: 6) {
                         ForEach(station.amenities, id: \.self) { amenity in
-                            Text(amenity)
+                            Text(localizedAmenity(amenity))
                                 .font(.custom("Nunito Sans", size: 12))
                                 .fontWeight(.medium)
                                 .padding(.horizontal, 10)
@@ -197,7 +210,7 @@ struct StationFullDetailView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "phone.fill")
                                 .font(.system(size: 14, weight: .semibold))
-                            Text("Call")
+                            Text(languageManager.localizedString("call"))
                                 .font(.custom("Nunito Sans", size: 15))
                                 .fontWeight(.semibold)
                         }
@@ -225,7 +238,10 @@ struct StationFullDetailView: View {
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(isFavorited ? .white : .red)
                             }
-                            Text(isFavorited ? "Saved" : "Save")
+                            Text(isFavorited ?
+                                languageManager.localizedString("saved") :
+                                languageManager.localizedString("save")
+                            )
                                 .font(.custom("Nunito Sans", size: 15))
                                 .fontWeight(.semibold)
                         }
@@ -244,7 +260,7 @@ struct StationFullDetailView: View {
                 }) {
                     HStack {
                         Image(systemName: "location.fill")
-                        Text("Navigate")
+                        Text(languageManager.localizedString("navigate"))
                     }
                     .font(.custom("Nunito Sans", size: 15))
                     .fontWeight(.semibold)
@@ -257,6 +273,12 @@ struct StationFullDetailView: View {
             }
         }
         .padding(16)
+    }
+    
+    // MARK: - Localization Helpers
+    private func localizedAmenity(_ amenity: String) -> String {
+        let amenityKey = amenity.lowercased().replacingOccurrences(of: " ", with: "_")
+        return languageManager.localizedString("amenity_\(amenityKey)")
     }
     
     // MARK: - Action Methods
@@ -403,6 +425,7 @@ struct InfoRowWithPriceChip: View {
     let icon: String
     let title: String
     let priceText: String
+    @StateObject private var languageManager = LanguageManager()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -417,7 +440,7 @@ struct InfoRowWithPriceChip: View {
                     .foregroundColor(.secondary)
             }
             
-            PriceChip(text: priceText)
+            PriceChip(text: priceText, languageManager: languageManager)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -450,6 +473,7 @@ struct DetailChip: View {
 // MARK: - Price Chip
 struct PriceChip: View {
     let text: String
+    let languageManager: LanguageManager
     
     var body: some View {
         HStack(spacing: 0) {
@@ -458,7 +482,7 @@ struct PriceChip: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
             
-            Text("/kWh")
+            Text("/\(languageManager.localizedString("kwh"))")
                 .font(.custom("Nunito Sans", size: 14))
                 .fontWeight(.semibold)
                 .foregroundColor(.blue)

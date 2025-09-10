@@ -97,6 +97,8 @@ class SupabaseManager: ObservableObject {
 
 // MARK: - Custom Header
 struct FavoriteHeader: View {
+    @EnvironmentObject var languageManager: LanguageManager
+    
     var body: some View {
         HStack {
             Text("Charge&Go")
@@ -105,7 +107,7 @@ struct FavoriteHeader: View {
             
             Spacer()
             
-            Text("Favourite")
+            Text(languageManager.localizedString("favorites_title"))
                 .font(.custom("Nunito Sans", size: 20).weight(.bold))
                 .foregroundColor(.primary)
         }
@@ -117,6 +119,7 @@ struct FavoriteHeader: View {
 
 struct FavoriteStationsView: View {
     @StateObject private var supabaseManager = SupabaseManager.shared
+    @EnvironmentObject var languageManager: LanguageManager
     @State private var favoriteStations: [UserFavorite] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
@@ -139,7 +142,7 @@ struct FavoriteStationsView: View {
                             .scaleEffect(1.2)
                             .tint(.white)
                         
-                        Text("Loading favorites...")
+                        Text(languageManager.localizedString("loading_favorites"))
                             .foregroundColor(.white.opacity(0.8))
                             .padding(.top, 8)
                     }
@@ -182,10 +185,10 @@ struct FavoriteStationsView: View {
         .refreshable {
             await loadFavoriteStations()
         }
-        .alert("Error", isPresented: $showingError) {
-            Button("OK") { }
+        .alert(languageManager.localizedString("error_title"), isPresented: $showingError) {
+            Button(languageManager.localizedString("ok_button")) { }
         } message: {
-            Text(errorMessage ?? "An unknown error occurred")
+            Text(errorMessage ?? languageManager.localizedString("unknown_error"))
         }
     }
     
@@ -213,6 +216,7 @@ struct FavoriteStationsView: View {
 
 // MARK: - Empty State View
 struct EmptyFavoritesView: View {
+    @EnvironmentObject var languageManager: LanguageManager
     @Binding var selectedTab: Int
     
     var body: some View {
@@ -222,12 +226,12 @@ struct EmptyFavoritesView: View {
                 .foregroundColor(.white.opacity(0.6))
             
             VStack(spacing: 8) {
-                Text("No Favorite Stations")
+                Text(languageManager.localizedString("no_favorite_stations"))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                 
-                Text("Add stations to your favorites from the map view to see them here")
+                Text(languageManager.localizedString("no_favorite_stations_description"))
                     .font(.body)
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -240,7 +244,7 @@ struct EmptyFavoritesView: View {
             }) {
                 HStack {
                     Image(systemName: "map")
-                    Text("Explore Map")
+                    Text(languageManager.localizedString("explore_map"))
                 }
                 .font(.subheadline)
                 .fontWeight(.semibold)
@@ -387,5 +391,6 @@ struct FavoriteStationsView_Previews: PreviewProvider {
             selectedTab: .constant(1),
             selectedStationFromFavorites: .constant(nil)
         )
+        .environmentObject(LanguageManager())
     }
 }

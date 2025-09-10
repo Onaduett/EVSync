@@ -21,7 +21,6 @@ struct ElectricVehicle: Identifiable, Codable {
     let maxChargingSpeed: Int // kW
     let image: String
     
-    // Custom initializer to generate UUID
     init(make: String, model: String, year: Int, batteryCapacity: Double, range: Int, efficiency: Double, supportedChargers: [ConnectorType], maxChargingSpeed: Int, image: String) {
         self.id = UUID()
         self.make = make
@@ -60,6 +59,8 @@ struct CarStats {
 }
 
 struct MyVehicleHeader: View {
+    @ObservedObject private var languageManager = LanguageManager()
+    
     var body: some View {
         HStack {
             Text("Charge&Go")
@@ -68,7 +69,7 @@ struct MyVehicleHeader: View {
             
             Spacer()
             
-            Text("My Car")
+            Text(languageManager.localizedString("my_car"))
                 .font(.custom("Nunito Sans", size: 20).weight(.bold))
                 .foregroundColor(.primary)
         }
@@ -84,6 +85,7 @@ struct MyCarView: View {
     @State private var showingCarSelection = false
     @State private var chargingSessions: [ChargingSession] = sampleChargingSessions
     @State private var imageOpacity: Double = 0.0
+    @ObservedObject private var languageManager = LanguageManager()
     
     private var carStats: CarStats {
         calculateStats()
@@ -202,42 +204,45 @@ struct MyCarView: View {
         )
     }
     
-    // MARK: - Specifications Section (moved to bottom)
     private var specificationsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Technical Specifications
             VStack(alignment: .leading, spacing: 12) {
-                Text("Specifications")
+                Text(languageManager.localizedString("specifications"))
                     .font(.headline)
                     .foregroundColor(.primary)
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
                     SpecificationItem(
                         icon: "battery.100",
-                        title: "Battery Capacity",
-                        value: "\(Int(selectedCar.batteryCapacity)) kWh",
-                        iconColor: .teal
+                        title: languageManager.localizedString("battery_capacity"),
+                        value: "\(Int(selectedCar.batteryCapacity)) \(languageManager.localizedString("kwh_unit"))",
+                        iconColor: .teal,
+                        languageManager: languageManager
                     )
                     
                     SpecificationItem(
                         icon: "speedometer",
-                        title: "Efficiency",
-                        value: String(format: "%.1f kWh/100km", selectedCar.efficiency),
-                        iconColor: .teal
+                        title: languageManager.localizedString("efficiency"),
+                        value: String(format: "%.1f %@", selectedCar.efficiency, languageManager.localizedString("efficiency_unit")),
+                        iconColor: .teal,
+                        languageManager: languageManager
                     )
                     
                     SpecificationItem(
                         icon: "bolt.fill",
-                        title: "Max Charging",
-                        value: "\(selectedCar.maxChargingSpeed) kW",
-                        iconColor: .green
+                        title: languageManager.localizedString("max_charging"),
+                        value: "\(selectedCar.maxChargingSpeed) \(languageManager.localizedString("kw_unit"))",
+                        iconColor: .green,
+                        languageManager: languageManager
                     )
                     
                     SpecificationItem(
                         icon: "road.lanes",
-                        title: "Range",
-                        value: "\(selectedCar.range) km",
-                        iconColor: .green
+                        title: languageManager.localizedString("range"),
+                        value: "\(selectedCar.range) \(languageManager.localizedString("km_unit"))",
+                        iconColor: .green,
+                        languageManager: languageManager
                     )
                 }
             }
@@ -246,7 +251,7 @@ struct MyCarView: View {
             
             // Supported Chargers
             VStack(alignment: .leading, spacing: 12) {
-                Text("Compatible Connectors")
+                Text(languageManager.localizedString("compatible_connectors"))
                     .font(.headline)
                     .foregroundColor(.primary)
                 
@@ -308,25 +313,33 @@ struct SpecificationItem: View {
     let title: String
     let value: String
     let iconColor: Color
+    let languageManager: LanguageManager
     
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .foregroundColor(iconColor)
-                .frame(width: 16)
-            
-            VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .foregroundColor(iconColor)
+                    .frame(width: 16)
+                
                 Text(title)
                     .font(.caption)
                     .foregroundColor(.secondary)
-                Text(value)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                
+                Spacer(minLength: 0)
             }
             
-            Spacer()
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+                .lineLimit(nil) // Убираем ограничение на количество строк
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true) // Позволяем тексту расширяться по вертикали
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -334,10 +347,11 @@ struct ChargingTimeEstimate: View {
     let power: Int
     let time: String
     let type: String
+    @ObservedObject private var languageManager = LanguageManager()
     
     var body: some View {
         VStack(spacing: 4) {
-            Text("\(power) kW")
+            Text("\(power) \(languageManager.localizedString("kw_unit"))")
                 .font(.caption)
                 .foregroundColor(.secondary)
             Text(time)
@@ -392,6 +406,7 @@ struct StatCard: View {
 
 struct ChargingSessionRow: View {
     let session: ChargingSession
+    @ObservedObject private var languageManager = LanguageManager()
     
     var body: some View {
         HStack(spacing: 12) {
@@ -414,7 +429,7 @@ struct ChargingSessionRow: View {
                     .font(.subheadline)
                     .foregroundColor(.primary)
                     .lineLimit(1)
-                Text("\(String(format: "%.1f", session.energyAdded)) kWh")
+                Text("\(String(format: "%.1f", session.energyAdded)) \(languageManager.localizedString("kwh_unit"))")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -425,7 +440,7 @@ struct ChargingSessionRow: View {
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
-                Text("\(session.chargingSpeed) kW")
+                Text("\(session.chargingSpeed) \(languageManager.localizedString("kw_unit"))")
                     .font(.caption)
                     .foregroundColor(.blue)
             }
@@ -480,6 +495,7 @@ struct EnvironmentalStat: View {
 struct CarSelectionView: View {
     @Binding var selectedCar: ElectricVehicle
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var languageManager = LanguageManager()
     
     var body: some View {
         NavigationView {
@@ -498,7 +514,9 @@ struct CarSelectionView: View {
                             .font(.headline)
                             .foregroundColor(.primary)
                         
-                        Text("\(car.range) km range • \(Int(car.batteryCapacity)) kWh")
+                        Text(String(format: languageManager.localizedString("vehicle_info_format"),
+                                   "\(car.range) \(languageManager.localizedString("km_unit"))",
+                                   "\(Int(car.batteryCapacity))"))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -516,11 +534,11 @@ struct CarSelectionView: View {
                     dismiss()
                 }
             }
-            .navigationTitle("Select Vehicle")
+            .navigationTitle(languageManager.localizedString("select_vehicle"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                    Button(languageManager.localizedString("done")) {
                         dismiss()
                     }
                 }

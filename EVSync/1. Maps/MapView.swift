@@ -17,8 +17,10 @@ struct MapView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
-                // Карта занимает весь экран
-                Map(coordinateRegion: $viewModel.region, annotationItems: viewModel.filteredStations) { station in
+                // Map with dynamic style
+                Map(coordinateRegion: $viewModel.region,
+                    interactionModes: .all,
+                    annotationItems: viewModel.filteredStations) { station in
                     MapAnnotation(coordinate: station.coordinate) {
                         ChargingStationAnnotation(
                             station: station,
@@ -29,6 +31,7 @@ struct MapView: View {
                         }
                     }
                 }
+                .mapStyle(mapStyleForType(viewModel.mapStyle))
                 .ignoresSafeArea()
                 
                 MapGradientOverlay()
@@ -44,12 +47,13 @@ struct MapView: View {
                     }
                 }
                 
-                // Header с учетом safe area
+                // Header with new layout: Filter left, Theme toggle right
                 if !viewModel.isLoading && viewModel.errorMessage == nil {
                     VStack {
                         MapHeader(
                             selectedConnectorTypes: viewModel.selectedConnectorTypes,
-                            showingFilterOptions: $viewModel.showingFilterOptions
+                            showingFilterOptions: $viewModel.showingFilterOptions,
+                            mapStyle: $viewModel.mapStyle
                         )
                         Spacer()
                     }
@@ -64,7 +68,7 @@ struct MapView: View {
                     )
                 }
                 
-                // Station Detail Card - теперь не нужен дополнительный отступ
+                // Station Detail Card
                 if viewModel.showingStationDetail, let station = viewModel.selectedStation {
                     VStack {
                         Spacer()
@@ -90,16 +94,18 @@ struct MapView: View {
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showingFilterOptions)
     }
-}
-
-// MARK: - MapViewModel extension
-extension MapViewModel {
-    func centerMapOnStation(_ station: ChargingStation) {
-        withAnimation(.easeInOut(duration: 1.0)) {
-            region = MKCoordinateRegion(
-                center: station.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-            )
+    
+    // Helper function to get the correct map style
+    private var mapStyleForType: (MKMapType) -> MapStyle {
+        return { mapType in
+            switch mapType {
+            case .satellite:
+                return .imagery
+            case .hybrid:
+                return .hybrid
+            default:
+                return .standard
+            }
         }
     }
 }
