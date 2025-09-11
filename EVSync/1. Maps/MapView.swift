@@ -17,7 +17,7 @@ struct MapView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
-                Map(initialPosition: .region(viewModel.region)) {
+                Map(position: $viewModel.cameraPosition) {
                     ForEach(viewModel.filteredStations) { station in
                         Annotation("", coordinate: station.coordinate) {
                             ChargingStationAnnotation(
@@ -91,16 +91,14 @@ struct MapView: View {
     }
     
     // Helper function to get the correct map style
-    private var mapStyleForType: (MKMapType) -> MapStyle {
-        return { mapType in
-            switch mapType {
-            case .satellite:
-                return .imagery
-            case .hybrid:
-                return .hybrid
-            default:
-                return .standard
-            }
+    private func mapStyleForType(_ mapType: MKMapType) -> MapStyle {
+        switch mapType {
+        case .satellite:
+            return .imagery
+        case .hybrid:
+            return .hybrid
+        default:
+            return .standard
         }
     }
 }

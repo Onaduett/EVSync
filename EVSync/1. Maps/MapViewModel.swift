@@ -11,9 +11,11 @@ import Supabase
 
 @MainActor
 class MapViewModel: ObservableObject {
-    @Published var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076),
-        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+    @Published var cameraPosition = MapCameraPosition.region(
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076),
+            span: MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
+        )
     )
     
     @Published var selectedStation: ChargingStation?
@@ -42,14 +44,17 @@ class MapViewModel: ObservableObject {
     func selectStation(_ station: ChargingStation) {
         selectedStation = station
         showingStationDetail = true
-        
         centerMapOnStation(station)
     }
     
     func centerMapOnStation(_ station: ChargingStation) {
-        withAnimation(.spring(response: 0.8, dampingFraction: 0.7, blendDuration: 0)) {
-            region.center = station.coordinate
-            region.span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+        let newRegion = MKCoordinateRegion(
+            center: station.coordinate,
+            span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+        )
+        
+        withAnimation(.easeInOut(duration: 1.0)) {
+            cameraPosition = .region(newRegion)
         }
     }
     
@@ -87,7 +92,6 @@ class MapViewModel: ObservableObject {
             }
         }
         
-
         if !filteredStations.isEmpty && shouldAdjustForFilteredStations() {
             updateMapRegionForFiltered()
         }
@@ -111,7 +115,9 @@ class MapViewModel: ObservableObject {
     
     private func setAlmatyRegion() {
         withAnimation(.easeInOut(duration: 1.0)) {
-            region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
+            cameraPosition = .region(
+                MKCoordinateRegion(center: almatyCenter, span: almatySpan)
+            )
         }
     }
     
@@ -135,7 +141,7 @@ class MapViewModel: ObservableObject {
         )
         
         withAnimation(.easeInOut(duration: 0.5)) {
-            region = MKCoordinateRegion(center: center, span: span)
+            cameraPosition = .region(MKCoordinateRegion(center: center, span: span))
         }
     }
 }
