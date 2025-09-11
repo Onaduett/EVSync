@@ -146,12 +146,6 @@ struct SettingsView: View {
                                     icon: "slider.horizontal.3"
                                 ) {
                                     VStack(spacing: 0) {
-                                        PreferenceRow(
-                                            title: languageManager.localizedString("notifications", comment: "Notifications"),
-                                            subtitle: languageManager.localizedString("notifications_subtitle", comment: "Get alerts for charging status"),
-                                            isOn: $notificationsEnabled,
-                                            showDivider: true
-                                        )
                                         
                                         PreferenceRow(
                                             title: languageManager.localizedString("location_services", comment: "Location Services"),
@@ -250,7 +244,7 @@ struct SettingsView: View {
                             
                             // Footer Section
                             VStack(spacing: 4) {
-                                Text("© Developed by Daulet Yerkinov")
+                                Text("© Developed by Daulét Yerkinov")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 

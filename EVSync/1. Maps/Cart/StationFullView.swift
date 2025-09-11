@@ -88,7 +88,7 @@ struct StationFullDetailView: View {
                 
                 Text(station.availability.localizedString(using: languageManager))
                     .font(.custom("Nunito Sans", size: 15))
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
                     .foregroundColor(station.availability.color)
                 
                 Spacer()
@@ -141,7 +141,7 @@ struct StationFullDetailView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(languageManager.localizedString("connector_types"))
                     .font(.custom("Nunito Sans", size: 17))
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
                     .foregroundColor(.primary)
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
@@ -155,7 +155,7 @@ struct StationFullDetailView: View {
                             
                             Text(connector.rawValue)
                                 .font(.custom("Nunito Sans", size: 14))
-                                .fontWeight(.medium)
+                                .fontWeight(.semibold)
                                 .foregroundColor(.primary)
                             
                             Spacer()
@@ -177,7 +177,7 @@ struct StationFullDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(languageManager.localizedString("amenities"))
                         .font(.custom("Nunito Sans", size: 17))
-                        .fontWeight(.semibold)
+                        .fontWeight(.bold)
                         .foregroundColor(.primary)
                     
                     // Use FlowLayout for better left alignment
@@ -185,7 +185,7 @@ struct StationFullDetailView: View {
                         ForEach(station.amenities, id: \.self) { amenity in
                             Text(localizedAmenity(amenity))
                                 .font(.custom("Nunito Sans", size: 12))
-                                .fontWeight(.medium)
+                                .fontWeight(.semibold)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
                                 .background(
@@ -209,10 +209,10 @@ struct StationFullDetailView: View {
                     }) {
                         HStack(spacing: 6) {
                             Image(systemName: "phone.fill")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.system(size: 14, weight: .bold))
                             Text(languageManager.localizedString("call"))
                                 .font(.custom("Nunito Sans", size: 15))
-                                .fontWeight(.semibold)
+                                .fontWeight(.bold)
                         }
                         .foregroundColor(.blue)
                         .frame(maxWidth: .infinity)
@@ -235,7 +235,7 @@ struct StationFullDetailView: View {
                                     .tint(isFavorited ? .white : .red)
                             } else {
                                 Image(systemName: isFavorited ? "heart.fill" : "heart")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(isFavorited ? .white : .red)
                             }
                             Text(isFavorited ?
@@ -243,7 +243,7 @@ struct StationFullDetailView: View {
                                 languageManager.localizedString("save")
                             )
                                 .font(.custom("Nunito Sans", size: 15))
-                                .fontWeight(.semibold)
+                                .fontWeight(.bold)
                         }
                         .foregroundColor(isFavorited ? .white : .red)
                         .frame(maxWidth: .infinity)
@@ -263,7 +263,7 @@ struct StationFullDetailView: View {
                         Text(languageManager.localizedString("navigate"))
                     }
                     .font(.custom("Nunito Sans", size: 15))
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
@@ -405,12 +405,13 @@ struct InfoRowWithChip: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(.primary)
                     .frame(width: 16)
                 
                 Text(title)
                     .font(.custom("Nunito Sans", size: 13))
+                    .fontWeight(.semibold)
                     .foregroundColor(.secondary)
             }
             
@@ -431,12 +432,13 @@ struct InfoRowWithPriceChip: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(.primary)
                     .frame(width: 16)
                 
                 Text(title)
                     .font(.custom("Nunito Sans", size: 13))
+                    .fontWeight(.semibold)
                     .foregroundColor(.secondary)
             }
             
@@ -455,12 +457,12 @@ struct DetailChip: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: 12, weight: .bold))
                 .foregroundColor(color)
             
             Text(text)
                 .font(.custom("Nunito Sans", size: 14))
-                .fontWeight(.semibold)
+                .fontWeight(.bold)
                 .foregroundColor(.primary)
         }
         .padding(.horizontal, 10)
@@ -479,12 +481,12 @@ struct PriceChip: View {
         HStack(spacing: 0) {
             Text(text.replacingOccurrences(of: "/kWh", with: ""))
                 .font(.custom("Nunito Sans", size: 14))
-                .fontWeight(.semibold)
+                .fontWeight(.bold)
                 .foregroundColor(.primary)
             
             Text("/\(languageManager.localizedString("kwh"))")
                 .font(.custom("Nunito Sans", size: 14))
-                .fontWeight(.semibold)
+                .fontWeight(.bold)
                 .foregroundColor(.blue)
         }
         .padding(.horizontal, 10)

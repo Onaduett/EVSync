@@ -5,7 +5,6 @@
 //  Created by Daulet Yerkinov on 11.09.25.
 //
 
-
 import SwiftUI
 
 struct WelcomeScreen: View {
@@ -30,55 +29,21 @@ struct WelcomeScreen: View {
             )
             .ignoresSafeArea()
             
-            VStack(spacing: 40) {
+            VStack {
                 Spacer()
                 
-                // Logo Section
-                VStack(spacing: 20) {
-                    // App Logo/Icon
-                    ZStack {
-                        // Background circle with gradient
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color.blue.opacity(0.8),
-                                        Color.green.opacity(0.6)
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 120, height: 120)
-                            .shadow(color: .primary.opacity(0.2), radius: 10, x: 0, y: 5)
-                        
-                        // Charging icon
-                        Image(systemName: "bolt.fill")
-                            .font(.system(size: 50, weight: .medium))
-                            .foregroundColor(.white)
-                    }
+                // Logo Section - по центру экрана
+                Image("LOGOFRONT")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 150, height: 150)
+                    .shadow(color: .primary.opacity(0.2), radius: 10, x: 0, y: 5)
                     .scaleEffect(logoScale)
                     .opacity(logoOpacity)
-                    
-                    // App Name
-                    Text("Charge&Go")
-                        .font(.custom("Lexend-SemiBold", size: 42))
-                        .foregroundColor(.primary)
-                        .opacity(textOpacity)
-                    
-                    // Tagline
-                    Text(languageManager.localizedString("welcome_tagline"))
-                        .font(.custom("Nunito Sans", size: 18))
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .opacity(textOpacity)
-                        .padding(.horizontal, 40)
-                }
                 
                 Spacer()
                 
-                // Loading Indicator
+                // Loading Indicator - внизу экрана
                 VStack(spacing: 16) {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .primary))
@@ -87,10 +52,17 @@ struct WelcomeScreen: View {
                     Text(languageManager.localizedString("loading"))
                         .font(.custom("Nunito Sans", size: 16))
                         .foregroundColor(.secondary)
+                    
+                    Text(languageManager.localizedString("welcome_tagline"))
+                        .font(.custom("Nunito Sans", size: 18))
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .opacity(textOpacity)
+                        .padding(.horizontal, 40)
                 }
                 .opacity(progressOpacity)
-                
-                Spacer()
+                .padding(.bottom, 60)
             }
         }
         .preferredColorScheme(themeManager.currentTheme.colorScheme)

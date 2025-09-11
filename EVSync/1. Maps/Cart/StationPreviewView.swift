@@ -60,6 +60,7 @@ struct StationPreviewView: View {
                     
                     Text(station.address)
                         .font(.custom("Nunito Sans", size: 15))
+                        .fontWeight(.medium)
                         .foregroundColor(.secondary)
                         .lineLimit(2)
                 }
@@ -95,7 +96,7 @@ struct StationPreviewView: View {
                                 .foregroundColor(.blue)
                             Text(connector.rawValue)
                                 .font(.custom("Nunito Sans", size: 12))
-                                .fontWeight(.medium)
+                                .fontWeight(.bold)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -117,7 +118,7 @@ struct StationPreviewView: View {
                     Text(languageManager.localizedString("navigate"))
                 }
                 .font(.custom("Nunito Sans", size: 15))
-                .fontWeight(.semibold)
+                .fontWeight(.bold)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)

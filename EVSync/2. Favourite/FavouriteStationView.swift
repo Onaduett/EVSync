@@ -269,6 +269,7 @@ struct FavoriteStationCard: View {
     let onRemove: (UUID) async -> Void
     let onTap: (ChargingStation) -> Void
     
+    @EnvironmentObject var languageManager: LanguageManager
     @State private var isRemoving = false
     
     var body: some View {
@@ -327,7 +328,7 @@ struct FavoriteStationCard: View {
                 // Station details
                 HStack(spacing: 15) {
                     DetailChip(icon: "bolt.fill", text: station.power, color: .green)
-                    DetailChip(icon: "tengesign", text: station.price, color: .blue)
+                    PriceChip(text: station.price, languageManager: languageManager)
                 }
                 
                 // Connector types
