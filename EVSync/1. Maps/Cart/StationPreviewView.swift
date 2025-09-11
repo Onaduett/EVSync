@@ -128,18 +128,18 @@ struct StationPreviewView: View {
         .padding(16)
     }
     
-    // MARK: - Navigation Methods
     private func navigateToStation() {
         let latitude = station.coordinate.latitude
         let longitude = station.coordinate.longitude
-        let url = URL(string: "maps://?daddr=\(latitude),\(longitude)")!
         
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
-        } else {
-            // Fallback to Google Maps or web maps
-            let googleMapsUrl = URL(string: "https://maps.google.com/?daddr=\(latitude),\(longitude)")!
-            UIApplication.shared.open(googleMapsUrl)
+        if let dgisRouteUrl = URL(string: "dgis://2gis.ru/routeSearch/rsType/car/to/\(longitude),\(latitude)"),
+           UIApplication.shared.canOpenURL(dgisRouteUrl) {
+            UIApplication.shared.open(dgisRouteUrl)
+        } else if let dgisGeoUrl = URL(string: "dgis://2gis.ru/geo/\(longitude),\(latitude)"),
+                  UIApplication.shared.canOpenURL(dgisGeoUrl) {
+            UIApplication.shared.open(dgisGeoUrl)
+        } else if let dgisWebUrl = URL(string: "https://2gis.com/geo/\(longitude),\(latitude)") {
+            UIApplication.shared.open(dgisWebUrl)
         }
     }
 }

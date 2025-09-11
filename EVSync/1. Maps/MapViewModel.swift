@@ -43,15 +43,13 @@ class MapViewModel: ObservableObject {
         selectedStation = station
         showingStationDetail = true
         
-        withAnimation(.easeInOut(duration: 0.5)) {
-            region.center = station.coordinate
-        }
+        centerMapOnStation(station)
     }
     
     func centerMapOnStation(_ station: ChargingStation) {
-        withAnimation(.easeInOut(duration: 0.5)) {
+        withAnimation(.spring(response: 0.8, dampingFraction: 0.7, blendDuration: 0)) {
             region.center = station.coordinate
-            region.span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            region.span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
         }
     }
     

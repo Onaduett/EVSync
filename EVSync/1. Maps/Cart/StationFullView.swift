@@ -293,14 +293,14 @@ struct StationFullDetailView: View {
     private func navigateToStation() {
         let latitude = station.coordinate.latitude
         let longitude = station.coordinate.longitude
-        let url = URL(string: "maps://?daddr=\(latitude),\(longitude)")!
         
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
+        if let dgisAppUrl = URL(string: "dgis://2gis.ru/geo/\(longitude),\(latitude)"),
+           UIApplication.shared.canOpenURL(dgisAppUrl) {
+            UIApplication.shared.open(dgisAppUrl)
         } else {
-            // Fallback to Google Maps or web maps
-            let googleMapsUrl = URL(string: "https://maps.google.com/?daddr=\(latitude),\(longitude)")!
-            UIApplication.shared.open(googleMapsUrl)
+            if let dgisWebUrl = URL(string: "https://2gis.com/geo/\(longitude),\(latitude)") {
+                UIApplication.shared.open(dgisWebUrl)
+            }
         }
     }
     
