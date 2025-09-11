@@ -223,3 +223,9 @@
 "amenity_covered" = "Жабық";
 "amenity_fast_charging" = "Жылдам қуаттау: DC";
 "amenity_ev_charging" = "Электромобиль қуаттау: AC";
+
+
+
+//  Welcome Screen
+"welcome_tagline" = "Электромобиліңізді оңай табыңыз, жол сілтеңіз және зарядтаңыз";
+"loading" = "Жүктелуде...";

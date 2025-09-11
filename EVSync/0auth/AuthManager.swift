@@ -22,16 +22,25 @@ class AuthenticationManager: ObservableObject {
     )
     
     init() {
-        checkAuthStatus()
+        // Don't check auth status in init anymore
+        // This will be called explicitly from MainContentView
     }
     
     func checkAuthStatus() {
         Task {
-            do {
-                let session = try await supabase.auth.session
+            await checkAuthStatusAsync()
+        }
+    }
+    
+    func checkAuthStatusAsync() async {
+        do {
+            let session = try await supabase.auth.session
+            await MainActor.run {
                 self.isAuthenticated = true
                 self.user = session.user
-            } catch {
+            }
+        } catch {
+            await MainActor.run {
                 self.isAuthenticated = false
                 self.user = nil
             }

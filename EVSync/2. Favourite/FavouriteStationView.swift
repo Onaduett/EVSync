@@ -327,7 +327,7 @@ struct FavoriteStationCard: View {
                 // Station details
                 HStack(spacing: 15) {
                     DetailChip(icon: "bolt.fill", text: station.power, color: .green)
-                    DetailChip(icon: "tenge", text: station.price, color: .blue)
+                    DetailChip(icon: "tengesign", text: station.price, color: .blue)
                 }
                 
                 // Connector types

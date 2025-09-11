@@ -217,3 +217,7 @@
 "amenity_covered" = "Крытая";
 "amenity_fast_charging" = "Быстрая зарядка: DC";
 "amenity_ev_charging" = "Зарядка для EV: AC";
+
+// Russian (Welcome Screen)
+"welcome_tagline" = "Находите, планируйте маршрут и заряжайте свой электромобиль легко";
+"loading" = "Загрузка...";

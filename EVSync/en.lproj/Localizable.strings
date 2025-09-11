@@ -221,3 +221,8 @@
 "amenity_fast_charging" = "Fast Charging: DC";
 "amenity_ev_charging" = "EV Charging: AC";
 
+
+// Welcome Screen
+"welcome_tagline" = "Find, navigate, and charge your electric vehicle with ease";
+"loading" = "Loading...";
+
