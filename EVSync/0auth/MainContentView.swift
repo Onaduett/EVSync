@@ -11,14 +11,21 @@ struct MainContentView: View {
     @StateObject private var authManager = AuthenticationManager()
     @StateObject private var themeManager = ThemeManager()
     @StateObject private var languageManager = LanguageManager()
+    @StateObject private var networkMonitor = NetworkMonitor()
+    
     @State private var showWelcomeScreen = true
+    @State private var showNoInternet = false
     @State private var isCheckingAuth = true
     @State private var contentReady = false
+    @State private var initialConnectionCheck = false
     
     var body: some View {
         ZStack {
             if showWelcomeScreen {
                 WelcomeScreen()
+                    .transition(.opacity.animation(.easeInOut(duration: 0.6)))
+            } else if showNoInternet {
+                NoInternetView(onRefresh: handleRefresh)
                     .transition(.opacity.animation(.easeInOut(duration: 0.6)))
             } else {
                 Group {
@@ -36,9 +43,15 @@ struct MainContentView: View {
         .environmentObject(authManager)
         .environmentObject(themeManager)
         .environmentObject(languageManager)
+        .environmentObject(networkMonitor)
         .preferredColorScheme(themeManager.currentTheme.colorScheme)
         .onAppear {
             startInitialization()
+        }
+        .onChange(of: networkMonitor.isConnected) { _, isConnected in
+            if initialConnectionCheck && !isConnected && !showWelcomeScreen {
+                handleNoInternetState()
+            }
         }
     }
     
@@ -48,8 +61,8 @@ struct MainContentView: View {
             let minimumDuration: TimeInterval = 2.0
             let startTime = Date()
             
-            // Start auth check immediately
-            await authManager.checkAuthStatusAsync()
+            // Check initial connection status
+            let hasConnection = await networkMonitor.checkConnection()
             
             // Ensure minimum welcome screen time
             let elapsed = Date().timeIntervalSince(startTime)
@@ -59,22 +72,69 @@ struct MainContentView: View {
                 try? await Task.sleep(nanoseconds: UInt64(remainingTime * 1_000_000_000))
             }
             
-            // Hide welcome screen with smooth animation
+            // Hide welcome screen
             await MainActor.run {
                 withAnimation(.easeInOut(duration: 0.6)) {
                     showWelcomeScreen = false
+                    initialConnectionCheck = true
                 }
             }
             
-            // Small delay before showing content to ensure smooth transition
-            try? await Task.sleep(nanoseconds: UInt64(0.3 * 1_000_000_000))
+            // Check if we should show no internet screen
+            if !hasConnection {
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 0.6)) {
+                        showNoInternet = true
+                    }
+                }
+                return
+            }
+            
+            // If we have connection, proceed with auth check
+            await proceedWithAuth()
+        }
+    }
+    
+    private func proceedWithAuth() async {
+        // Start auth check
+        await authManager.checkAuthStatusAsync()
+        
+        // Small delay before showing content to ensure smooth transition
+        try? await Task.sleep(nanoseconds: UInt64(0.3 * 1_000_000_000))
+        
+        await MainActor.run {
+            withAnimation(.easeInOut(duration: 0.5)) {
+                contentReady = true
+                isCheckingAuth = false
+            }
+        }
+    }
+    
+    private func handleRefresh() {
+        Task {
+            let hasConnection = await networkMonitor.checkConnection()
             
             await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    contentReady = true
-                    isCheckingAuth = false
+                if hasConnection {
+                    // Hide no internet screen and proceed with auth
+                    withAnimation(.easeInOut(duration: 0.6)) {
+                        showNoInternet = false
+                    }
+                    
+                    // Proceed with authentication
+                    Task {
+                        await proceedWithAuth()
+                    }
                 }
+                // If still no connection, keep showing the no internet screen
             }
+        }
+    }
+    
+    private func handleNoInternetState() {
+        withAnimation(.easeInOut(duration: 0.6)) {
+            showNoInternet = true
+            contentReady = false
         }
     }
 }

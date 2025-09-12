@@ -221,3 +221,13 @@
 // Russian (Welcome Screen)
 "welcome_tagline" = "Находите, планируйте маршрут и заряжайте свой электромобиль легко";
 "loading" = "Загрузка...";
+
+// No Internet Screen
+"no_internet_title" = "Нет подключения к Интернету";
+"no_internet_description" = "Проверьте подключение к интернету и попробуйте снова. Убедитесь, что вы подключены к Wi-Fi или мобильным данным.";
+"try_again_button" = "Повторить";
+"checking_connection" = "Проверка соединения...";
+"connection_tips_title" = "Советы по подключению:";
+"check_wifi_tip" = "Проверьте подключение Wi-Fi";
+"check_cellular_tip" = "Убедитесь, что включены мобильные данные";
+"restart_device_tip" = "Попробуйте перезагрузить устройство";

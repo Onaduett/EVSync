@@ -229,3 +229,13 @@
 //  Welcome Screen
 "welcome_tagline" = "Электромобиліңізді оңай табыңыз, жол сілтеңіз және зарядтаңыз";
 "loading" = "Жүктелуде...";
+
+// No Internet Screen
+"no_internet_title" = "Интернет жоқ";
+"no_internet_description" = "Интернет байланысын тексеріп, қайтадан көріңіз. Wi-Fi немесе ұялы деректер қосылғанына көз жеткізіңіз.";
+"try_again_button" = "Қайта көру";
+"checking_connection" = "Байланыс тексерілуде...";
+"connection_tips_title" = "Байланыс кеңестері:";
+"check_wifi_tip" = "Wi-Fi қосылымын тексеріңіз";
+"check_cellular_tip" = "Ұялы деректер қосулы екенін тексеріңіз";
+"restart_device_tip" = "Құрылғыны қайта қосуды көріңіз";

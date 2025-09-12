@@ -226,3 +226,13 @@
 "welcome_tagline" = "Find, navigate, and charge your electric vehicle with ease";
 "loading" = "Loading...";
 
+
+// No Internet Screen
+"no_internet_title" = "No Internet Connection";
+"no_internet_description" = "Please check your internet connection and try again. Make sure you're connected to Wi-Fi or cellular data.";
+"try_again_button" = "Try Again";
+"checking_connection" = "Checking Connection...";
+"connection_tips_title" = "Connection Tips:";
+"check_wifi_tip" = "Check your Wi-Fi connection";
+"check_cellular_tip" = "Ensure cellular data is enabled";
+"restart_device_tip" = "Try restarting your device";
