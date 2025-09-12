@@ -13,6 +13,8 @@ struct MapView: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject private var viewModel = MapViewModel()
     @Binding var selectedStationFromFavorites: ChargingStation?
+    @State private var mapContentOpacity: Double = 0.0
+    @State private var shouldLoadStations = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -32,17 +34,21 @@ struct MapView: View {
                 }
                 .mapStyle(mapStyleForType(viewModel.mapStyle))
                 .ignoresSafeArea()
+                .opacity(mapContentOpacity)
                 
                 MapGradientOverlay()
+                    .opacity(mapContentOpacity)
                 
                 if viewModel.isLoading {
                     LoadingOverlay()
+                        .opacity(mapContentOpacity)
                 }
                 
                 if let errorMessage = viewModel.errorMessage {
                     ErrorOverlay(message: errorMessage) {
                         viewModel.loadChargingStations()
                     }
+                    .opacity(mapContentOpacity)
                 }
                 
                 if !viewModel.isLoading && viewModel.errorMessage == nil {
@@ -54,6 +60,7 @@ struct MapView: View {
                         )
                         Spacer()
                     }
+                    .opacity(mapContentOpacity)
                 }
                 
                 if viewModel.showingFilterOptions {
@@ -62,6 +69,7 @@ struct MapView: View {
                         selectedTypes: $viewModel.selectedConnectorTypes,
                         isShowing: $viewModel.showingFilterOptions
                     )
+                    .opacity(mapContentOpacity)
                 }
                 
                 if viewModel.showingStationDetail, let station = viewModel.selectedStation {
@@ -71,11 +79,17 @@ struct MapView: View {
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                     .animation(.spring(response: 0.6, dampingFraction: 0.8), value: viewModel.showingStationDetail)
+                    .opacity(mapContentOpacity)
                 }
             }
         }
         .onAppear {
-            viewModel.loadChargingStations()
+            startMapInitialization()
+        }
+        .onChange(of: shouldLoadStations) { _, shouldLoad in
+            if shouldLoad {
+                viewModel.loadChargingStations()
+            }
         }
         .onChange(of: viewModel.selectedConnectorTypes) {
             viewModel.applyFilters()
@@ -88,6 +102,20 @@ struct MapView: View {
             }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showingFilterOptions)
+    }
+    
+    private func startMapInitialization() {
+        // Delay the loading and appearance to ensure smooth transition
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(.easeInOut(duration: 0.8)) {
+                mapContentOpacity = 1.0
+            }
+            
+            // Start loading stations after the map appears
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                shouldLoadStations = true
+            }
+        }
     }
     
     // Helper function to get the correct map style

@@ -14,6 +14,7 @@ struct WelcomeScreen: View {
     @State private var logoOpacity: Double = 0.0
     @State private var textOpacity: Double = 0.0
     @State private var progressOpacity: Double = 0.0
+    @State private var backgroundOpacity: Double = 1.0
     
     var body: some View {
         ZStack {
@@ -28,6 +29,7 @@ struct WelcomeScreen: View {
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
+            .opacity(backgroundOpacity)
             
             VStack {
                 Spacer()
@@ -72,20 +74,33 @@ struct WelcomeScreen: View {
     }
     
     private func startAnimations() {
-        // Logo animation
-        withAnimation(.spring(response: 0.8, dampingFraction: 0.6, blendDuration: 0)) {
+        // Logo animation - более быстрая и плавная
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.7, blendDuration: 0)) {
             logoScale = 1.0
             logoOpacity = 1.0
         }
         
-        // Text animation
-        withAnimation(.easeOut(duration: 0.8).delay(0.3)) {
+        // Text animation - раньше появляется
+        withAnimation(.easeOut(duration: 0.6).delay(0.2)) {
             textOpacity = 1.0
         }
         
-        // Progress indicator animation
-        withAnimation(.easeIn(duration: 0.5).delay(0.8)) {
+        // Progress indicator animation - раньше появляется
+        withAnimation(.easeIn(duration: 0.4).delay(0.5)) {
             progressOpacity = 1.0
+        }
+    }
+    
+    // Функция для плавного исчезновения
+    func fadeOut() {
+        withAnimation(.easeOut(duration: 0.4)) {
+            logoOpacity = 0.0
+            textOpacity = 0.0
+            progressOpacity = 0.0
+        }
+        
+        withAnimation(.easeOut(duration: 0.5).delay(0.1)) {
+            backgroundOpacity = 0.0
         }
     }
 }
