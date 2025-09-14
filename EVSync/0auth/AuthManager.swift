@@ -8,6 +8,8 @@
 import Foundation
 import Supabase
 import SwiftUI
+import GoogleSignIn
+import UIKit
 
 @MainActor
 class AuthenticationManager: ObservableObject {
@@ -22,8 +24,44 @@ class AuthenticationManager: ObservableObject {
     )
     
     init() {
-        // Don't check auth status in init anymore
-        // This will be called explicitly from MainContentView
+        // Configure Google Sign-In
+        configureGoogleSignIn()
+    }
+    
+    private func configureGoogleSignIn() {
+        // Try to get client ID from the plist file first
+        var clientId: String?
+        
+        // Try different possible file names for your Google config file
+        let possibleFileNames = [
+            "client_678345122697-4b7g72q8lok56lnm65spt1rqih51g0j5.apps.googleusercontent.com",
+            "GoogleService-Info",
+            "GoogleService"
+        ]
+        
+        for fileName in possibleFileNames {
+            if let path = Bundle.main.path(forResource: fileName, ofType: "plist"),
+               let plist = NSDictionary(contentsOfFile: path),
+               let id = plist["CLIENT_ID"] as? String {
+                clientId = id
+                print("Found Google config in file: \(fileName).plist")
+                break
+            }
+        }
+        
+        // Fallback to hardcoded client ID if file not found
+        if clientId == nil {
+            clientId = "678345122697-4b7g72q8lok56lnm65spt1rqih51g0j5.apps.googleusercontent.com"
+            print("Using hardcoded Google Client ID")
+        }
+        
+        guard let finalClientId = clientId else {
+            print("Error: No Google Client ID found")
+            return
+        }
+        
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: finalClientId)
+        print("Google Sign-In configured with client ID: \(finalClientId)")
     }
     
     func checkAuthStatus() {
@@ -72,7 +110,6 @@ class AuthenticationManager: ObservableObject {
                     password: password
                 )
                 
-                // Since response.user is not optional, directly assign it
                 let user = response.user
                 self.user = user
                 self.isAuthenticated = true
@@ -123,6 +160,10 @@ class AuthenticationManager: ObservableObject {
         Task {
             do {
                 try await supabase.auth.signOut()
+                
+                // Also sign out from Google
+                GIDSignIn.sharedInstance.signOut()
+                
                 self.isAuthenticated = false
                 self.user = nil
                 self.errorMessage = nil
@@ -145,21 +186,81 @@ class AuthenticationManager: ObservableObject {
     
     func signInWithGoogle() {
         Task {
-            isLoading = true
-            errorMessage = nil
-            
-            do {
-                // Note: You'll need to configure Google Sign-In with Supabase
-                // This is a placeholder implementation
-                try await supabase.auth.signInWithOAuth(
-                    provider: .google,
-                    redirectTo: URL(string: "your-app://auth-callback")
-                )
-            } catch {
-                self.errorMessage = error.localizedDescription
+            await MainActor.run {
+                self.isLoading = true
+                self.errorMessage = nil
             }
             
-            isLoading = false
+            do {
+                // Get the presenting view controller
+                guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                      let window = windowScene.windows.first,
+                      let rootViewController = window.rootViewController else {
+                    throw NSError(domain: "GoogleSignIn", code: -1,
+                                userInfo: [NSLocalizedDescriptionKey: "No presenting view controller found"])
+                }
+                
+                // Get the top-most view controller
+                var topViewController = rootViewController
+                while let presentedViewController = topViewController.presentedViewController {
+                    topViewController = presentedViewController
+                }
+                
+                // Start Google Sign-In flow
+                let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
+                
+                guard let idToken = result.user.idToken?.tokenString else {
+                    throw NSError(domain: "GoogleSignIn", code: -1,
+                                userInfo: [NSLocalizedDescriptionKey: "Failed to get ID token"])
+                }
+                
+                let accessToken = result.user.accessToken.tokenString
+                
+                // Sign in with Supabase using the Google tokens (no custom nonce needed)
+                let response = try await supabase.auth.signInWithIdToken(
+                    credentials: .init(
+                        provider: .google,
+                        idToken: idToken,
+                        accessToken: accessToken
+                    )
+                )
+                
+                await MainActor.run {
+                    self.user = response.user
+                    self.isAuthenticated = true
+                }
+                
+                // Create or update user profile in profiles table
+                let user = response.user
+                let profile: [String: AnyJSON] = [
+                    "id": AnyJSON.string(user.id.uuidString),
+                    "email": AnyJSON.string(user.email ?? ""),
+                    "full_name": AnyJSON.string(result.user.profile?.name ?? ""),
+                    "avatar_url": AnyJSON.string(result.user.profile?.imageURL(withDimension: 200)?.absoluteString ?? ""),
+                    "provider": AnyJSON.string("google"),
+                    "created_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date()))
+                ]
+                
+                do {
+                    try await supabase
+                        .from("profiles")
+                        .upsert(profile)
+                        .execute()
+                } catch {
+                    print("Error creating/updating profile: \(error)")
+                    // Don't fail the authentication if profile creation fails
+                }
+                
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    print("Google Sign-In Error: \(error)")
+                }
+            }
+            
+            await MainActor.run {
+                self.isLoading = false
+            }
         }
     }
     
