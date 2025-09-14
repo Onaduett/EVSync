@@ -75,7 +75,7 @@ struct ErrorOverlay: View {
     }
 }
 
-// MARK: - Map Header
+// MARK: - Map Header с адаптивными иконками
 struct MapHeader: View {
     let selectedConnectorTypes: Set<ConnectorType>
     @Binding var showingFilterOptions: Bool
@@ -95,9 +95,11 @@ struct MapHeader: View {
                         HStack(spacing: 6) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .font(.system(size: 18))
+                                .minimumScaleFactor(0.7)
                             if !selectedConnectorTypes.isEmpty {
                                 Text("\(selectedConnectorTypes.count)")
                                     .font(.custom("Nunito Sans", size: 12).weight(.semibold))
+                                    .minimumScaleFactor(0.8)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Color.blue)
@@ -124,6 +126,8 @@ struct MapHeader: View {
                     Spacer()
                     Text("Charge&Go")
                         .font(.custom("Lexend-SemiBold", size: 20))
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
                         .foregroundColor(colorScheme == .dark ? .white : .black)
                     Spacer()
                 }
@@ -134,10 +138,11 @@ struct MapHeader: View {
                     Spacer()
                     
                     HStack(spacing: 8) {
-                        // Location button with visual state indication
+                        // Location button
                         Button(action: onLocationTap) {
                             Image(systemName: locationManager.locationButtonIcon)
                                 .font(.system(size: 18))
+                                .minimumScaleFactor(0.7)
                                 .foregroundColor(locationManager.locationButtonColor(colorScheme: colorScheme))
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
@@ -157,6 +162,7 @@ struct MapHeader: View {
                         }) {
                             Image(systemName: mapStyle == .standard ? "map" : "map.fill")
                                 .font(.system(size: 18))
+                                .minimumScaleFactor(0.7)
                                 .foregroundColor(colorScheme == .dark ? .white : .black)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
@@ -189,7 +195,6 @@ struct MapHeader: View {
         }
     }
 }
-
 // MARK: - Filter Options Overlay
 struct FilterOptionsOverlay: View {
     let availableTypes: [ConnectorType]
