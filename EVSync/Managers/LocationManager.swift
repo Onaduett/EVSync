@@ -1,10 +1,9 @@
 //
 //  LocationManager.swift
-//  Charge&Go
+//  EVSync
 //
 //  Created by Daulet Yerkinov on 14.09.25.
 //
-
 
 import SwiftUI
 import CoreLocation
@@ -129,33 +128,36 @@ class LocationManager: NSObject, ObservableObject {
         case servicesDisabled
         
         var title: String {
+            let languageManager = LanguageManager()
             switch self {
             case .disabled:
-                return "Местоположение отключено"
+                return languageManager.localizedString("location_disabled_title")
             case .denied, .restricted:
-                return "Доступ к местоположению"
+                return languageManager.localizedString("location_access_title")
             case .servicesDisabled:
-                return "Службы геолокации отключены"
+                return languageManager.localizedString("location_services_disabled_title")
             }
         }
         
         var message: String {
+            let languageManager = LanguageManager()
             switch self {
             case .disabled:
-                return "Для показа вашего местоположения и поиска ближайших станций зарядки необходимо включить службы геолокации в настройках приложения."
+                return languageManager.localizedString("location_disabled_message")
             case .denied, .restricted:
-                return "Доступ к местоположению ограничен. Пожалуйста, включите доступ к местоположению в Настройках системы."
+                return languageManager.localizedString("location_access_denied_message")
             case .servicesDisabled:
-                return "Службы геолокации отключены в настройках устройства. Включите их в Настройках > Конфиденциальность > Службы геолокации."
+                return languageManager.localizedString("location_services_disabled_message")
             }
         }
         
         var buttonTitle: String {
+            let languageManager = LanguageManager()
             switch self {
             case .disabled:
-                return "Включить"
+                return languageManager.localizedString("enable")
             case .denied, .restricted, .servicesDisabled:
-                return "Открыть настройки"
+                return languageManager.localizedString("open_settings")
             }
         }
     }
@@ -245,10 +247,8 @@ class LocationManager: NSObject, ObservableObject {
 // MARK: - CLLocationManagerDelegate
 
 extension LocationManager: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        
-        print("Location updated: \(location.coordinate)")
         
         Task { @MainActor in
             self.userLocation = location.coordinate
@@ -259,48 +259,38 @@ extension LocationManager: CLLocationManagerDelegate {
         manager.stopUpdatingLocation()
     }
     
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        print("Location authorization changed to: \(status.rawValue)")
-        
+    nonisolated func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         Task { @MainActor in
             self.authorizationStatus = status
             
             switch status {
             case .authorizedWhenInUse, .authorizedAlways:
-                print("Location authorized, starting updates")
                 if self.isLocationEnabled {
                     self.startLocationUpdates()
                 }
             case .denied:
-                print("Location access denied")
                 self.locationError = .accessDenied
                 self.stopLocationUpdates()
             case .restricted:
-                print("Location access restricted")
                 self.locationError = .restricted
                 self.stopLocationUpdates()
             case .notDetermined:
-                print("Location authorization not determined")
+                break
             @unknown default:
                 break
             }
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location error: \(error.localizedDescription)")
-        
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
             if let clError = error as? CLError {
                 switch clError.code {
                 case .locationUnknown:
-                    print("Location service was unable to determine location")
                     self.locationError = .locationUnknown
                 case .denied:
-                    print("Location service disabled or access denied")
                     self.locationError = .accessDenied
                 default:
-                    print("Other location error: \(clError.localizedDescription)")
                     self.locationError = .unknown(error)
                 }
             } else {

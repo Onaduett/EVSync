@@ -125,7 +125,7 @@ struct MapView: View {
             Button(locationAlertType.buttonTitle) {
                 locationManager.handleLocationAlert(type: locationAlertType)
             }
-            Button("Отмена", role: .cancel) { }
+            Button(LanguageManager().localizedString("cancel"), role: .cancel) { }
         } message: {
             Text(locationAlertType.message)
         }
@@ -157,16 +157,13 @@ struct MapView: View {
             return
         }
         
-        // If user location is available, center on it
         if let userLocation = locationManager.userLocation {
             viewModel.centerOnUserLocation(userLocation)
         } else {
-            // Otherwise, start location updates
             locationManager.startLocationUpdates()
         }
     }
     
-    // Helper function to get the correct map style
     private func mapStyleForType(_ mapType: MKMapType) -> MapStyle {
         switch mapType {
         case .satellite:

@@ -243,3 +243,28 @@
 
 //INFOPLIST
 "NSLocationWhenInUseUsageDescription" = "Бұл қосымшаға картада орналасқан жеріңізді көрсету және жақын маңдағы қуаттау станцияларын табу үшін геолокацияға қол жеткізу қажет.";
+
+// LocationManager қате хабарламалары:
+"location_services_disabled" = "Орналасу қызметтері өшірілген";
+"location_access_denied" = "Орналасуға қол жеткізуге тыйым салынды";
+"location_unable_to_determine" = "Орналасуды анықтау мүмкін болмады";
+"location_access_restricted" = "Орналасуға қол жеткізу шектелген";
+
+// LocationManager ескерту тақырыптары:
+"location_disabled_title" = "Геолокация өшірілген";
+"location_access_title" = "Орналасуға қол жеткізу";
+"location_services_disabled_title" = "Орналасу қызметтері өшірілген";
+
+// LocationManager ескерту хабарламалары:
+"location_disabled_message" = "Сіздің орналасуыңызды көрсету және жақын маңдағы қуаттау станцияларын табу үшін геолокация қызметтерін қосу қажет.";
+"location_access_denied_message" = "Орналасуға қол жеткізу шектелген. Жүйе параметрлерінен рұқсат беріңіз.";
+"location_services_disabled_message" = "Орналасу қызметтері құрылғы параметрлерінде өшірілген. Оларды Параметрлер > Құпиялылық және қауіпсіздік > Орналасу қызметтері бөлімінде қосыңыз.";
+
+// LocationManager батырмалары:
+"enable" = "Қосу";
+"open_settings" = "Параметрлерді ашу";
+
+// UI компоненттері:
+"loading_charging_stations" = "Қуаттау станциялары жүктелуде...";
+"retry" = "Қайталау";
+"cancel" = "Бас тарту";

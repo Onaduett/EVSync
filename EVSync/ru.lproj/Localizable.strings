@@ -234,3 +234,28 @@
 
 //INFOPLIST
 "NSLocationWhenInUseUsageDescription" = "Этому приложению нужен доступ к геолокации, чтобы показать ваше местоположение на карте и найти ближайшие зарядные станции.";
+
+// Сообщения об ошибках LocationManager:
+"location_services_disabled" = "Службы геолокации отключены";
+"location_access_denied" = "Доступ к геолокации запрещён";
+"location_unable_to_determine" = "Не удалось определить местоположение";
+"location_access_restricted" = "Доступ к геолокации ограничен";
+
+// Заголовки предупреждений LocationManager:
+"location_disabled_title" = "Геолокация отключена";
+"location_access_title" = "Доступ к геолокации";
+"location_services_disabled_title" = "Службы геолокации отключены";
+
+// Сообщения предупреждений LocationManager:
+"location_disabled_message" = "Чтобы показать ваше местоположение и найти ближайшие зарядные станции, включите службы геолокации в настройках приложения.";
+"location_access_denied_message" = "Доступ к геолокации ограничен. Пожалуйста, включите доступ в настройках системы.";
+"location_services_disabled_message" = "Службы геолокации отключены в настройках устройства. Включите их в Настройки > Конфиденциальность и безопасность > Службы геолокации.";
+
+// Кнопки предупреждений LocationManager:
+"enable" = "Включить";
+"open_settings" = "Открыть настройки";
+
+// Элементы UI:
+"loading_charging_stations" = "Загрузка зарядных станций...";
+"retry" = "Повторить";
+"cancel" = "Отмена";

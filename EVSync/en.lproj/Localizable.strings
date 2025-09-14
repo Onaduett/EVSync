@@ -239,3 +239,24 @@
 
 // INFOPLIST
 "NSLocationWhenInUseUsageDescription" = "This app needs location access to show your position on the map and find nearby charging stations.";
+
+//LocationManager Error Messages:
+"location_services_disabled" = "Location services are disabled";
+"location_access_denied" = "Location access denied";
+"location_unable_to_determine" = "Unable to determine location";
+"location_access_restricted" = "Location access restricted";
+//LocationManager Alert Titles:
+"location_disabled_title" = "Location Disabled";
+"location_access_title" = "Location Access";
+"location_services_disabled_title" = "Location Services Disabled";
+//LocationManager Alert Messages:
+"location_disabled_message" = "To show your location and find nearby charging stations, location services need to be enabled in app settings.";
+"location_access_denied_message" = "Location access is restricted. Please enable location access in System Settings.";
+"location_services_disabled_message" = "Location services are disabled in device settings. Enable them in Settings > Privacy & Security > Location Services.";
+//LocationManager Alert Buttons:
+"enable" = "Enable";
+"open_settings" = "Open Settings";
+//UI Components:
+"loading_charging_stations" = "Loading charging stations...";
+"retry" = "Retry";
+"cancel" = "Cancel";

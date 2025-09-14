@@ -29,9 +29,11 @@ struct MapGradientOverlay: View {
 
 // MARK: - Loading Overlay
 struct LoadingOverlay: View {
+    private let languageManager = LanguageManager()
+
     var body: some View {
         VStack {
-            ProgressView("Loading charging stations...")
+            ProgressView(languageManager.localizedString("loading_charging_stations"))
                 .font(.custom("Nunito Sans", size: 16))
                 .padding()
                 .background(
@@ -48,16 +50,17 @@ struct LoadingOverlay: View {
 struct ErrorOverlay: View {
     let message: String
     let retryAction: () -> Void
+    private let languageManager = LanguageManager()
     
     var body: some View {
         VStack {
-            Text("Error")
+            Text(languageManager.localizedString("error"))
                 .font(.custom("Nunito Sans", size: 18).weight(.bold))
                 .foregroundColor(.red)
             Text(message)
                 .font(.custom("Nunito Sans", size: 14))
                 .multilineTextAlignment(.center)
-            Button("Retry") {
+            Button(languageManager.localizedString("retry")) {
                 retryAction()
             }
             .font(.custom("Nunito Sans", size: 16))
@@ -131,6 +134,7 @@ struct MapHeader: View {
                     Spacer()
                     
                     HStack(spacing: 8) {
+                        // Location button with visual state indication
                         Button(action: onLocationTap) {
                             Image(systemName: locationManager.locationButtonIcon)
                                 .font(.system(size: 18))
@@ -147,6 +151,7 @@ struct MapHeader: View {
                                 )
                         }
                         
+                        // Map theme toggle
                         Button(action: {
                             toggleMapStyle()
                         }) {
