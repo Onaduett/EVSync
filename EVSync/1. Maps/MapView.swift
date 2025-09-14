@@ -12,9 +12,12 @@ import Supabase
 struct MapView: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject private var viewModel = MapViewModel()
+    @StateObject private var locationManager = LocationManager()
     @Binding var selectedStationFromFavorites: ChargingStation?
     @State private var mapContentOpacity: Double = 0.0
     @State private var shouldLoadStations = false
+    @State private var showingLocationAlert = false
+    @State private var locationAlertType: LocationManager.LocationAlertType = .disabled
     
     var body: some View {
         GeometryReader { geometry in
@@ -29,6 +32,20 @@ struct MapView: View {
                             .onTapGesture {
                                 viewModel.selectStation(station)
                             }
+                        }
+                    }
+                    
+                    // User location annotation - no title
+                    if let userLocation = locationManager.userLocation, locationManager.isLocationEnabled {
+                        Annotation("", coordinate: userLocation) {
+                            Circle()
+                                .fill(Color.blue)
+                                .frame(width: 16, height: 16)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white, lineWidth: 3)
+                                )
+                                .shadow(radius: 4)
                         }
                     }
                 }
@@ -56,7 +73,10 @@ struct MapView: View {
                         MapHeader(
                             selectedConnectorTypes: viewModel.selectedConnectorTypes,
                             showingFilterOptions: $viewModel.showingFilterOptions,
-                            mapStyle: $viewModel.mapStyle
+                            mapStyle: $viewModel.mapStyle,
+                            onLocationTap: handleLocationButtonTap,
+                            locationManager: locationManager,
+                            colorScheme: colorScheme
                         )
                         Spacer()
                     }
@@ -101,20 +121,48 @@ struct MapView: View {
                 selectedStationFromFavorites = nil
             }
         }
+        .alert(locationAlertType.title, isPresented: $showingLocationAlert) {
+            Button(locationAlertType.buttonTitle) {
+                locationManager.handleLocationAlert(type: locationAlertType)
+            }
+            Button("Отмена", role: .cancel) { }
+        } message: {
+            Text(locationAlertType.message)
+        }
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showingFilterOptions)
     }
     
+    // MARK: - Private Methods
+    
     private func startMapInitialization() {
-        // Delay the loading and appearance to ensure smooth transition
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             withAnimation(.easeInOut(duration: 0.8)) {
                 mapContentOpacity = 1.0
             }
             
-            // Start loading stations after the map appears
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 shouldLoadStations = true
             }
+        }
+        
+        if locationManager.isLocationEnabled && (locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways) {
+            locationManager.startLocationUpdates()
+        }
+    }
+    
+    private func handleLocationButtonTap() {
+        if let alertType = locationManager.getLocationAlertType() {
+            locationAlertType = alertType
+            showingLocationAlert = true
+            return
+        }
+        
+        // If user location is available, center on it
+        if let userLocation = locationManager.userLocation {
+            viewModel.centerOnUserLocation(userLocation)
+        } else {
+            // Otherwise, start location updates
+            locationManager.startLocationUpdates()
         }
     }
     

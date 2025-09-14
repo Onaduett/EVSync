@@ -26,5 +26,7 @@
 		<string>googlechrome</string>
 		<string>googleapp</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Приложению нужен доступ к геолокации для показа вашего местоположения на карте и поиска ближайших зарядных станций.</string>
 </dict>
 </plist>

@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 import Supabase
+import CoreLocation
 
 @MainActor
 class MapViewModel: ObservableObject {
@@ -58,6 +59,19 @@ class MapViewModel: ObservableObject {
         }
     }
     
+    func centerOnUserLocation(_ userLocation: CLLocationCoordinate2D) {
+        let newRegion = MKCoordinateRegion(
+            center: userLocation,
+            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+        )
+        
+        withAnimation(.easeInOut(duration: 1.0)) {
+            cameraPosition = .region(newRegion)
+        }
+    }
+    
+    // MARK: - Data Loading
+    
     func loadChargingStations() {
         isLoading = true
         errorMessage = nil
@@ -83,6 +97,8 @@ class MapViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Filtering
+    
     func applyFilters() {
         if selectedConnectorTypes.isEmpty {
             filteredStations = chargingStations
@@ -98,6 +114,7 @@ class MapViewModel: ObservableObject {
     }
     
     // MARK: - Private Methods
+    
     private func shouldAdjustForFilteredStations() -> Bool {
         guard filteredStations.count <= 5 else { return false }
         

@@ -74,56 +74,34 @@ struct ErrorOverlay: View {
 
 // MARK: - Map Header
 struct MapHeader: View {
-    @Environment(\.colorScheme) var colorScheme
     let selectedConnectorTypes: Set<ConnectorType>
     @Binding var showingFilterOptions: Bool
     @Binding var mapStyle: MKMapType
+    let onLocationTap: () -> Void
+    let locationManager: LocationManager
+    let colorScheme: ColorScheme
     
     var body: some View {
         VStack {
             HStack {
-                // Filter button on the left
-                Button(action: {
-                    showingFilterOptions.toggle()
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                            .font(.system(size: 18))
-                        if !selectedConnectorTypes.isEmpty {
-                            Text("\(selectedConnectorTypes.count)")
-                                .font(.custom("Nunito Sans", size: 12).weight(.semibold))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .clipShape(Circle())
+                // Left side - Filter button
+                HStack {
+                    Button(action: {
+                        showingFilterOptions.toggle()
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                                .font(.system(size: 18))
+                            if !selectedConnectorTypes.isEmpty {
+                                Text("\(selectedConnectorTypes.count)")
+                                    .font(.custom("Nunito Sans", size: 12).weight(.semibold))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .clipShape(Circle())
+                            }
                         }
-                    }
-                    .foregroundColor(colorScheme == .dark ? .white : .black)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(.ultraThinMaterial)
-                    )
-                }
-                .padding(.leading, 16)
-                
-                Spacer()
-                
-                // App title in center
-                Text("Charge&Go")
-                    .font(.custom("Lexend-SemiBold", size: 20))
-                    .foregroundColor(colorScheme == .dark ? .white : .black)
-                
-                Spacer()
-                
-                // Map theme toggle on the right
-                Button(action: {
-                    toggleMapStyle()
-                }) {
-                    Image(systemName: mapStyle == .standard ? "map" : "map.fill")
-                        .font(.system(size: 18))
                         .foregroundColor(colorScheme == .dark ? .white : .black)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
@@ -131,8 +109,61 @@ struct MapHeader: View {
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(.ultraThinMaterial)
                         )
+                    }
+                    .padding(.leading, 16)
+                    
+                    Spacer()
                 }
-                .padding(.trailing, 16)
+                .frame(maxWidth: .infinity)
+                
+                // Center - App title
+                HStack {
+                    Spacer()
+                    Text("Charge&Go")
+                        .font(.custom("Lexend-SemiBold", size: 20))
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
+                
+                // Right side - Location and Map style buttons
+                HStack {
+                    Spacer()
+                    
+                    HStack(spacing: 8) {
+                        Button(action: onLocationTap) {
+                            Image(systemName: locationManager.locationButtonIcon)
+                                .font(.system(size: 18))
+                                .foregroundColor(locationManager.locationButtonColor(colorScheme: colorScheme))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(.ultraThinMaterial)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(locationManager.locationBorderColor, lineWidth: locationManager.locationBorderWidth)
+                                        )
+                                )
+                        }
+                        
+                        Button(action: {
+                            toggleMapStyle()
+                        }) {
+                            Image(systemName: mapStyle == .standard ? "map" : "map.fill")
+                                .font(.system(size: 18))
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(.ultraThinMaterial)
+                                )
+                        }
+                    }
+                    .padding(.trailing, 16)
+                }
+                .frame(maxWidth: .infinity)
             }
             .padding(.top, 0)
         }

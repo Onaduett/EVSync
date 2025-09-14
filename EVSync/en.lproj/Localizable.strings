@@ -236,3 +236,6 @@
 "check_wifi_tip" = "Check your Wi-Fi connection";
 "check_cellular_tip" = "Ensure cellular data is enabled";
 "restart_device_tip" = "Try restarting your device";
+
+// INFOPLIST
+"NSLocationWhenInUseUsageDescription" = "This app needs location access to show your position on the map and find nearby charging stations.";
