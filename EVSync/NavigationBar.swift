@@ -44,38 +44,28 @@ struct NavigationBar: View {
     }
     
     private func handleTabChange(from oldTab: Int, to newTab: Int) {
-        // Предотвращаем множественные переходы
         guard !isTransitioning else { return }
         isTransitioning = true
         
-        // Если переходим с карты (0) на избранное (1)
         if oldTab == 0 && newTab == 1 {
-            // Скрываем аннотации станций с анимацией
             NotificationCenter.default.post(name: NSNotification.Name("HideStationAnnotations"), object: nil)
             
-            // Небольшая задержка для завершения анимации скрытия
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                 isTransitioning = false
             }
         }
-        // Если переходим с избранного (1) на карту (0)
         else if oldTab == 1 && newTab == 0 {
-            // Показываем аннотации станций сразу без задержки
             NotificationCenter.default.post(name: NSNotification.Name("ShowStationAnnotations"), object: nil)
             isTransitioning = false
         }
-        // Если переходим с карты на другие табы (не избранное)
         else if oldTab == 0 && newTab != 1 {
-            // Скрываем аннотации станций
             NotificationCenter.default.post(name: NSNotification.Name("HideStationAnnotations"), object: nil)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 isTransitioning = false
             }
         }
-        // Если переходим на карту с других табов (не избранное)
         else if oldTab != 1 && newTab == 0 {
-            // Показываем аннотации станций
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 NotificationCenter.default.post(name: NSNotification.Name("ShowStationAnnotations"), object: nil)
                 isTransitioning = false

@@ -16,10 +16,12 @@ struct MapView: View {
     @Binding var selectedStationFromFavorites: ChargingStation?
     @State private var showingLocationAlert = false
     @State private var locationAlertType: LocationManager.LocationAlertType = .disabled
+    @State private var isMapReady = false
     
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
+                // Карта теперь всегда отображается
                 Map(position: $viewModel.cameraPosition) {
                     ForEach(viewModel.filteredStations) { station in
                         Annotation("", coordinate: station.coordinate) {
@@ -49,11 +51,19 @@ struct MapView: View {
                 }
                 .mapStyle(mapStyleForType(viewModel.mapStyle))
                 .ignoresSafeArea()
+                .onMapCameraChange { _ in
+                    if !isMapReady {
+                        isMapReady = true
+                    }
+                }
                 
                 MapGradientOverlay()
                 
-                if viewModel.isLoading {
+                // Показываем загрузку только если карта готова и данные все еще загружаются
+                if viewModel.isLoading && isMapReady {
                     LoadingOverlay()
+                        .transition(.opacity)
+                        .zIndex(1)
                 }
                 
                 if let errorMessage = viewModel.errorMessage {
@@ -62,18 +72,20 @@ struct MapView: View {
                     }
                 }
                 
-                if !viewModel.isLoading && viewModel.errorMessage == nil {
-                    VStack {
-                        MapHeader(
-                            selectedConnectorTypes: viewModel.selectedConnectorTypes,
-                            showingFilterOptions: $viewModel.showingFilterOptions,
-                            mapStyle: $viewModel.mapStyle,
-                            onLocationTap: handleLocationButtonTap,
-                            locationManager: locationManager,
-                            colorScheme: colorScheme
-                        )
-                        Spacer()
-                    }
+                // UI элементы показываем сразу
+                VStack {
+                    MapHeader(
+                        selectedConnectorTypes: viewModel.selectedConnectorTypes,
+                        showingFilterOptions: $viewModel.showingFilterOptions,
+                        mapStyle: $viewModel.mapStyle,
+                        onLocationTap: handleLocationButtonTap,
+                        locationManager: locationManager,
+                        colorScheme: colorScheme
+                    )
+                    .opacity(isMapReady ? 1.0 : 0.0)
+                    .animation(.easeInOut(duration: 0.3), value: isMapReady)
+                    
+                    Spacer()
                 }
                 
                 if viewModel.showingFilterOptions {
@@ -120,7 +132,12 @@ struct MapView: View {
     // MARK: - Private Methods
     
     private func startMapInitialization() {
-        viewModel.preloadStations()
+        // Убираем preloadStations отсюда - запускаем асинхронно
+        Task {
+            await MainActor.run {
+                viewModel.preloadStations()
+            }
+        }
         
         if locationManager.isLocationEnabled && (locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways) {
             locationManager.startLocationUpdates()

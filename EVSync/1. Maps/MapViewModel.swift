@@ -23,7 +23,7 @@ class MapViewModel: ObservableObject {
     @Published var showingStationDetail = false
     @Published var chargingStations: [ChargingStation] = []
     @Published var filteredStations: [ChargingStation] = []
-    @Published var isLoading = true
+    @Published var isLoading = false // Изменено на false по умолчанию
     @Published var errorMessage: String?
     @Published var showingFilterOptions = false
     @Published var selectedConnectorTypes: Set<ConnectorType> = []
@@ -150,16 +150,44 @@ class MapViewModel: ObservableObject {
     }
     
     func preloadStations() {
-        StationsPreloader.shared.preloadStations()
-        
+        // Сначала проверяем preloader
         let preloader = StationsPreloader.shared
+        
         if preloader.isLoaded && !preloader.stations.isEmpty {
+            // Если данные уже загружены в preloader - используем их
             chargingStations = preloader.stations
             filteredStations = chargingStations
             isLoading = false
             hasInitialLoad = true
-        } else if cachedStations.isEmpty {
-            loadChargingStations()
+            return
+        }
+        
+        // Если есть кеш - используем его
+        if isCacheValid() {
+            chargingStations = cachedStations
+            filteredStations = chargingStations
+            isLoading = false
+            hasInitialLoad = true
+            return
+        }
+        
+        // Запускаем preloader асинхронно
+        Task {
+            preloader.preloadStations()
+            
+            // Ждем загрузки или используем обычный способ
+            if preloader.stations.isEmpty {
+                await MainActor.run {
+                    self.loadChargingStations()
+                }
+            } else {
+                await MainActor.run {
+                    self.chargingStations = preloader.stations
+                    self.filteredStations = preloader.stations
+                    self.isLoading = false
+                    self.hasInitialLoad = true
+                }
+            }
         }
     }
     
