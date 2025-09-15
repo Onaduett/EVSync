@@ -116,8 +116,7 @@ struct MapView: View {
         }
         .onChange(of: selectedStationFromFavorites) { _, station in
             if let station = station {
-                viewModel.centerMapOnStation(station)
-                viewModel.selectStation(station)
+                viewModel.navigateToStationFromFavorites(station)
                 selectedStationFromFavorites = nil
             }
         }

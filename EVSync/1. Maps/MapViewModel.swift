@@ -31,6 +31,8 @@ class MapViewModel: ObservableObject {
     
     private let almatyCenter = CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076)
     private let almatySpan = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
+    private var isNavigatingFromFavorites = false
+    private var hasInitialLoad = false
     
     private let supabase = SupabaseClient(
         supabaseURL: URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co")!,
@@ -45,7 +47,10 @@ class MapViewModel: ObservableObject {
     func selectStation(_ station: ChargingStation) {
         selectedStation = station
         showingStationDetail = true
-        centerMapOnStation(station)
+        
+        if !isNavigatingFromFavorites {
+            centerMapOnStation(station)
+        }
     }
     
     func centerMapOnStation(_ station: ChargingStation) {
@@ -88,11 +93,42 @@ class MapViewModel: ObservableObject {
                 self.filteredStations = self.chargingStations
                 self.isLoading = false
 
-                setAlmatyRegion()
+                if !hasInitialLoad && !isNavigatingFromFavorites {
+                    setAlmatyRegion()
+                }
+                hasInitialLoad = true
 
             } catch {
                 self.errorMessage = "Failed to load charging stations: \(error.localizedDescription)"
                 self.isLoading = false
+            }
+        }
+    }
+    
+    func navigateToStationFromFavorites(_ station: ChargingStation) {
+        isNavigatingFromFavorites = true
+        
+        if let foundStation = chargingStations.first(where: { $0.id == station.id }) {
+            centerMapOnStation(foundStation)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.selectedStation = foundStation
+                self.showingStationDetail = true
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    self.isNavigatingFromFavorites = false
+                }
+            }
+        } else {
+            centerMapOnStation(station)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.selectedStation = station
+                self.showingStationDetail = true
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    self.isNavigatingFromFavorites = false
+                }
             }
         }
     }
@@ -108,7 +144,7 @@ class MapViewModel: ObservableObject {
             }
         }
         
-        if !filteredStations.isEmpty && shouldAdjustForFilteredStations() {
+        if !filteredStations.isEmpty && shouldAdjustForFilteredStations() && !isNavigatingFromFavorites {
             updateMapRegionForFiltered()
         }
     }

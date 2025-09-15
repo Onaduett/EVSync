@@ -44,16 +44,33 @@ struct StationDetailCard: View {
         .task {
             await checkFavoriteStatus()
         }
+        .onChange(of: station.id) { _, newStationId in
+            showingFullDetail = false
+            isFavorited = false
+            isLoadingFavorite = false
+            
+            Task {
+                await checkFavoriteStatus()
+            }
+        }
+        .onChange(of: showingDetail) { _, isShowing in
+            if !isShowing {
+                showingFullDetail = false
+            }
+        }
     }
     
-    // MARK: - Favorite Methods
     private func checkFavoriteStatus() async {
         let stationId = station.id
+        isLoadingFavorite = true
         
         do {
             isFavorited = try await supabaseManager.isStationFavorited(stationId: stationId)
         } catch {
             print("Error checking favorite status: \(error)")
+            isFavorited = false
         }
+        
+        isLoadingFavorite = false
     }
 }

@@ -138,7 +138,6 @@ struct MapHeader: View {
                     Spacer()
                     
                     HStack(spacing: 8) {
-                        // Location button
                         Button(action: onLocationTap) {
                             Image(systemName: locationManager.locationButtonIcon)
                                 .font(.system(size: 18))

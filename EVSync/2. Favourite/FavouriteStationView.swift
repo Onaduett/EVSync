@@ -163,9 +163,10 @@ struct FavoriteStationsView: View {
                                             await removeFavorite(favoriteId)
                                         },
                                         onTap: { station in
-                                            // Navigate to map and show station detail
-                                            selectedStationFromFavorites = station
-                                            selectedTab = 0 // Switch to map tab
+                                            selectedTab = 0
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                                selectedStationFromFavorites = station
+                                            }
                                         }
                                     )
                                 }
