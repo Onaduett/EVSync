@@ -10,20 +10,29 @@ import Supabase
 import SwiftUI
 import GoogleSignIn
 import UIKit
+import AuthenticationServices
+import CryptoKit
 
 @MainActor
-class AuthenticationManager: ObservableObject {
+class AuthenticationManager: NSObject, ObservableObject {
     @Published var isAuthenticated = false
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var user: User?
+    
+    // Apple Sign In properties
+    private var currentNonce: String?
+    
+    // Store presentation context provider to prevent deallocation
+    private var presentationContextProvider: ApplePresentationContextProvider?
     
     private let supabase = SupabaseClient(
         supabaseURL: URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co")!,
         supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA"
     )
     
-    init() {
+    override init() {
+        super.init()
         // Configure Google Sign-In
         configureGoogleSignIn()
     }
@@ -63,6 +72,52 @@ class AuthenticationManager: ObservableObject {
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: finalClientId)
         print("Google Sign-In configured with client ID: \(finalClientId)")
     }
+    
+    // MARK: - Apple Sign In Helper Methods
+    
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        let charset: [Character] =
+        Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+
+        while remainingLength > 0 {
+            let randoms: [UInt8] = (0..<16).map { _ in
+                var random: UInt8 = 0
+                let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
+                if errorCode != errSecSuccess {
+                    fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+                }
+                return random
+            }
+
+            randoms.forEach { random in
+                if remainingLength == 0 {
+                    return
+                }
+
+                if random < charset.count {
+                    result.append(charset[Int(random)])
+                    remainingLength -= 1
+                }
+            }
+        }
+
+        return result
+    }
+    
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        let hashString = hashedData.compactMap {
+            String(format: "%02x", $0)
+        }.joined()
+
+        return hashString
+    }
+    
+    // MARK: - Auth Methods
     
     func checkAuthStatus() {
         Task {
@@ -167,6 +222,9 @@ class AuthenticationManager: ObservableObject {
                 self.isAuthenticated = false
                 self.user = nil
                 self.errorMessage = nil
+                
+                // Clean up presentation context provider
+                self.presentationContextProvider = nil
             } catch {
                 self.errorMessage = error.localizedDescription
             }
@@ -265,22 +323,172 @@ class AuthenticationManager: ObservableObject {
     }
     
     func signInWithApple() {
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        
+        let appleIDProvider = ASAuthorizationAppleIDProvider()
+        let request = appleIDProvider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(nonce)
+
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = self
+        
+        // Create and store presentation context provider to prevent deallocation
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            self.presentationContextProvider = ApplePresentationContextProvider(window: window)
+            authorizationController.presentationContextProvider = self.presentationContextProvider
+        }
+        
+        isLoading = true
+        errorMessage = nil
+        authorizationController.performRequests()
+    }
+}
+
+// MARK: - ASAuthorizationControllerDelegate
+
+extension AuthenticationManager: ASAuthorizationControllerDelegate {
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         Task {
-            isLoading = true
-            errorMessage = nil
-            
             do {
-                // Note: You'll need to configure Apple Sign-In with Supabase
-                // This is a placeholder implementation
-                try await supabase.auth.signInWithOAuth(
-                    provider: .apple,
-                    redirectTo: URL(string: "your-app://auth-callback")
+                guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+                    await MainActor.run {
+                        self.errorMessage = "Failed to get Apple ID credential"
+                        self.isLoading = false
+                    }
+                    return
+                }
+                
+                guard let nonce = currentNonce else {
+                    await MainActor.run {
+                        self.errorMessage = "Invalid state: A login callback was received, but no login request was sent."
+                        self.isLoading = false
+                    }
+                    return
+                }
+                
+                guard let appleIDToken = appleIDCredential.identityToken else {
+                    await MainActor.run {
+                        self.errorMessage = "Unable to fetch identity token"
+                        self.isLoading = false
+                    }
+                    return
+                }
+                
+                guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+                    await MainActor.run {
+                        self.errorMessage = "Unable to serialize token string from data"
+                        self.isLoading = false
+                    }
+                    return
+                }
+                
+                // Sign in with Supabase using the Apple ID token
+                let response = try await supabase.auth.signInWithIdToken(
+                    credentials: .init(
+                        provider: .apple,
+                        idToken: idTokenString,
+                        nonce: nonce
+                    )
                 )
+                
+                await MainActor.run {
+                    self.user = response.user
+                    self.isAuthenticated = true
+                }
+                
+                // Create or update user profile in profiles table
+                let user = response.user
+                var fullName = ""
+                if let givenName = appleIDCredential.fullName?.givenName,
+                   let familyName = appleIDCredential.fullName?.familyName {
+                    fullName = "\(givenName) \(familyName)".trimmingCharacters(in: .whitespaces)
+                }
+                
+                let profile: [String: AnyJSON] = [
+                    "id": AnyJSON.string(user.id.uuidString),
+                    "email": AnyJSON.string(appleIDCredential.email ?? user.email ?? ""),
+                    "full_name": AnyJSON.string(fullName),
+                    "provider": AnyJSON.string("apple"),
+                    "created_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date()))
+                ]
+                
+                do {
+                    try await supabase
+                        .from("profiles")
+                        .upsert(profile)
+                        .execute()
+                } catch {
+                    print("Error creating/updating profile: \(error)")
+                    // Don't fail the authentication if profile creation fails
+                }
+                
             } catch {
-                self.errorMessage = error.localizedDescription
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    print("Apple Sign-In Error: \(error)")
+                }
             }
             
-            isLoading = false
+            await MainActor.run {
+                self.isLoading = false
+                self.currentNonce = nil
+                // Clean up presentation context provider after completion
+                self.presentationContextProvider = nil
+            }
         }
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        Task {
+            await MainActor.run {
+                self.isLoading = false
+                self.currentNonce = nil
+                // Clean up presentation context provider after error
+                self.presentationContextProvider = nil
+                
+                if let authError = error as? ASAuthorizationError {
+                    switch authError.code {
+                    case .canceled:
+                        // User canceled, don't show error
+                        return
+                    case .unknown:
+                        self.errorMessage = "Unknown Apple Sign-In error occurred"
+                    case .invalidResponse:
+                        self.errorMessage = "Invalid Apple Sign-In response"
+                    case .notHandled:
+                        self.errorMessage = "Apple Sign-In request not handled"
+                    case .failed:
+                        self.errorMessage = "Apple Sign-In request failed"
+                    case .notInteractive:
+                        self.errorMessage = "Apple Sign-In not available in current context"
+                    case .matchedExcludedCredential:
+                        self.errorMessage = "The request was canceled because a credential was matched in the excluded credentials list"
+                    default:
+                        self.errorMessage = "Apple Sign-In failed with unknown error"
+                    }
+                } else {
+                    self.errorMessage = error.localizedDescription
+                }
+                
+                print("Apple Sign-In Error: \(error)")
+            }
+        }
+    }
+}
+
+// MARK: - Presentation Context Provider
+
+class ApplePresentationContextProvider: NSObject, ASAuthorizationControllerPresentationContextProviding {
+    private let window: UIWindow
+    
+    init(window: UIWindow) {
+        self.window = window
+    }
+    
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        return window
     }
 }
