@@ -3,6 +3,7 @@ import SwiftUI
 struct NavigationBar: View {
     @State private var selectedTab = 0
     @State private var selectedStationFromFavorites: ChargingStation?
+    @State private var isTransitioning = false
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
 
@@ -32,16 +33,63 @@ struct NavigationBar: View {
             
             VStack {
                 Spacer()
-                CustomGlassTabBar(selectedTab: $selectedTab)
+                CustomGlassTabBar(selectedTab: $selectedTab, isTransitioning: $isTransitioning)
                     .padding(.bottom, -15)
             }
         }
         .ignoresSafeArea(.keyboard)
+        .onChange(of: selectedTab) { oldValue, newValue in
+            handleTabChange(from: oldValue, to: newValue)
+        }
+    }
+    
+    private func handleTabChange(from oldTab: Int, to newTab: Int) {
+        // Предотвращаем множественные переходы
+        guard !isTransitioning else { return }
+        isTransitioning = true
+        
+        // Если переходим с карты (0) на избранное (1)
+        if oldTab == 0 && newTab == 1 {
+            // Скрываем аннотации станций с анимацией
+            NotificationCenter.default.post(name: NSNotification.Name("HideStationAnnotations"), object: nil)
+            
+            // Небольшая задержка для завершения анимации скрытия
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                isTransitioning = false
+            }
+        }
+        // Если переходим с избранного (1) на карту (0)
+        else if oldTab == 1 && newTab == 0 {
+            // Показываем аннотации станций сразу без задержки
+            NotificationCenter.default.post(name: NSNotification.Name("ShowStationAnnotations"), object: nil)
+            isTransitioning = false
+        }
+        // Если переходим с карты на другие табы (не избранное)
+        else if oldTab == 0 && newTab != 1 {
+            // Скрываем аннотации станций
+            NotificationCenter.default.post(name: NSNotification.Name("HideStationAnnotations"), object: nil)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                isTransitioning = false
+            }
+        }
+        // Если переходим на карту с других табов (не избранное)
+        else if oldTab != 1 && newTab == 0 {
+            // Показываем аннотации станций
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                NotificationCenter.default.post(name: NSNotification.Name("ShowStationAnnotations"), object: nil)
+                isTransitioning = false
+            }
+        }
+        else {
+            isTransitioning = false
+        }
     }
 }
 
 struct CustomGlassTabBar: View {
     @Binding var selectedTab: Int
+    @Binding var isTransitioning: Bool
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.colorScheme) var colorScheme
@@ -78,6 +126,9 @@ struct CustomGlassTabBar: View {
         HStack(spacing: 0) {
             ForEach(tabs, id: \.tag) { tab in
                 Button(action: {
+                    // Предотвращаем нажатия во время перехода
+                    guard !isTransitioning else { return }
+                    
                     withAnimation(.easeInOut(duration: 0.2)) {
                         selectedTab = tab.tag
                     }
@@ -108,6 +159,7 @@ struct CustomGlassTabBar: View {
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTab)
         .animation(.easeInOut(duration: 0.3), value: themeManager.currentTheme)
+        .animation(.easeInOut(duration: 0.2), value: isTransitioning)
     }
 }
 

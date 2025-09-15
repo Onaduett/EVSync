@@ -14,8 +14,6 @@ struct MapView: View {
     @StateObject private var viewModel = MapViewModel()
     @StateObject private var locationManager = LocationManager()
     @Binding var selectedStationFromFavorites: ChargingStation?
-    @State private var mapContentOpacity: Double = 0.0
-    @State private var shouldLoadStations = false
     @State private var showingLocationAlert = false
     @State private var locationAlertType: LocationManager.LocationAlertType = .disabled
     
@@ -51,21 +49,17 @@ struct MapView: View {
                 }
                 .mapStyle(mapStyleForType(viewModel.mapStyle))
                 .ignoresSafeArea()
-                .opacity(mapContentOpacity)
                 
                 MapGradientOverlay()
-                    .opacity(mapContentOpacity)
                 
                 if viewModel.isLoading {
                     LoadingOverlay()
-                        .opacity(mapContentOpacity)
                 }
                 
                 if let errorMessage = viewModel.errorMessage {
                     ErrorOverlay(message: errorMessage) {
-                        viewModel.loadChargingStations()
+                        viewModel.loadChargingStations(forceRefresh: true)
                     }
-                    .opacity(mapContentOpacity)
                 }
                 
                 if !viewModel.isLoading && viewModel.errorMessage == nil {
@@ -80,7 +74,6 @@ struct MapView: View {
                         )
                         Spacer()
                     }
-                    .opacity(mapContentOpacity)
                 }
                 
                 if viewModel.showingFilterOptions {
@@ -89,7 +82,6 @@ struct MapView: View {
                         selectedTypes: $viewModel.selectedConnectorTypes,
                         isShowing: $viewModel.showingFilterOptions
                     )
-                    .opacity(mapContentOpacity)
                 }
                 
                 if viewModel.showingStationDetail, let station = viewModel.selectedStation {
@@ -98,25 +90,19 @@ struct MapView: View {
                         StationDetailCard(station: station, showingDetail: $viewModel.showingStationDetail)
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: viewModel.showingStationDetail)
-                    .opacity(mapContentOpacity)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.9), value: viewModel.showingStationDetail)
                 }
             }
         }
         .onAppear {
             startMapInitialization()
         }
-        .onChange(of: shouldLoadStations) { _, shouldLoad in
-            if shouldLoad {
-                viewModel.loadChargingStations()
-            }
-        }
         .onChange(of: viewModel.selectedConnectorTypes) {
             viewModel.applyFilters()
         }
         .onChange(of: selectedStationFromFavorites) { _, station in
             if let station = station {
-                viewModel.navigateToStationFromFavorites(station)
+                handleFavoriteNavigation(station)
                 selectedStationFromFavorites = nil
             }
         }
@@ -128,24 +114,40 @@ struct MapView: View {
         } message: {
             Text(locationAlertType.message)
         }
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showingFilterOptions)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.showingFilterOptions)
     }
     
     // MARK: - Private Methods
     
     private func startMapInitialization() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            withAnimation(.easeInOut(duration: 0.8)) {
-                mapContentOpacity = 1.0
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                shouldLoadStations = true
-            }
-        }
+        viewModel.preloadStations()
         
         if locationManager.isLocationEnabled && (locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways) {
             locationManager.startLocationUpdates()
+        }
+    }
+    
+    private func handleFavoriteNavigation(_ station: ChargingStation) {
+        if viewModel.chargingStations.isEmpty {
+            Task {
+                let preloader = StationsPreloader.shared
+                if preloader.isLoaded && !preloader.stations.isEmpty {
+                    await MainActor.run {
+                        viewModel.chargingStations = preloader.stations
+                        viewModel.filteredStations = preloader.stations
+                        viewModel.isLoading = false
+                        viewModel.navigateToStationFromFavorites(station)
+                    }
+                } else {
+                    viewModel.loadChargingStations()
+                    
+                    await MainActor.run {
+                        viewModel.navigateToStationFromFavorites(station)
+                    }
+                }
+            }
+        } else {
+            viewModel.navigateToStationFromFavorites(station)
         }
     }
     

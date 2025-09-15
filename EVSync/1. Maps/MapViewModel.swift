@@ -31,8 +31,11 @@ class MapViewModel: ObservableObject {
     
     private let almatyCenter = CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076)
     private let almatySpan = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
-    private var isNavigatingFromFavorites = false
     private var hasInitialLoad = false
+    
+    private var cachedStations: [ChargingStation] = []
+    private var cacheTimestamp: Date?
+    private let cacheExpirationTime: TimeInterval = 300 // 5 минут
     
     private let supabase = SupabaseClient(
         supabaseURL: URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co")!,
@@ -44,13 +47,12 @@ class MapViewModel: ObservableObject {
         return Array(Set(allTypes)).sorted { $0.rawValue < $1.rawValue }
     }
     
+    // MARK: - Public Methods
+    
     func selectStation(_ station: ChargingStation) {
         selectedStation = station
         showingStationDetail = true
-        
-        if !isNavigatingFromFavorites {
-            centerMapOnStation(station)
-        }
+        centerMapOnStation(station)
     }
     
     func centerMapOnStation(_ station: ChargingStation) {
@@ -77,7 +79,19 @@ class MapViewModel: ObservableObject {
     
     // MARK: - Data Loading
     
-    func loadChargingStations() {
+    func loadChargingStations(forceRefresh: Bool = false) {
+        if !forceRefresh && isCacheValid() {
+            chargingStations = cachedStations
+            filteredStations = chargingStations
+            isLoading = false
+            
+            if !hasInitialLoad {
+                setAlmatyRegion()
+            }
+            hasInitialLoad = true
+            return
+        }
+        
         isLoading = true
         errorMessage = nil
 
@@ -89,11 +103,17 @@ class MapViewModel: ObservableObject {
                     .execute()
                     .value
 
-                self.chargingStations = response.map { $0.toChargingStation() }
-                self.filteredStations = self.chargingStations
+                let loadedStations = response.map { $0.toChargingStation() }
+                
+                // Обновляем кеш
+                self.cachedStations = loadedStations
+                self.cacheTimestamp = Date()
+                
+                self.chargingStations = loadedStations
+                self.filteredStations = loadedStations
                 self.isLoading = false
 
-                if !hasInitialLoad && !isNavigatingFromFavorites {
+                if !hasInitialLoad {
                     setAlmatyRegion()
                 }
                 hasInitialLoad = true
@@ -106,30 +126,40 @@ class MapViewModel: ObservableObject {
     }
     
     func navigateToStationFromFavorites(_ station: ChargingStation) {
-        isNavigatingFromFavorites = true
+        let newRegion = MKCoordinateRegion(
+            center: station.coordinate,
+            span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+        )
+        cameraPosition = .region(newRegion)
         
-        if let foundStation = chargingStations.first(where: { $0.id == station.id }) {
-            centerMapOnStation(foundStation)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.selectedStation = foundStation
-                self.showingStationDetail = true
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    self.isNavigatingFromFavorites = false
-                }
-            }
-        } else {
-            centerMapOnStation(station)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.selectedStation = station
-                self.showingStationDetail = true
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    self.isNavigatingFromFavorites = false
-                }
-            }
+        let stationToShow = chargingStations.first(where: { $0.id == station.id }) ?? station
+        
+        selectedStation = stationToShow
+        showingStationDetail = true
+    }
+    
+    // MARK: - Cache Management
+    
+    private func isCacheValid() -> Bool {
+        guard let timestamp = cacheTimestamp else { return false }
+        return !cachedStations.isEmpty && Date().timeIntervalSince(timestamp) < cacheExpirationTime
+    }
+    
+    func refreshData() {
+        loadChargingStations(forceRefresh: true)
+    }
+    
+    func preloadStations() {
+        StationsPreloader.shared.preloadStations()
+        
+        let preloader = StationsPreloader.shared
+        if preloader.isLoaded && !preloader.stations.isEmpty {
+            chargingStations = preloader.stations
+            filteredStations = chargingStations
+            isLoading = false
+            hasInitialLoad = true
+        } else if cachedStations.isEmpty {
+            loadChargingStations()
         }
     }
     
@@ -144,7 +174,7 @@ class MapViewModel: ObservableObject {
             }
         }
         
-        if !filteredStations.isEmpty && shouldAdjustForFilteredStations() && !isNavigatingFromFavorites {
+        if !filteredStations.isEmpty && shouldAdjustForFilteredStations() {
             updateMapRegionForFiltered()
         }
     }

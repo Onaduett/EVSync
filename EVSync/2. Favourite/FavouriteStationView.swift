@@ -124,6 +124,8 @@ struct FavoriteStationsView: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var showingError = false
+    @State private var hasAppeared = false
+    @State private var contentOpacity: Double = 0.0
     
     // Navigation bindings
     @Binding var selectedTab: Int
@@ -134,6 +136,7 @@ struct FavoriteStationsView: View {
             VStack(spacing: 0) {
                 // Custom Header
                 FavoriteHeader()
+                    .opacity(contentOpacity)
                 
                 if isLoading {
                     Spacer()
@@ -146,15 +149,18 @@ struct FavoriteStationsView: View {
                             .foregroundColor(.white.opacity(0.8))
                             .padding(.top, 8)
                     }
+                    .opacity(contentOpacity)
                     Spacer()
                 } else if favoriteStations.isEmpty {
                     Spacer()
                     EmptyFavoritesView(selectedTab: $selectedTab)
+                        .opacity(contentOpacity)
                     Spacer()
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 16) {
-                            ForEach(favoriteStations) { favorite in
+                            ForEach(favoriteStations.indices, id: \.self) { index in
+                                let favorite = favoriteStations[index]
                                 if let dbStation = favorite.station {
                                     FavoriteStationCard(
                                         station: dbStation.toChargingStation(),
@@ -169,6 +175,12 @@ struct FavoriteStationsView: View {
                                             }
                                         }
                                     )
+                                    .opacity(contentOpacity)
+                                    .animation(
+                                        .easeOut(duration: 0.4)
+                                        .delay(Double(index) * 0.05),
+                                        value: contentOpacity
+                                    )
                                 }
                             }
                         }
@@ -180,8 +192,13 @@ struct FavoriteStationsView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .task {
-            await loadFavoriteStations()
+        .onAppear {
+            startFavoriteViewAnimation()
+        }
+        .onDisappear {
+            // Сбрасываем состояние при исчезновении
+            hasAppeared = false
+            contentOpacity = 0.0
         }
         .refreshable {
             await loadFavoriteStations()
@@ -193,6 +210,23 @@ struct FavoriteStationsView: View {
         }
     }
     
+    private func startFavoriteViewAnimation() {
+        guard !hasAppeared else { return }
+        hasAppeared = true
+        
+        // Сначала показываем интерфейс с анимацией
+        withAnimation(.easeIn(duration: 0.3)) {
+            contentOpacity = 1.0
+        }
+        
+        // Затем с небольшой задержкой загружаем данные
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            Task {
+                await loadFavoriteStations()
+            }
+        }
+    }
+    
     private func loadFavoriteStations() async {
         isLoading = true
         do {
@@ -201,7 +235,10 @@ struct FavoriteStationsView: View {
             errorMessage = error.localizedDescription
             showingError = true
         }
-        isLoading = false
+        
+        await MainActor.run {
+            isLoading = false
+        }
     }
     
     private func removeFavorite(_ favoriteId: UUID) async {
@@ -209,8 +246,10 @@ struct FavoriteStationsView: View {
             try await supabaseManager.removeFromFavorites(favoriteId: favoriteId)
             await loadFavoriteStations() // Refresh the list
         } catch {
-            errorMessage = error.localizedDescription
-            showingError = true
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                showingError = true
+            }
         }
     }
 }
