@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct MyCarView: View {
-    @AppStorage("selectedCarId") private var selectedCarId: String = ""
-    @State private var selectedCar: ElectricVehicle = sampleCars[0]
-    @State private var showingCarSelection = false
-    @State private var chargingSessions: [ChargingSession] = sampleChargingSessions
-    @State private var imageOpacity: Double = 0.0
-    @ObservedObject private var languageManager = LanguageManager()
+    @AppStorage("selectedCarId") var selectedCarId: String = ""
+    @State var selectedCar: ElectricVehicle = sampleCars[0]
+    @State var showingCarSelection = false
+    @State var chargingSessions: [ChargingSession] = sampleChargingSessions
+    @State var imageOpacity: Double = 0.0
+    @ObservedObject var languageManager = LanguageManager()
     
-    private var carStats: CarStats {
+    var carStats: CarStats {
         calculateStats()
     }
     
@@ -54,7 +54,6 @@ struct MyCarView: View {
                                 .frame(height: geometry.size.width * 0.7)
                                 .frame(maxWidth: .infinity)
                                 .cornerRadius(12)
-                                .opacity(imageOpacity)
                                 .animation(.easeInOut(duration: 0.5), value: imageOpacity)
                             }
                             
