@@ -174,7 +174,7 @@ let sampleCars: [ElectricVehicle] = [
         efficiency: 14.5,
         supportedChargers: [.ccs2, .type2],
         maxChargingSpeed: 205,
-        image: "secret"
+        image: "bmwi5"
     ),
     ElectricVehicle(
         make: "BMW",
@@ -185,7 +185,7 @@ let sampleCars: [ElectricVehicle] = [
         efficiency: 16.4,
         supportedChargers: [.ccs2, .type2],
         maxChargingSpeed: 205,
-        image: "secret"
+        image: "bmwi5"
     ),
     ElectricVehicle(
         make: "BMW",
@@ -196,7 +196,7 @@ let sampleCars: [ElectricVehicle] = [
         efficiency: 16.3,
         supportedChargers: [.ccs2, .type2],
         maxChargingSpeed: 195,
-        image: "secret"
+        image: "bmwi7"
     ),
     ElectricVehicle(
         make: "BMW",
@@ -207,7 +207,7 @@ let sampleCars: [ElectricVehicle] = [
         efficiency: 18.2,
         supportedChargers: [.ccs2, .type2],
         maxChargingSpeed: 195,
-        image: "secret"
+        image: "bmwi7"
     ),
     ElectricVehicle(
         make: "BMW",
@@ -255,7 +255,7 @@ let sampleCars: [ElectricVehicle] = [
         efficiency: 14.5,
         supportedChargers: [.ccs2, .type2, .gbT],
         maxChargingSpeed: 150,
-        image: "secret"
+        image: "bydseal"
     ),
     ElectricVehicle(
         make: "BYD",

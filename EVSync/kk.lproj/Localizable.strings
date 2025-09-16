@@ -2,148 +2,169 @@
 //  Localizable.strings (KAZ)
 //  Charge&Go
 //
-//  Created by Daulet Yerkinov on 08.09.25.
+//  Updated: 15.09.2025
 //
 
 // Settings Screen
 "account" = "Аккаунт";
 "sign_out" = "Шығу";
-"appearance" = "Сыртқы көрініс";
+"appearance" = "Көрініс";
 "theme" = "Тақырып";
 "preferences" = "Баптаулар";
-"notifications" = "Хабарламалар";
-"notifications_subtitle" = "Зарядтау күйі туралы хабарламаларды алу";
-"location_services" = "Геолокация қызметтері";
-"location_services_subtitle" = "Ең жақын зарядтау станцияларын табу";
-"privacy_legal" = "Құпиялылық және құқықтық мәселелер";
-"privacy_legal_subtitle" = "Сіздің құпиялығыңыз бен қауіпсіздігіңіз біз үшін маңызды";
+"notifications" = "Хабарландырулар";
+"notifications_subtitle" = "Заряд күйі туралы ескертулер";
+"location_services" = "Геолокация";
+"location_services_subtitle" = "Жақын станцияларды табу";
+"privacy_legal" = "Құпиялылық";
+"privacy_legal_subtitle" = "Қауіпсіздігіңіз біз үшін маңызды";
 "privacy_policy" = "Құпиялылық саясаты";
-"privacy_policy_subtitle" = "Құпиялылық саясатымен танысу";
-"privacy_policy_description" = "Жеке деректеріңізді қалай өңдейтініміз";
+"privacy_policy_subtitle" = "Саясатты қарау";
+"privacy_policy_description" = "Деректерді қалай өңдейміз";
 "terms_of_service" = "Пайдалану шарттары";
-"terms_of_service_description" = "Қолдану ережелері мен шарттары";
+"terms_of_service_description" = "Қолдану ережелері";
 "data_protection" = "Деректерді қорғау";
-"data_protection_description" = "Сіздің құқықтарыңыз және біздің міндеттемелеріміз";
+"data_protection_description" = "Құқықтарыңыз және міндеттемелер";
 "about" = "Қосымша туралы";
 "version" = "Нұсқа";
-"version_subtitle" = "Қосымшаның ағымдағы нұсқасы";
+"version_subtitle" = "Қосымша нұсқасы";
 "done" = "Дайын";
 "language" = "Тіл";
-"language_subtitle" = "Интерфейс тілін орнатыңыз";
+"language_subtitle" = "Тілді таңдау";
 
 // Theme names
 "system" = "Жүйелік";
 "light" = "Ашық";
 "dark" = "Қараңғы";
 
-// Privacy Policy
+// Құпиялылық саясаты
 "privacy_policy_title" = "Құпиялылық саясаты";
-"last_updated" = "Соңғы жаңарту: қыркүйек 2025";
-"information_we_collect" = "Біз жинайтын ақпарат";
-"information_we_collect_content" = "Біз сіз тікелей берген ақпаратты жинаймыз, мысалы, аккаунт құрған кезде, профильді жаңартқанда немесе қолдау қызметіне жүгінгенде.";
-"how_we_use_information" = "Ақпаратты қалай пайдаланамыз";
-"how_we_use_information_content" = "Біз жиналған ақпаратты қызметтерді ұсыну, қолдау және жетілдіру, транзакцияларды өңдеу және сізбен байланысу үшін қолданамыз.";
-"location_data" = "Орналасу деректері";
-"location_data_content" = "Сіздің рұқсатыңызбен біз ең жақын зарядтау станцияларын табуға көмектесу үшін орналасу деректерін жинаймыз. Қалаған уақытта құрылғы баптауларынан геолокация қызметтерін өшіре аласыз.";
-"data_security" = "Деректер қауіпсіздігі";
-"data_security_content" = "Біз сіздің жеке деректеріңізді рұқсатсыз қол жеткізуден, өзгертуден, жария етуден немесе жойылудан қорғау үшін тиісті қауіпсіздік шараларын қолданамыз.";
-"contact_us" = "Бізбен байланысыңыз";
-"contact_us_content" = "Егер осы Құпиялылық саясатына қатысты сұрақтарыңыз болса, бізге privacy@chargeandgo.com мекенжайы арқылы хабарласыңыз";
+"last_updated" = "Соңғы жаңарту: 2025 қыркүйек";
 
-// Terms of Service
+"information_we_collect" = "Жиналатын деректер";
+"information_we_collect_content" = "Біз қызметті қамтамасыз ету үшін қажет деректерді ғана жинаймыз: тіркелу (Google, Apple, email), профиль өзгерістері, қолдау сұраулары және техникалық мәліметтер (құрылғы түрі, пайдалану статистикасы). Рұқсат берсеңіз, жақын станцияларды көрсету үшін геолокация өңделеді.";
+
+"how_we_use_information" = "Деректерді қалай қолданамыз";
+"how_we_use_information_content" = "Деректер қосымшаның жұмысын атқаруға, қолдау көрсетуге, қателерді түзетуге, жаңартуға және тәжірибені жекешелендіруге қолданылады. Сондай-ақ тұрақтылықты арттыруға арналған ішкі талдау үшін.";
+
+"data_storage" = "Деректерді сақтау";
+"data_storage_content" = "Барлық деректер Supabase инфрақұрылымында сақталады: жіберуде және сақтауда шифрлау, қатаң қолжеткізу бақылауы, сенімді басқару.";
+
+"data_sharing" = "Деректерді беру";
+"data_sharing_content" = "Біз деректерді сатпаймыз және үшінші тұлғаларға бермейміз. Ерекшелік: Supabase — біздің атымыздан сақтау және өңдеу провайдері.";
+
+"security" = "Қауіпсіздік";
+"security_content" = "Шифрлау, қолжеткізуді шектеу, жүйе тұтастығын бақылау сияқты шараларды қолданамыз. Абсолютті қауіпсіздік кепілденбейді.";
+
+"your_choices" = "Құқықтарыңыз";
+"your_choices_content" = "Деректерге қол жеткізуді, түзетуді немесе жоюды сұрай аласыз. Геолокацияны құрылғы баптауларынан өшіруге болады — кей мүмкіндіктер шектелуі мүмкін.";
+
+"contact_us" = "Байланыс";
+"contact_us_content" = "Құпиялылық бойынша сұрақтар: dauletanupwork@gmail.com.";
+
+// Қолдану шарттары
 "acceptance_of_terms" = "Шарттарды қабылдау";
-"acceptance_of_terms_content" = "Charge&Go-ға қол жеткізіп, пайдалана отырып, сіз осы келісімнің шарттарын қабылдайсыз.";
-"use_license" = "Қолдану лицензиясы";
-"use_license_content" = "Charge&Go қосымшасының бір көшірмесін құрылғыға жеке, коммерциялық емес және уақытша пайдалану үшін жүктеп алуға рұқсат етіледі.";
-"user_account" = "Пайдаланушы аккаунты";
-"user_account_content" = "Сіз құпиясөзді қорғауға және аккаунтыңыздың құпиялылығын сақтауға жауаптысыз.";
-"prohibited_uses" = "Тыйым салынған әрекеттер";
-"prohibited_uses_content" = "Біздің сервисті заңсыз мақсаттарда немесе басқа адамдарды заңсыз әрекеттерге итермелеу үшін пайдалануға болмайды.";
-"contact_information" = "Байланыс ақпараты";
-"contact_information_content" = "Пайдалану шарттары бойынша сұрақтарды legal@chargeandgo.com мекенжайына жіберіңіз";
+"acceptance_of_terms_content" = "Charge&Go-ны пайдалану — Шарттармен келісу. Келіспесеңіз, қолданбаңыз.";
 
-// Data Protection
-"your_rights" = "Сіздің құқықтарыңыз";
-"your_rights_content" = "Сіз өзіңіздің жеке деректеріңізге қол жеткізуге, оларды жаңартуға немесе өшіруге құқылысыз. Сондай-ақ деректерді тасымалдауды сұрай аласыз.";
-"data_retention" = "Деректерді сақтау";
-"data_retention_content" = "Біз сіздің жеке деректеріңізді тек қызмет көрсету және заң талаптарын орындау үшін қажет уақытқа дейін сақтаймыз.";
-"data_sharing" = "Деректерді бөлісу";
-"data_sharing_content" = "Біз сіздің жеке деректеріңізді сіздің нақты келісіміңізсіз үшінші тұлғаларға сатпаймыз, айырбастамаймыз және бермейміз.";
+"use_license" = "Лицензия";
+"use_license_content" = "Сізге қосымшаны жеке құрылғыңызда тек жеке, коммерциялық емес мақсатта қолдануға шектеулі, берілмейтін лицензия беріледі.";
+
+"user_account" = "Тіркелгі";
+"user_account_content" = "Тіркелгі мәліметтерінің құпиялығы — сіздің жауапкершілігіңіз. Немқұрайлық салдарынан болған шығындар үшін жауап бермейміз.";
+
+"prohibited_uses" = "Тыйым салынған";
+"prohibited_uses_content" = "Заңсыз әрекеттер, жұмысына кедергі келтіру, серверлерге араласу, кері инженерия, қорғауды айналып өту — тыйым салынады.";
+
+"location_data" = "Орналасу деректері";
+"location_data_content" = "Рұқсат берсеңіз, жақын станцияларды көрсету үшін геолокация пайдаланылады. Оны кез келген уақытта құрылғы баптауларынан өшіруіңізге болады.";
+
+"data_security" = "Деректердің қауіпсіздігі";
+"data_security_content" = "Supabase инфрақұрылымы: шифрлау, қауіпсіз сақтау, қолжеткізуді бақылау. Абсолютті қауіпсіздік кепілденбейді.";
+
+"data_and_liability" = "Жауапкершілік";
+"data_and_liability_content" = "Қызмет «бар күйінде». Үздіксіз жұмысқа немесе қателердің болмауына кепілдік берілмейді. Жанама шығындар үшін жауап бермейміз (Supabase, Google, Apple).";
+
+"contact_information" = "Байланыс ақпараты";
+"contact_information_content" = "Заңды сұрақтар: dauletanupwork@gmail.com.";
+
+// Деректерді қорғау
+"your_rights" = "Құқықтарыңыз";
+"your_rights_content" = "Деректеріңізге қол жеткізуді, түзетуді немесе жоюды кез келген уақытта сұрай аласыз.";
+
+"data_retention" = "Сақтау мерзімі";
+"data_retention_content" = "Деректер тек қызмет жұмысы үшін қажет уақытқа дейін сақталады.";
+
+"data_sharing" = "Деректерді беру";
+"data_sharing_content" = "Үшінші тұлғаларға бермейміз, Supabase-тен басқа.";
+
 "security_measures" = "Қауіпсіздік шаралары";
-"security_measures_content" = "Біз деректеріңізді беру және сақтау кезінде қорғау үшін салалық стандарттағы шифрлау және қауіпсіздік протоколдарын қолданамыз.";
-"data_requests" = "Деректерге қатысты сұраулар";
-"data_requests_content" = "Деректерді қорғау құқықтарыңызды пайдалану үшін бізге dataprotection@chargeandgo.com мекенжайы арқылы хабарласыңыз";
+"security_measures_content" = "Supabase құралдары: шифрлау, қауіпсіз сақтау, қолжеткізуді бақылау.";
+
+"data_requests" = "Деректерге сұраулар";
+"data_requests_content" = "Деректерге қатысты сұрақтар: dauletanupwork@gmail.com";
 
 // MARK: - MY CAR
 
-/*
-  Localizable.strings (Kazakh)
-  EVSync
-*/
+"my_car" = "Көлігім";
 
-// MARK: - Navigation & Headers
-"my_car" = "Менің Көлігім";
-
-// MARK: - Vehicle Information
+// Vehicle Information
 "specifications" = "Сипаттамалар";
-"compatible_connectors" = "Үйлесімді Қосқыштар";
-"select_vehicle" = "Көлікті Таңдау";
+"compatible_connectors" = "Қосқыштар";
+"select_vehicle" = "Көлікті таңдау";
 "done" = "Дайын";
 
-// MARK: - Specifications
-"battery_capacity" = "Батарея Сыйымдылығы";
+// Specifications
+"battery_capacity" = "Сыйымдылық";
 "efficiency" = "Тиімділік";
-"max_charging" = "Макс Зарядтау";
+"max_charging" = "Макс. заряд";
 "range" = "Қашықтық";
 
-// MARK: - Units
+// Units
 "kwh_unit" = "кВт·сағ";
 "kw_unit" = "кВт";
 "km_unit" = "км";
 "efficiency_unit" = "кВт·сағ/100км";
-"range_unit" = "км қашықтық";
+"range_unit" = "км жүріс";
 
-// MARK: - Vehicle Selection
-"vehicle_info_format" = "%@ қашықтық • %@ кВт·сағ";
+// Vehicle Selection
+"vehicle_info_format" = "%@ жүріс • %@ кВт·сағ";
 
-// MARK: - Charging Sessions
-"total_sessions" = "Жалпы Сессиялар";
-"total_energy_charged" = "Жалпы Зарядталған Энергия";
-"total_cost" = "Жалпы Құн";
-"average_cost" = "Орташа Құн";
-"co2_saved" = "CO₂ Үнемделген";
-"equivalent_gasoline" = "Бензин Баламасы";
+// Charging Sessions
+"total_sessions" = "Барлығы сессия";
+"total_energy_charged" = "Зарядталғаны";
+"total_cost" = "Жалпы шығын";
+"average_cost" = "Орташа баға";
+"co2_saved" = "Үнемделген CO₂";
+"equivalent_gasoline" = "Бензин баламасы";
 
-// MARK: - Environmental Stats
-"co2_emissions_avoided" = "CO₂ Шығарындыларынан Сақталған";
-"gasoline_saved" = "Бензин Үнемделген";
+// Environmental Stats
+"co2_emissions_avoided" = "Алдын алынған CO₂";
+"gasoline_saved" = "Үнемделген бензин";
 "kg_unit" = "кг";
 "liters_unit" = "л";
 
-// MARK: - Charging Session Details
-"energy_added" = "Қосылған Энергия";
-"charging_speed" = "Зарядтау Жылдамдығы";
+// Charging Session Details
+"energy_added" = "Қосылғаны";
+"charging_speed" = "Жылдамдық";
 "cost" = "Құны";
 "duration" = "Ұзақтығы";
-"location" = "Орын";
+"location" = "Орны";
 
-// MARK: - Time Units
+// Time Units
 "minutes" = "мин";
 "hours" = "сағ";
-"seconds" = "сек";
+"seconds" = "с";
 
-"maps_tool" = "Карты";
-"favourite_tool" = "Тандауларым";
+// Toolbar
+"maps_tool" = "Карталар";
+"favourite_tool" = "Таңдаулылар";
 "my_car_tool" = "Көлігім";
-
-/* Localizable.strings - Kazakh */
 
 /* Favorites View */
 "favorites_title" = "Таңдаулылар";
-"loading_favorites" = "Таңдаулыларды жүктеу...";
+"loading_favorites" = "Таңдаулылар жүктелуде...";
 "no_favorite_stations" = "Таңдаулы станциялар жоқ";
-"no_favorite_stations_description" = "Мұнда көру үшін карта көрінісінен станцияларды таңдаулыларыңызға қосыңыз";
-"explore_map" = "Картаны зерттеу";
+"no_favorite_stations_description" = "Картадан станцияларды таңдау тізіміне қосыңыз";
+"explore_map" = "Картаны ашу";
 
 /* Welcome View */
 "log_in_or_sign_up" = "Кіру немесе тіркелу";
@@ -151,27 +172,27 @@
 "create_account_title" = "Аккаунт жасау";
 
 /* Form Labels */
-"email_label" = "Электрондық пошта";
+"email_label" = "Эл. пошта";
 "password_label" = "Құпия сөз";
-"create_password_label" = "Құпия сөз жасаңыз";
+"create_password_label" = "Құпия сөз жасау";
 "confirm_password_label" = "Құпия сөзді растау";
 
 /* Placeholders */
-"email_placeholder" = "Электрондық пошта";
-"enter_email_placeholder" = "Электрондық поштаңызды енгізіңіз";
+"email_placeholder" = "Эл. пошта";
+"enter_email_placeholder" = "Эл. поштаңызды енгізіңіз";
 "enter_password_placeholder" = "Құпия сөзіңізді енгізіңіз";
 "confirm_password_placeholder" = "Құпия сөзіңізді растаңыз";
 
 /* Password validation */
-"password_requirement" = "Құпия сөз кемінде 6 таңбадан тұруы тиіс";
-"passwords_match" = "Құпия сөздер сәйкес келеді";
-"passwords_dont_match" = "Құпия сөздер сәйкес келмейді";
+"password_requirement" = "Кемі 6 таңба";
+"passwords_match" = "Құпия сөздер сәйкес";
+"passwords_dont_match" = "Құпия сөздер сәйкес емес";
 
 /* Buttons */
 "continue_button" = "Жалғастыру";
 "sign_in_button" = "Кіру";
 "create_account_button" = "Аккаунт жасау";
-"back_to_email" = "← Электрондық поштаға оралу";
+"back_to_email" = "← Поштаға оралу";
 "forgot_password" = "Құпия сөзді ұмыттыңыз ба?";
 
 /* Social Login */
@@ -180,24 +201,24 @@
 "sign_in_with_apple" = "Apple арқылы кіру";
 
 /* Terms and Conditions */
-"terms_and_conditions" = "Тіркелу арқылы сіз біздің Қызмет көрсету шарттары мен Құпиялылық саясатымызбен келісесіз";
+"terms_and_conditions" = "Тіркелу арқылы Қызмет көрсету шарттары және Құпиялылық саясатына келісесіз";
 
 /* Error Messages */
 "error_title" = "Қате";
 "ok_button" = "Жарайды";
-"unknown_error" = "Белгісіз қате орын алды";
-"passwords_do_not_match_error" = "Құпия сөздер сәйкес келмейді";
-"invalid_email_error" = "Жарамды электрондық пошта мекенжайын енгізіңіз";
+"unknown_error" = "Белгісіз қате";
+"passwords_do_not_match_error" = "Құпия сөздер сәйкес емес";
+"invalid_email_error" = "Жарамды email енгізіңіз";
 "unable_to_verify_account_error" = "Аккаунт мәртебесін тексеру мүмкін емес";
 
-//MAPS
+// MAPS
 /* Station Information */
-"station_address" = "Мекенжайы";
-"operating_hours" = "Жұмыс уақыты";
+"station_address" = "Мекенжай";
+"operating_hours" = "Уақыты";
 "power" = "Қуат";
 "price" = "Баға";
 "phone" = "Телефон";
-"connector_types" = "Қосқыш түрлері";
+"connector_types" = "Қосқыштар";
 "amenities" = "Қызметтер";
 "kwh" = "кВт·сағ";
 
@@ -205,66 +226,63 @@
 "call" = "Қоңырау";
 "save" = "Сақтау";
 "saved" = "Сақталды";
-"navigate" = "Жол тарту";
+"navigate" = "Маршрут";
 
 /* Station Status */
 "status_available" = "Қолжетімді";
 "status_occupied" = "Бос емес";
-"status_out_of_service" = "Жұмсамайды";
-"status_maintenance" = "Қолжетімсіз: Техникалық қызмет";
+"status_out_of_service" = "Жұмыс істемейді";
+"status_maintenance" = "Қолжетімсіз (техқызмет)";
 
 /* Amenities */
 "amenity_wifi" = "Wi-Fi";
 "amenity_restroom" = "Дәретхана";
 "amenity_restaurant" = "Мейрамхана";
-"amenity_shopping_mall" = "Дүкендер";
+"amenity_shopping_mall" = "Сауда орталығы";
 "amenity_parking" = "Автотұрақ";
 "amenity_24/7" = "Тәулік бойы";
-"amenity_covered" = "Жабық";
-"amenity_fast_charging" = "Жылдам қуаттау: DC";
-"amenity_ev_charging" = "Электромобиль қуаттау: AC";
+"amenity_covered" = "Үстінгі орын";
+"amenity_fast_charging" = "Жылдам заряд (DC)";
+"amenity_ev_charging" = "Заряд (AC)";
 
-
-
-//  Welcome Screen
-"welcome_tagline" = "Электромобиліңізді оңай табыңыз, жол сілтеңіз және зарядтаңыз";
+/* Welcome Screen */
+"welcome_tagline" = "Станцияларды табыңыз, бағыт алыңыз, зарядтаңыз";
 "loading" = "Жүктелуде...";
 
 // No Internet Screen
 "no_internet_title" = "Интернет жоқ";
-"no_internet_description" = "Интернет байланысын тексеріп, қайтадан көріңіз. Wi-Fi немесе ұялы деректер қосылғанына көз жеткізіңіз.";
+"no_internet_description" = "Қосылымды тексеріп, қайталап көріңіз.";
 "try_again_button" = "Қайта көру";
-"checking_connection" = "Байланыс тексерілуде...";
-"connection_tips_title" = "Байланыс кеңестері:";
-"check_wifi_tip" = "Wi-Fi қосылымын тексеріңіз";
-"check_cellular_tip" = "Ұялы деректер қосулы екенін тексеріңіз";
-"restart_device_tip" = "Құрылғыны қайта қосуды көріңіз";
+"checking_connection" = "Тексерілуде...";
+"connection_tips_title" = "Кеңестер";
+"check_wifi_tip" = "Wi-Fi тексеріңіз";
+"check_cellular_tip" = "Ұялы деректерді тексеріңіз";
+"restart_device_tip" = "Құрылғыны қайта қосыңыз";
 
+// INFOPLIST
+"NSLocationWhenInUseUsageDescription" = "Картада орналасуыңызды көрсету және жақын станцияларды табу үшін геолокацияға рұқсат қажет.";
 
-//INFOPLIST
-"NSLocationWhenInUseUsageDescription" = "Бұл қосымшаға картада орналасқан жеріңізді көрсету және жақын маңдағы қуаттау станцияларын табу үшін геолокацияға қол жеткізу қажет.";
+// LocationManager қателері
+"location_services_disabled" = "Геолокация өшірілген";
+"location_access_denied" = "Қол жеткізуге тыйым салынған";
+"location_unable_to_determine" = "Орналасу анықталмады";
+"location_access_restricted" = "Қол жеткізу шектелген";
 
-// LocationManager қате хабарламалары:
-"location_services_disabled" = "Орналасу қызметтері өшірілген";
-"location_access_denied" = "Орналасуға қол жеткізуге тыйым салынды";
-"location_unable_to_determine" = "Орналасуды анықтау мүмкін болмады";
-"location_access_restricted" = "Орналасуға қол жеткізу шектелген";
-
-// LocationManager ескерту тақырыптары:
+// Alerts
 "location_disabled_title" = "Геолокация өшірілген";
 "location_access_title" = "Орналасуға қол жеткізу";
-"location_services_disabled_title" = "Орналасу қызметтері өшірілген";
+"location_services_disabled_title" = "Геолокация өшірілген";
 
-// LocationManager ескерту хабарламалары:
-"location_disabled_message" = "Сіздің орналасуыңызды көрсету және жақын маңдағы қуаттау станцияларын табу үшін геолокация қызметтерін қосу қажет.";
-"location_access_denied_message" = "Орналасуға қол жеткізу шектелген. Жүйе параметрлерінен рұқсат беріңіз.";
-"location_services_disabled_message" = "Орналасу қызметтері құрылғы параметрлерінде өшірілген. Оларды Параметрлер > Құпиялылық және қауіпсіздік > Орналасу қызметтері бөлімінде қосыңыз.";
+// Alert messages
+"location_disabled_message" = "Геолокацияны қолданба баптауларынан қосыңыз.";
+"location_access_denied_message" = "Қол жеткізу шектелген. Жүйе баптауларынан рұқсат беріңіз.";
+"location_services_disabled_message" = "Геолокация құрылғы баптауларында өшірілген.";
 
-// LocationManager батырмалары:
+// Buttons
 "enable" = "Қосу";
-"open_settings" = "Параметрлерді ашу";
+"open_settings" = "Баптауларды ашу";
 
-// UI компоненттері:
-"loading_charging_stations" = "Қуаттау станциялары жүктелуде...";
+// UI
+"loading_charging_stations" = "Станциялар жүктелуде...";
 "retry" = "Қайталау";
 "cancel" = "Бас тарту";
