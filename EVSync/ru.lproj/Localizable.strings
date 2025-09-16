@@ -2,162 +2,187 @@
 //  Localizable.strings (RUS)
 //  Charge&Go
 //
-//  Created by Daulet Yerkinov on 08.09.25.
+//  Updated by Daulet Yerkinov on 15.09.25
 //
 
 // Settings Screen
 "account" = "Аккаунт";
 "sign_out" = "Выйти";
-"appearance" = "Внешний вид";
+"appearance" = "Тема";
 "theme" = "Тема";
 "preferences" = "Настройки";
 "notifications" = "Уведомления";
-"notifications_subtitle" = "Получать уведомления о статусе зарядки";
-"location_services" = "Службы геолокации";
-"location_services_subtitle" = "Находить ближайшие зарядные станции";
-"privacy_legal" = "Конфиденциальность и правовые вопросы";
-"privacy_legal_subtitle" = "Ваша конфиденциальность и безопасность важны для нас";
+"notifications_subtitle" = "Уведомления о зарядке";
+"location_services" = "Геолокация";
+"location_services_subtitle" = "Поиск станций рядом";
+"privacy_legal" = "Конфиденциальность";
+"privacy_legal_subtitle" = "Мы заботимся о вашей безопасности";
 "privacy_policy" = "Политика конфиденциальности";
-"privacy_policy_subtitle" = "Ознакомиться с политикой конфиденциальности";
-"privacy_policy_description" = "Как мы обрабатываем ваши персональные данные";
+"privacy_policy_subtitle" = "Посмотреть политику";
+"privacy_policy_description" = "Как мы обрабатываем данные";
 "terms_of_service" = "Условия использования";
-"terms_of_service_description" = "Правила и условия использования";
+"terms_of_service_description" = "Правила использования";
 "data_protection" = "Защита данных";
-"data_protection_description" = "Ваши права и наши обязательства";
+"data_protection_description" = "Ваши права и наши обязанности";
 "about" = "О приложении";
 "version" = "Версия";
-"version_subtitle" = "Текущая версия приложения";
+"version_subtitle" = "Версия приложения";
 "done" = "Готово";
 "language" = "Язык";
-"language_subtitle" = "Установите язык интерфейса";
+"language_subtitle" = "Выбор языка";
 
 // Theme names
 "system" = "Системная";
 "light" = "Светлая";
 "dark" = "Тёмная";
 
-// Privacy Policy
+// Политика конфиденциальности
 "privacy_policy_title" = "Политика конфиденциальности";
-"last_updated" = "Последнее обновление: сентябрь 2025";
-"information_we_collect" = "Информация, которую мы собираем";
-"information_we_collect_content" = "Мы собираем информацию, которую вы предоставляете нам напрямую, например, при создании аккаунта, обновлении профиля или обращении в службу поддержки.";
-"how_we_use_information" = "Как мы используем вашу информацию";
-"how_we_use_information_content" = "Мы используем собранную информацию для предоставления, поддержки и улучшения наших услуг, обработки транзакций и общения с вами.";
-"location_data" = "Данные о местоположении";
-"location_data_content" = "С вашего разрешения мы собираем данные о местоположении, чтобы помочь вам найти ближайшие зарядные станции. Вы можете отключить службы геолокации в любое время в настройках устройства.";
-"data_security" = "Безопасность данных";
-"data_security_content" = "Мы применяем соответствующие меры безопасности для защиты вашей персональной информации от несанкционированного доступа, изменения, раскрытия или уничтожения.";
-"contact_us" = "Свяжитесь с нами";
-"contact_us_content" = "Если у вас есть вопросы по поводу данной Политики конфиденциальности, свяжитесь с нами по адресу privacy@chargeandgo.com";
+"last_updated" = "Последнее обновление: Сентябрь 2025";
 
-// Terms of Service
-"acceptance_of_terms" = "Принятие условий";
-"acceptance_of_terms_content" = "Получая доступ и используя Charge&Go, вы соглашаетесь соблюдать условия и положения данного соглашения.";
-"use_license" = "Лицензия на использование";
-"use_license_content" = "Разрешается временно загружать одну копию Charge&Go на устройство для личного, некоммерческого и временного использования.";
-"user_account" = "Аккаунт пользователя";
-"user_account_content" = "Вы несёте ответственность за сохранность пароля и конфиденциальность своего аккаунта.";
-"prohibited_uses" = "Запрещённые действия";
-"prohibited_uses_content" = "Вы не можете использовать наш сервис в незаконных целях или подстрекать других к совершению противоправных действий.";
-"contact_information" = "Контактная информация";
-"contact_information_content" = "Вопросы об Условиях использования следует направлять нам на legal@chargeandgo.com";
+"information_we_collect" = "Какие данные мы собираем";
+"information_we_collect_content" = "Мы можем собирать, хранить и обрабатывать данные, которые вы предоставляете или которые генерируются при использовании приложения. Это регистрация (Google, Apple, email), изменения профиля, обращения в поддержку, а также техническая информация — тип устройства, статистика использования. С вашего согласия может использоваться геолокация для поиска ближайших станций.";
 
-// Data Protection
-"your_rights" = "Ваши права";
-"your_rights_content" = "Вы имеете право на доступ, обновление или удаление вашей персональной информации. Вы также можете запросить перенос данных.";
-"data_retention" = "Хранение данных";
-"data_retention_content" = "Мы храним вашу персональную информацию только столько, сколько необходимо для предоставления услуг и выполнения юридических обязательств.";
+"how_we_use_information" = "Как мы используем данные";
+"how_we_use_information_content" = "Информация используется только для работы сервиса: функции приложения, поддержка, исправление ошибок, обновления, персонализация. Также — для анализа и повышения стабильности.";
+
+"data_storage" = "Хранение данных";
+"data_storage_content" = "Все данные хранятся только в Supabase с защитой: шифрование, контроль доступа, надежное управление данными.";
+
 "data_sharing" = "Передача данных";
-"data_sharing_content" = "Мы не продаём, не обмениваем и не передаём вашу персональную информацию третьим лицам без вашего явного согласия.";
-"security_measures" = "Меры безопасности";
-"security_measures_content" = "Мы используем отраслевые стандарты шифрования и протоколы безопасности для защиты ваших данных при передаче и хранении.";
-"data_requests" = "Запросы на обработку данных";
-"data_requests_content" = "Чтобы воспользоваться своими правами на защиту данных, свяжитесь с нами по адресу dataprotection@chargeandgo.com";
+"data_sharing_content" = "Мы не продаём и не передаём ваши данные. Исключение — Supabase, который хранит и обрабатывает их от нашего имени.";
 
+"security" = "Безопасность";
+"security_content" = "Мы применяем меры для защиты данных: шифрование, ограничение доступа, мониторинг. Абсолютная защита не гарантируется.";
+
+"your_choices" = "Ваши права";
+"your_choices_content" = "Вы можете запросить доступ, исправление или удаление данных. Геолокацию можно отключить в настройках устройства. Отключение некоторых функций ограничит работу приложения.";
+
+"contact_us" = "Связаться с нами";
+"contact_us_content" = "По вопросам политики конфиденциальности пишите: dauletanupwork@gmail.com.";
+
+// Условия использования
+"acceptance_of_terms" = "Принятие условий";
+"acceptance_of_terms_content" = "Используя Charge&Go, вы подтверждаете согласие с Условиями использования. Если не согласны — прекратите пользоваться приложением.";
+
+"use_license" = "Лицензия";
+"use_license_content" = "Вам предоставляется ограниченная, неисключительная лицензия на установку и использование Charge&Go только в личных целях.";
+
+"user_account" = "Аккаунт";
+"user_account_content" = "Вы отвечаете за сохранность данных и все действия в аккаунте. Мы не несём ответственности за последствия вашей небрежности.";
+
+"prohibited_uses" = "Запрещено";
+"prohibited_uses_content" = "Нельзя использовать сервис для незаконных действий, нарушать работу, вмешиваться в серверы, взламывать или обходить защиту.";
+
+"location_data" = "Данные о местоположении";
+"location_data_content" = "С вашим разрешением мы используем геолокацию для поиска ближайших станций. Её можно отключить в настройках устройства.";
+
+"data_security" = "Безопасность данных";
+"data_security_content" = "Данные защищены инфраструктурой Supabase: шифрование, безопасное хранение, контроль доступа. Абсолютная защита не гарантируется.";
+
+"data_and_liability" = "Ответственность";
+"data_and_liability_content" = "Сервис предоставляется «как есть». Мы не гарантируем работу без ошибок и не несём ответственность за косвенные убытки, включая потерю данных или сбои сторонних сервисов (Supabase, Google, Apple).";
+
+"contact_information" = "Контакты";
+"contact_information_content" = "По юридическим вопросам: dauletanupwork@gmail.com.";
+
+// Защита данных
+"your_rights" = "Ваши права";
+"your_rights_content" = "Вы можете запросить доступ, исправление или удаление данных в любое время.";
+
+"data_retention" = "Хранение данных";
+"data_retention_content" = "Мы храним данные только столько, сколько нужно для работы сервиса.";
+
+"data_sharing" = "Передача данных";
+"data_sharing_content" = "Мы не передаём данные третьим лицам, кроме Supabase.";
+
+"security_measures" = "Меры безопасности";
+"security_measures_content" = "Мы используем механизмы Supabase: шифрование, хранение и контроль доступа.";
+
+"data_requests" = "Запросы по данным";
+"data_requests_content" = "По вопросам, связанным с вашими данными: dauletanupwork@gmail.com";
 
 // MARK: - MyCar
-"my_car" = "Мой Автомобиль";
+"my_car" = "Мой авто";
 
-// MARK: - Vehicle Information
+// Vehicle Information
 "specifications" = "Характеристики";
-"compatible_connectors" = "Совместимые Разъёмы";
-"select_vehicle" = "Выбрать Автомобиль";
+"compatible_connectors" = "Разъёмы";
+"select_vehicle" = "Выбрать авто";
 "done" = "Готово";
 
-// MARK: - Specifications
-"battery_capacity" = "Ёмкость Батареи";
+// Specifications
+"battery_capacity" = "Ёмкость";
 "efficiency" = "Эффективность";
-"max_charging" = "Макс Зарядка";
-"range" = "Запас Хода";
+"max_charging" = "Макс. заряд";
+"range" = "Запас хода";
 
-// MARK: - Units
+// Units
 "kwh_unit" = "кВт·ч";
 "kw_unit" = "кВт";
 "km_unit" = "км";
 "efficiency_unit" = "кВт·ч/100км";
-"range_unit" = "км запас хода";
+"range_unit" = "км хода";
 
-// MARK: - Vehicle Selection
-"vehicle_info_format" = "%@ запас хода • %@ кВт·ч";
+// Vehicle Selection
+"vehicle_info_format" = "%@ хода • %@ кВт·ч";
 
-// MARK: - Charging Sessions
-"total_sessions" = "Всего Сессий";
-"total_energy_charged" = "Всего Заряжено Энергии";
-"total_cost" = "Общая Стоимость";
-"average_cost" = "Средняя Стоимость";
-"co2_saved" = "CO₂ Сэкономлено";
-"equivalent_gasoline" = "Эквивалент Бензина";
+// Charging Sessions
+"total_sessions" = "Сессий всего";
+"total_energy_charged" = "Заряжено";
+"total_cost" = "Всего потрачено";
+"average_cost" = "Средняя цена";
+"co2_saved" = "CO₂ сэкономлено";
+"equivalent_gasoline" = "Эквивалент бензина";
 
-// MARK: - Environmental Stats
-"co2_emissions_avoided" = "Выбросы CO₂ Предотвращены";
-"gasoline_saved" = "Бензин Сэкономлен";
+// Environmental Stats
+"co2_emissions_avoided" = "Выбросы CO₂ предотвращены";
+"gasoline_saved" = "Сэкономлено бензина";
 "kg_unit" = "кг";
 "liters_unit" = "л";
 
-// MARK: - Charging Session Details
-"energy_added" = "Добавлено Энергии";
-"charging_speed" = "Скорость Зарядки";
+// Charging Session Details
+"energy_added" = "Добавлено";
+"charging_speed" = "Скорость";
 "cost" = "Стоимость";
-"duration" = "Продолжительность";
+"duration" = "Время";
 "location" = "Местоположение";
 
-// MARK: - Time Units
+// Time Units
 "minutes" = "мин";
 "hours" = "ч";
 "seconds" = "сек";
 
 "maps_tool" = "Карты";
-"favourite_tool" = "Мои Станции";
-"my_car_tool" = "Мое Авто";
+"favourite_tool" = "Избранное";
+"my_car_tool" = "Мой авто";
 
-/* Localizable.strings - Russian */
-
-/* Favorites View */
+/* Favorites */
 "favorites_title" = "Избранное";
-"loading_favorites" = "Загрузка избранного...";
-"no_favorite_stations" = "Нет избранных станций";
-"no_favorite_stations_description" = "Добавьте станции в избранное из вида карты, чтобы видеть их здесь";
-"explore_map" = "Исследовать карту";
+"loading_favorites" = "Загрузка...";
+"no_favorite_stations" = "Нет станций";
+"no_favorite_stations_description" = "Добавьте станции с карты";
+"explore_map" = "Открыть карту";
 
-/* Welcome View */
-"log_in_or_sign_up" = "Войти или зарегистрироваться";
+/* Welcome */
+"log_in_or_sign_up" = "Вход или регистрация";
 "welcome_back" = "С возвращением!";
-"create_account_title" = "Создать аккаунт";
+"create_account_title" = "Регистрация";
 
 /* Form Labels */
-"email_label" = "Электронная почта";
+"email_label" = "Почта";
 "password_label" = "Пароль";
 "create_password_label" = "Создать пароль";
-"confirm_password_label" = "Подтвердить пароль";
+"confirm_password_label" = "Повторить пароль";
 
 /* Placeholders */
-"email_placeholder" = "Электронная почта";
-"enter_email_placeholder" = "Введите вашу электронную почту";
-"enter_password_placeholder" = "Введите ваш пароль";
-"confirm_password_placeholder" = "Подтвердите ваш пароль";
+"email_placeholder" = "Почта";
+"enter_email_placeholder" = "Введите почту";
+"enter_password_placeholder" = "Введите пароль";
+"confirm_password_placeholder" = "Повторите пароль";
 
 /* Password validation */
-"password_requirement" = "Пароль должен содержать не менее 6 символов";
+"password_requirement" = "Минимум 6 символов";
 "passwords_match" = "Пароли совпадают";
 "passwords_dont_match" = "Пароли не совпадают";
 
@@ -165,7 +190,7 @@
 "continue_button" = "Продолжить";
 "sign_in_button" = "Войти";
 "create_account_button" = "Создать аккаунт";
-"back_to_email" = "← Вернуться к почте";
+"back_to_email" = "← Назад к почте";
 "forgot_password" = "Забыли пароль?";
 
 /* Social Login */
@@ -173,89 +198,87 @@
 "sign_in_with_google" = "Войти через Google";
 "sign_in_with_apple" = "Войти через Apple";
 
-/* Terms and Conditions */
-"terms_and_conditions" = "Регистрируясь, вы соглашаетесь с нашими Условиями обслуживания и Политикой конфиденциальности";
+/* Terms */
+"terms_and_conditions" = "Регистрируясь, вы соглашаетесь с Условиями и Политикой";
 
-/* Error Messages */
+/* Errors */
 "error_title" = "Ошибка";
 "ok_button" = "ОК";
-"unknown_error" = "Произошла неизвестная ошибка";
+"unknown_error" = "Неизвестная ошибка";
 "passwords_do_not_match_error" = "Пароли не совпадают";
-"invalid_email_error" = "Пожалуйста, введите действительный адрес электронной почты";
-"unable_to_verify_account_error" = "Не удается проверить статус аккаунта";
+"invalid_email_error" = "Введите корректный email";
+"unable_to_verify_account_error" = "Не удалось проверить аккаунт";
 
-//MAPS
-/* Station Information */
+// MAPS
 "station_address" = "Адрес";
-"operating_hours" = "Часы работы";
+"operating_hours" = "Часы";
 "power" = "Мощность";
 "price" = "Цена";
 "phone" = "Телефон";
-"connector_types" = "Типы разъемов";
-"amenities" = "Удобства";
+"connector_types" = "Разъёмы";
+"amenities" = "Услуги";
 "kwh" = "кВт·ч";
 
 /* Actions */
 "call" = "Позвонить";
 "save" = "Сохранить";
 "saved" = "Сохранено";
-"navigate" = "Навигация";
+"navigate" = "Маршрут";
 
-/* Station Status */
+/* Status */
 "status_available" = "Доступна";
 "status_occupied" = "Занята";
 "status_out_of_service" = "Не работает";
-"status_maintenance" = "Недоступна: Техническое обслуживание";
+"status_maintenance" = "Недоступна (обслуживание)";
 
 /* Amenities */
 "amenity_wifi" = "Wi-Fi";
 "amenity_restroom" = "Туалет";
 "amenity_restaurant" = "Ресторан";
-"amenity_shopping_mall" = "Магазины";
+"amenity_shopping_mall" = "ТРЦ";
 "amenity_parking" = "Парковка";
 "amenity_24/7" = "Круглосуточно";
-"amenity_covered" = "Крытая";
-"amenity_fast_charging" = "Быстрая зарядка: DC";
-"amenity_ev_charging" = "Зарядка для EV: AC";
+"amenity_covered" = "Под навесом";
+"amenity_fast_charging" = "Быстрая зарядка (DC)";
+"amenity_ev_charging" = "Зарядка (AC)";
 
-// Russian (Welcome Screen)
-"welcome_tagline" = "Находите, планируйте маршрут и заряжайте свой электромобиль легко";
+/* Welcome Screen */
+"welcome_tagline" = "Находите станции и заряжайте авто легко";
 "loading" = "Загрузка...";
 
-// No Internet Screen
-"no_internet_title" = "Нет подключения к Интернету";
-"no_internet_description" = "Проверьте подключение к интернету и попробуйте снова. Убедитесь, что вы подключены к Wi-Fi или мобильным данным.";
+// No Internet
+"no_internet_title" = "Нет интернета";
+"no_internet_description" = "Проверьте подключение и попробуйте снова.";
 "try_again_button" = "Повторить";
-"checking_connection" = "Проверка соединения...";
-"connection_tips_title" = "Советы по подключению:";
-"check_wifi_tip" = "Проверьте подключение Wi-Fi";
-"check_cellular_tip" = "Убедитесь, что включены мобильные данные";
-"restart_device_tip" = "Попробуйте перезагрузить устройство";
+"checking_connection" = "Проверка...";
+"connection_tips_title" = "Советы";
+"check_wifi_tip" = "Проверьте Wi-Fi";
+"check_cellular_tip" = "Проверьте мобильные данные";
+"restart_device_tip" = "Перезагрузите устройство";
 
-//INFOPLIST
-"NSLocationWhenInUseUsageDescription" = "Этому приложению нужен доступ к геолокации, чтобы показать ваше местоположение на карте и найти ближайшие зарядные станции.";
+// INFOPLIST
+"NSLocationWhenInUseUsageDescription" = "Приложению нужен доступ к геолокации, чтобы показывать ваше местоположение и ближайшие станции.";
 
-// Сообщения об ошибках LocationManager:
-"location_services_disabled" = "Службы геолокации отключены";
-"location_access_denied" = "Доступ к геолокации запрещён";
-"location_unable_to_determine" = "Не удалось определить местоположение";
-"location_access_restricted" = "Доступ к геолокации ограничен";
+// LocationManager Errors
+"location_services_disabled" = "Геолокация отключена";
+"location_access_denied" = "Доступ запрещён";
+"location_unable_to_determine" = "Не удалось определить";
+"location_access_restricted" = "Доступ ограничен";
 
-// Заголовки предупреждений LocationManager:
-"location_disabled_title" = "Геолокация отключена";
+// Alerts
+"location_disabled_title" = "Геолокация выключена";
 "location_access_title" = "Доступ к геолокации";
-"location_services_disabled_title" = "Службы геолокации отключены";
+"location_services_disabled_title" = "Геолокация отключена";
 
-// Сообщения предупреждений LocationManager:
-"location_disabled_message" = "Чтобы показать ваше местоположение и найти ближайшие зарядные станции, включите службы геолокации в настройках приложения.";
-"location_access_denied_message" = "Доступ к геолокации ограничен. Пожалуйста, включите доступ в настройках системы.";
-"location_services_disabled_message" = "Службы геолокации отключены в настройках устройства. Включите их в Настройки > Конфиденциальность и безопасность > Службы геолокации.";
+"location_disabled_message" = "Включите геолокацию в настройках приложения.";
+"location_access_denied_message" = "Доступ ограничен. Включите в настройках.";
+"location_services_disabled_message" = "Геолокация отключена в настройках устройства.";
 
-// Кнопки предупреждений LocationManager:
+// Buttons
 "enable" = "Включить";
 "open_settings" = "Открыть настройки";
 
-// Элементы UI:
-"loading_charging_stations" = "Загрузка зарядных станций...";
+// UI
+"loading_charging_stations" = "Загрузка станций...";
 "retry" = "Повторить";
 "cancel" = "Отмена";

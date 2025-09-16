@@ -40,40 +40,70 @@
 // Privacy Policy
 "privacy_policy_title" = "Privacy Policy";
 "last_updated" = "Last updated: September 2025";
+
 "information_we_collect" = "Information We Collect";
-"information_we_collect_content" = "We collect information you provide directly to us, such as when you create an account, update your profile, or contact us for support.";
-"how_we_use_information" = "How We Use Your Information";
-"how_we_use_information_content" = "We use the information we collect to provide, maintain, and improve our services, process transactions, and communicate with you.";
+"information_we_collect_content" = "We may collect, store, and process certain categories of information that you voluntarily provide or that are generated through your interaction with the application. This includes, but is not limited to, account registration data (via Google, Apple, or email login), profile modifications and support inquiries, as well as limited technical information such as device identifiers, device type, and generalized application usage statistics. Additionally, subject to your explicit permission, location data may be processed in order to enable the functionality of displaying nearby charging stations. No other categories of personal data are collected beyond what is necessary for the functioning of the service.";
+
+"how_we_use_information" = "How We Use Information";
+"how_we_use_information_content" = "The information collected is utilized strictly for the purposes of enabling, maintaining, and optimizing the operation of the service, which includes, but is not limited to: ensuring technical functionality, delivering requested features, providing user support, conducting troubleshooting, performing updates, and personalizing the user experience. The information may also be used for internal analysis aimed at improving stability, reliability, and overall performance of the application.";
+
+"data_storage" = "Data Storage";
+"data_storage_content" = "All information processed through the service is stored exclusively within Supabase’s secure infrastructure. Supabase provides industry-recognized safeguards, including but not limited to, encryption in transit and at rest, strict access controls, and robust data management practices. We rely on these mechanisms to ensure that data is safeguarded against unauthorized access, disclosure, alteration, or destruction.";
+
+"data_sharing" = "Data Sharing";
+"data_sharing_content" = "We do not engage in the sale, rental, or unauthorized transfer of your personal data to third parties. The only circumstance under which your data may be accessed by third parties is through the technical operation of Supabase, which acts solely as a data storage and processing provider on our behalf, without independent rights to your information. No other external parties are granted access to your personal data.";
+
+"security" = "Security";
+"security_content" = "While no system can guarantee absolute protection, we implement a combination of administrative, technical, and organizational measures to safeguard your data. These include, but are not limited to, reliance on Supabase’s built-in encryption mechanisms, limited personnel access based on necessity, and continuous monitoring of system integrity. By using the service, you acknowledge that although we take reasonable precautions, absolute security of electronic data transmission and storage cannot be fully guaranteed.";
+
+"your_choices" = "Your Choices";
+"your_choices_content" = "You maintain the right to request access, correction, or deletion of the data associated with your account, subject to reasonable verification of your identity. You may also discontinue the collection of location data at any time by disabling location permissions within your device settings. Please note that exercising certain choices may limit or disable portions of the functionality of the service.";
 "location_data" = "Location Data";
-"location_data_content" = "With your permission, we collect location data to help you find nearby charging stations. You can disable location services at any time in your device settings.";
+"location_data_content" = "If you grant permission, we may process your location data in order to show nearby charging stations. Location services are strictly optional, and you can disable them at any time in your device settings.";
+
 "data_security" = "Data Security";
-"data_security_content" = "We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.";
+"data_security_content" = "We rely on Supabase’s security infrastructure, including encryption, secure storage, and access controls, to protect your information against unauthorized access, alteration, or loss. While we apply industry-standard safeguards, absolute security cannot be guaranteed.";
+
+
 "contact_us" = "Contact Us";
-"contact_us_content" = "If you have any questions about this Privacy Policy, please contact us at privacy@chargeandgo.com";
+"contact_us_content" = "For all inquiries, requests, or concerns regarding this Privacy Policy or our data-handling practices, you may contact us directly at dauletanupwork@gmail.com. We will use commercially reasonable efforts to respond to your request in a timely manner.";
 
 // Terms of Service
 "acceptance_of_terms" = "Acceptance of Terms";
-"acceptance_of_terms_content" = "By accessing and using Charge&Go, you accept and agree to be bound by the terms and provision of this agreement.";
-"use_license" = "Use License";
-"use_license_content" = "Permission is granted to temporarily download one copy of Charge&Go per device for personal, non-commercial transitory viewing only.";
+"acceptance_of_terms_content" = "By accessing, installing, or otherwise using Charge&Go, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree to these terms, you must refrain from using the application.";
+
+"use_license" = "License";
+"use_license_content" = "We hereby grant you a limited, non-exclusive, non-transferable, revocable license to install and use a single copy of Charge&Go on your personal device, solely for your own personal and non-commercial purposes. Any use outside the scope of this license is strictly prohibited.";
+
 "user_account" = "User Account";
-"user_account_content" = "You are responsible for safeguarding the password and for maintaining the confidentiality of your account.";
+"user_account_content" = "You are solely responsible for maintaining the confidentiality of your login credentials and for all activities conducted under your account. You agree to immediately notify us of any unauthorized use or suspected security breach. We disclaim any responsibility for losses arising from your failure to safeguard your account.";
+
 "prohibited_uses" = "Prohibited Uses";
-"prohibited_uses_content" = "You may not use our service for any unlawful purpose or to solicit others to perform acts that would be unlawful.";
+"prohibited_uses_content" = "You agree not to misuse the service. Prohibited activities include, but are not limited to: engaging in unlawful, fraudulent, or malicious activities; attempting to disrupt or interfere with the operation of the application or its servers; reverse-engineering, decompiling, or modifying the application; or bypassing, disabling, or tampering with security-related features.";
+
+"data_and_liability" = "Data & Liability";
+"data_and_liability_content" = "The service is provided strictly on an 'as is' and 'as available' basis, without warranties of any kind, either express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, or non-infringement. We do not warrant that the application will be uninterrupted, error-free, or free of harmful components. To the maximum extent permitted by applicable law, we shall not be liable for any indirect, incidental, consequential, or punitive damages, including but not limited to data loss, system failure, or damages arising from the use of Supabase or third-party authentication providers (such as Google and Apple).";
+
 "contact_information" = "Contact Information";
-"contact_information_content" = "Questions about the Terms of Service should be sent to us at legal@chargeandgo.com";
+"contact_information_content" = "For legal correspondence or matters related to these Terms of Service, please direct your communication to dauletanupwork@gmail.com.";
+
 
 // Data Protection
 "your_rights" = "Your Rights";
-"your_rights_content" = "You have the right to access, update, or delete your personal information. You may also request data portability.";
+"your_rights_content" = "You may request access, correction, or deletion of your personal information at any time.";
+
 "data_retention" = "Data Retention";
-"data_retention_content" = "We retain your personal information only for as long as necessary to provide our services and comply with legal obligations.";
+"data_retention_content" = "We store personal information only for as long as necessary to provide the service and maintain its functionality.";
+
 "data_sharing" = "Data Sharing";
-"data_sharing_content" = "We do not sell, trade, or otherwise transfer your personal information to third parties without your explicit consent.";
+"data_sharing_content" = "We do not sell, trade, or share your information with third parties, except as required to operate the service securely through Supabase.";
+
 "security_measures" = "Security Measures";
-"security_measures_content" = "We employ industry-standard encryption and security protocols to protect your data during transmission and storage.";
+"security_measures_content" = "We rely on Supabase’s encryption, secure storage, and access controls to protect your data during transfer and storage.";
+
 "data_requests" = "Data Requests";
-"data_requests_content" = "To exercise your data protection rights, contact us at dataprotection@chargeandgo.com";
+"data_requests_content" = "For questions or requests related to your data, please contact us at dauletanupwork@gmail.com";
+
 
 
 // MARK: - MY CAR
