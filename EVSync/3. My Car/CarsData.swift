@@ -334,7 +334,7 @@ let sampleCars: [ElectricVehicle] = [
         efficiency: 16.1,
         supportedChargers: [.ccs2, .type2, .gbT],
         maxChargingSpeed: 200,
-        image: "secret"
+        image: "zeekr001"
     ),
     ElectricVehicle(
         make: "Zeekr",
@@ -345,7 +345,7 @@ let sampleCars: [ElectricVehicle] = [
         efficiency: 17.0,
         supportedChargers: [.ccs2, .type2, .gbT],
         maxChargingSpeed: 200,
-        image: "secret"
+        image: "zeekr009"
     ),
     ElectricVehicle(
         make: "Zeekr",
@@ -356,7 +356,7 @@ let sampleCars: [ElectricVehicle] = [
         efficiency: 17.0,
         supportedChargers: [.ccs2, .type2, .gbT],
         maxChargingSpeed: 180,
-        image: "secret"
+        image: "zeekrx"
     ),
     ElectricVehicle(
         make: "Zeekr",
@@ -461,7 +461,7 @@ let sampleCars: [ElectricVehicle] = [
         efficiency: 15.8,
         supportedChargers: [.ccs2, .type2],
         maxChargingSpeed: 135,
-        image: "secret"
+        image: "vw4"
     ),
     ElectricVehicle(
         make: "Volkswagen",
