@@ -10,23 +10,24 @@ import SwiftUI
 // MARK: - Empty State View
 struct EmptyFavoritesView: View {
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var themeManager: ThemeManager // Changed to @EnvironmentObject
     @Binding var selectedTab: Int
     
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "heart.slash")
                 .font(.system(size: 60))
-                .foregroundColor(.white.opacity(0.6))
+                .foregroundColor(iconColor)
             
             VStack(spacing: 8) {
                 Text(languageManager.localizedString("no_favorite_stations"))
                     .font(.title2)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(primaryTextColor)
                 
                 Text(languageManager.localizedString("no_favorite_stations_description"))
                     .font(.body)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(secondaryTextColor)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
             }
@@ -41,16 +42,72 @@ struct EmptyFavoritesView: View {
                 }
                 .font(.subheadline)
                 .fontWeight(.semibold)
-                .foregroundColor(.white)
+                .foregroundColor(buttonTextColor)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 25)
-                        .fill(.regularMaterial)
+                        .fill(buttonBackgroundColor)
                         .glassEffect()
                 )
             }
             .padding(.top, 10)
+        }
+    }
+    
+    // MARK: - Theme-based colors
+    private var iconColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return .black.opacity(0.6)
+        case .dark:
+            return .white.opacity(0.6)
+        case .auto:
+            return Color.primary.opacity(0.6)
+        }
+    }
+    
+    private var primaryTextColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return .black
+        case .dark:
+            return .white
+        case .auto:
+            return Color.primary
+        }
+    }
+    
+    private var secondaryTextColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return .black.opacity(0.7)
+        case .dark:
+            return .white.opacity(0.7)
+        case .auto:
+            return Color.secondary
+        }
+    }
+    
+    private var buttonTextColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return .black
+        case .dark:
+            return .white
+        case .auto:
+            return Color.primary
+        }
+    }
+    
+    private var buttonBackgroundColor: Material {
+        switch themeManager.currentTheme {
+        case .light:
+            return .regularMaterial
+        case .dark:
+            return .regularMaterial
+        case .auto:
+            return .regularMaterial
         }
     }
 }

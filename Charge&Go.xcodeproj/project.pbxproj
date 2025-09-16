@@ -36,6 +36,7 @@
 
 /* Begin PBXFileReference section */
 		AA73FC372E783CFF0018710B /* Charge&GoDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Charge&GoDebug.entitlements"; sourceTree = "<group>"; };
+		AA9A784E2E799C07002C3FE3 /* Charge&Go.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Charge&Go.entitlements"; sourceTree = "<group>"; };
 		AACD65EA2E5EF134000F751C /* Charge&Go.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Charge&Go.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AACD65F72E5EF136000F751C /* Charge&GoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Charge&GoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AACD66012E5EF136000F751C /* Charge&GoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Charge&GoUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -108,6 +109,7 @@
 		AACD65E12E5EF133000F751C = {
 			isa = PBXGroup;
 			children = (
+				AA9A784E2E799C07002C3FE3 /* Charge&Go.entitlements */,
 				AA73FC372E783CFF0018710B /* Charge&GoDebug.entitlements */,
 				AACD65EC2E5EF134000F751C /* EVSync */,
 				AACD65FA2E5EF136000F751C /* EVSyncTests */,
@@ -453,7 +455,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Charge&GoDebug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 9A5KNKZDC8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -488,9 +490,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9A5KNKZDC8;
+				CODE_SIGN_ENTITLEMENTS = "Charge&Go.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 9A5KNKZDC8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EVSync/Info.plist;
@@ -509,6 +514,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Daulet.ChargeandGo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Charge&Go: EV Station Map";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -531,9 +538,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Daulet.EVSyncTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Charge&Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Charge&Go";
 			};
 			name = Debug;
@@ -548,11 +559,15 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Daulet.EVSyncTests;
+				PRODUCT_BUNDLE_IDENTIFIER = Daulet.ChargeandGo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Charge&Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Charge&Go";
 			};
 			name = Release;
@@ -577,12 +592,13 @@
 		AACD66132E5EF136000F751C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9A5KNKZDC8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Daulet.EVSyncUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = Daulet.ChargeandGo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;

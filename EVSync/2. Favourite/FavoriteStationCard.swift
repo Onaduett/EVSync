@@ -15,6 +15,7 @@ struct FavoriteStationCard: View {
     let onTap: (ChargingStation) -> Void
     
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var isRemoving = false
     
     var body: some View {
@@ -27,13 +28,13 @@ struct FavoriteStationCard: View {
                         Text(station.name)
                             .font(.headline)
                             .fontWeight(.semibold)
-                            .foregroundColor(.white)
+                            .foregroundColor(textColor)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
                         
                         Text(station.address)
                             .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(secondaryTextColor)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
                     }
@@ -93,8 +94,8 @@ struct FavoriteStationCard: View {
                                 .fontWeight(.medium)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(Color.white.opacity(0.2))
-                                .foregroundColor(.white)
+                                .background(chipBackgroundColor)
+                                .foregroundColor(textColor)
                                 .clipShape(Capsule())
                             }
                         }
@@ -105,27 +106,83 @@ struct FavoriteStationCard: View {
                 HStack {
                     Image(systemName: "building.2")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
+                        .foregroundColor(tertiaryTextColor)
                     
                     Text(station.provider)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(secondaryTextColor)
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(tertiaryTextColor)
                 }
             }
             .padding(16)
             .background {
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(.regularMaterial)
+                    .fill(cardBackgroundColor)
                     .glassEffect()
                     .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
             }
         }
         .buttonStyle(PlainButtonStyle())
+    }
+    
+    // MARK: - Theme-based colors
+    private var textColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return .black
+        case .dark:
+            return .white
+        case .auto:
+            return Color.primary
+        }
+    }
+    
+    private var secondaryTextColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return .black.opacity(0.7)
+        case .dark:
+            return .white.opacity(0.8)
+        case .auto:
+            return Color.secondary
+        }
+    }
+    
+    private var tertiaryTextColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return .black.opacity(0.5)
+        case .dark:
+            return .white.opacity(0.6)
+        case .auto:
+            return Color.secondary.opacity(0.8)
+        }
+    }
+    
+    private var cardBackgroundColor: Material {
+        switch themeManager.currentTheme {
+        case .light:
+            return .regularMaterial
+        case .dark:
+            return .regularMaterial
+        case .auto:
+            return .regularMaterial
+        }
+    }
+    
+    private var chipBackgroundColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return Color.black.opacity(0.1)
+        case .dark:
+            return Color.white.opacity(0.2)
+        case .auto:
+            return Color.primary.opacity(0.1)
+        }
     }
 }

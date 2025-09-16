@@ -11,13 +11,14 @@ import CoreLocation
 struct FavoriteStationsView: View {
     @StateObject private var supabaseManager = SupabaseManager.shared
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var themeManager: ThemeManager 
     @State private var favoriteStations: [UserFavorite] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var showingError = false
     @State private var hasAppeared = false
     @State private var contentOpacity: Double = 0.0
-    
+
     @Binding var selectedTab: Int
     @Binding var selectedStationFromFavorites: ChargingStation?
     
@@ -80,7 +81,7 @@ struct FavoriteStationsView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(themeManager.currentTheme.colorScheme) // Apply theme
         .onAppear {
             startFavoriteViewAnimation()
         }
@@ -102,12 +103,12 @@ struct FavoriteStationsView: View {
         guard !hasAppeared else { return }
         hasAppeared = true
         
-        // Сначала показываем интерфейс с анимацией
+        // First show interface with animation
         withAnimation(.easeIn(duration: 0.3)) {
             contentOpacity = 1.0
         }
         
-        // Затем с небольшой задержкой загружаем данные
+        // Then load data with small delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             Task {
                 await loadFavoriteStations()
@@ -150,5 +151,6 @@ struct FavoriteStationsView_Previews: PreviewProvider {
             selectedStationFromFavorites: .constant(nil)
         )
         .environmentObject(LanguageManager())
+        .environmentObject(ThemeManager())
     }
 }
