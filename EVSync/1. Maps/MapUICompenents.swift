@@ -29,12 +29,13 @@ struct MapGradientOverlay: View {
 
 // MARK: - Loading Overlay
 struct LoadingOverlay: View {
+    @Environment(\.fontManager) var fontManager
     private let languageManager = LanguageManager()
 
     var body: some View {
         VStack {
             ProgressView(languageManager.localizedString("loading_charging_stations"))
-                .font(.custom("Nunito Sans", size: 16))
+                .font(fontManager.font(.callout))
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 12)
@@ -48,6 +49,7 @@ struct LoadingOverlay: View {
 
 // MARK: - Error Overlay
 struct ErrorOverlay: View {
+    @Environment(\.fontManager) var fontManager
     let message: String
     let retryAction: () -> Void
     private let languageManager = LanguageManager()
@@ -55,15 +57,15 @@ struct ErrorOverlay: View {
     var body: some View {
         VStack {
             Text(languageManager.localizedString("error"))
-                .font(.custom("Nunito Sans", size: 18).weight(.bold))
+                .font(fontManager.font(.headline, weight: .bold))
                 .foregroundColor(.red)
             Text(message)
-                .font(.custom("Nunito Sans", size: 14))
+                .font(fontManager.font(.footnote))
                 .multilineTextAlignment(.center)
             Button(languageManager.localizedString("retry")) {
                 retryAction()
             }
-            .font(.custom("Nunito Sans", size: 16))
+            .font(fontManager.font(.callout))
             .padding(.top, 8)
         }
         .padding()
@@ -77,6 +79,7 @@ struct ErrorOverlay: View {
 
 // MARK: - Map Header с адаптивными иконками
 struct MapHeader: View {
+    @Environment(\.fontManager) var fontManager
     let selectedConnectorTypes: Set<ConnectorType>
     @Binding var showingFilterOptions: Bool
     @Binding var mapStyle: MKMapType
@@ -98,7 +101,7 @@ struct MapHeader: View {
                                 .minimumScaleFactor(0.7)
                             if !selectedConnectorTypes.isEmpty {
                                 Text("\(selectedConnectorTypes.count)")
-                                    .font(.custom("Nunito Sans", size: 12).weight(.semibold))
+                                    .font(fontManager.font(.caption2, weight: .semibold))
                                     .minimumScaleFactor(0.8)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -194,6 +197,7 @@ struct MapHeader: View {
         }
     }
 }
+
 // MARK: - Filter Options Overlay
 struct FilterOptionsOverlay: View {
     let availableTypes: [ConnectorType]

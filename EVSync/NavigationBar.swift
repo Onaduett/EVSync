@@ -46,7 +46,6 @@ struct NavigationBar: View {
     private func handleTabChange(from oldTab: Int, to newTab: Int) {
         guard !isTransitioning else { return }
         
-        // Обрабатываем только переходы связанные с картой (tab 0) и избранным (tab 1)
         if (oldTab == 0 && newTab == 1) || (oldTab == 1 && newTab == 0) {
             isTransitioning = true
             
@@ -62,24 +61,21 @@ struct NavigationBar: View {
                 isTransitioning = false
             }
         }
-        // Для переходов с карты на другие табы (не избранное)
         else if oldTab == 0 && newTab != 1 {
             isTransitioning = true
             NotificationCenter.default.post(name: NSNotification.Name("HideStationAnnotations"), object: nil)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { // Уменьшена задержка
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 isTransitioning = false
             }
         }
-        // Для переходов на карту с других табов (не избранное)
         else if oldTab != 1 && newTab == 0 {
             isTransitioning = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { // Минимальная задержка
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 NotificationCenter.default.post(name: NSNotification.Name("ShowStationAnnotations"), object: nil)
                 isTransitioning = false
             }
         }
-        // Для всех остальных переходов (включая MyCarView) - без задержек
         else {
             isTransitioning = false
         }
@@ -91,6 +87,7 @@ struct CustomGlassTabBar: View {
     @Binding var isTransitioning: Bool
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var fontManager: FontManager
     @Environment(\.colorScheme) var colorScheme
     
     private var tabs: [(icon: String, title: String, tag: Int)] {
@@ -125,13 +122,11 @@ struct CustomGlassTabBar: View {
         HStack(spacing: 0) {
             ForEach(tabs, id: \.tag) { tab in
                 Button(action: {
-                    // Для MyCarView (tab 2) и Settings (tab 3) разрешаем мгновенный переход
                     if tab.tag == 2 || tab.tag == 3 {
-                        withAnimation(.easeInOut(duration: 0.15)) { // Более быстрая анимация
+                        withAnimation(.easeInOut(duration: 0.15)) {
                             selectedTab = tab.tag
                         }
                     } else {
-                        // Предотвращаем нажатие во время перехода только для карты и избранного
                         guard !isTransitioning else { return }
                         
                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -146,7 +141,7 @@ struct CustomGlassTabBar: View {
                             .scaleEffect(selectedTab == tab.tag ? 1.05 : 1.0)
                         
                         Text(tab.title)
-                            .font(.system(size: 11, weight: selectedTab == tab.tag ? .semibold : .medium))
+                            .font(fontManager.font(.caption2, weight: selectedTab == tab.tag ? .semibold : .medium))
                             .foregroundColor(selectedTab == tab.tag ? selectedIconColor : unselectedIconColor)
                     }
                     .frame(width: 80, height: 50)
@@ -208,5 +203,6 @@ struct ContentView_Previews: PreviewProvider {
             .environmentObject(AuthenticationManager())
             .environmentObject(ThemeManager())
             .environmentObject(LanguageManager())
+            .environmentObject(FontManager.shared)
     }
 }

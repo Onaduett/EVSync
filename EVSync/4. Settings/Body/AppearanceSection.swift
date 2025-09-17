@@ -19,7 +19,7 @@ struct AppearanceSettingsSection: View {
             VStack(spacing: 12) {
                 HStack {
                     Text(languageManager.localizedString("theme", comment: "Theme"))
-                        .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                        .customFont(.callout, weight: .medium)
                         .foregroundColor(.primary)
                     Spacer()
                 }

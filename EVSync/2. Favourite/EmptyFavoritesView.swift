@@ -10,7 +10,8 @@ import SwiftUI
 // MARK: - Empty State View
 struct EmptyFavoritesView: View {
     @EnvironmentObject var languageManager: LanguageManager
-    @EnvironmentObject var themeManager: ThemeManager // Changed to @EnvironmentObject
+    @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var fontManager: FontManager
     @Binding var selectedTab: Int
     
     var body: some View {
@@ -21,12 +22,11 @@ struct EmptyFavoritesView: View {
             
             VStack(spacing: 8) {
                 Text(languageManager.localizedString("no_favorite_stations"))
-                    .font(.title2)
-                    .fontWeight(.semibold)
+                    .customFont(.title2, weight: .semibold)
                     .foregroundColor(primaryTextColor)
                 
                 Text(languageManager.localizedString("no_favorite_stations_description"))
-                    .font(.body)
+                    .customFont(.body)
                     .foregroundColor(secondaryTextColor)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
@@ -39,9 +39,8 @@ struct EmptyFavoritesView: View {
                 HStack {
                     Image(systemName: "map")
                     Text(languageManager.localizedString("explore_map"))
+                        .customFont(.subheadline, weight: .semibold)
                 }
-                .font(.subheadline)
-                .fontWeight(.semibold)
                 .foregroundColor(buttonTextColor)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)

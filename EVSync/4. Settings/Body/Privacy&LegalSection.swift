@@ -22,10 +22,10 @@ struct PrivacyLegalSettingsSection: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(languageManager.localizedString("privacy_legal", comment: "Privacy & Legal"))
-                            .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                            .customFont(.callout, weight: .medium)
                             .foregroundColor(.primary)
                         Text(languageManager.localizedString("privacy_policy_subtitle", comment: "Read our privacy policy"))
-                            .font(.custom("Nunito Sans", size: 14))
+                            .customFont(.footnote)
                             .foregroundColor(.secondary)
                     }
                     

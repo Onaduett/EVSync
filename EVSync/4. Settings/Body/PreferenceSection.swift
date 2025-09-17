@@ -19,7 +19,7 @@ struct PreferencesSettingsSection: View {
             VStack(spacing: 0) {
                 PreferenceRow(
                     title: languageManager.localizedString("location_services", comment: "Location Services"),
-                    subtitle: languageManager.localizedString("location_services_subtitle", comment: "Find nearby charging stations"),
+                    subtitle: languageManager.localizedString("location_services_subtitle", comment: "Find charging stations"),
                     isOn: $locationEnabled,
                     showDivider: true
                 )
@@ -29,11 +29,11 @@ struct PreferencesSettingsSection: View {
                     HStack(spacing: 12) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(languageManager.localizedString("language", comment: "Language"))
-                                .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                                .customFont(.callout, weight: .medium)
                                 .foregroundColor(.primary)
                             
                             Text(languageManager.localizedString("language_subtitle", comment: "Choose your preferred language"))
-                                .font(.custom("Nunito Sans", size: 14))
+                                .customFont(.footnote)
                                 .foregroundColor(.secondary)
                         }
                         

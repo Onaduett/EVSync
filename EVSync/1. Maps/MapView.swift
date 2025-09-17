@@ -21,7 +21,6 @@ struct MapView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
-                // Карта теперь всегда отображается
                 Map(position: $viewModel.cameraPosition) {
                     ForEach(viewModel.filteredStations) { station in
                         Annotation("", coordinate: station.coordinate) {
@@ -35,7 +34,6 @@ struct MapView: View {
                         }
                     }
                     
-                    // User location annotation - no title
                     if let userLocation = locationManager.userLocation, locationManager.isLocationEnabled {
                         Annotation("", coordinate: userLocation) {
                             Circle()
@@ -59,7 +57,6 @@ struct MapView: View {
                 
                 MapGradientOverlay()
                 
-                // Показываем загрузку только если карта готова и данные все еще загружаются
                 if viewModel.isLoading && isMapReady {
                     LoadingOverlay()
                         .transition(.opacity)
@@ -72,7 +69,6 @@ struct MapView: View {
                     }
                 }
                 
-                // UI элементы показываем сразу
                 VStack {
                     MapHeader(
                         selectedConnectorTypes: viewModel.selectedConnectorTypes,
@@ -132,7 +128,6 @@ struct MapView: View {
     // MARK: - Private Methods
     
     private func startMapInitialization() {
-        // Убираем preloadStations отсюда - запускаем асинхронно
         Task {
             await MainActor.run {
                 viewModel.preloadStations()

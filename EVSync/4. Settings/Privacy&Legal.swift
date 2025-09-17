@@ -10,6 +10,7 @@ import SwiftUI
 struct PrivacyLegalView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var fontManager: FontManager
     @State private var showingPrivacyPolicy = false
     @State private var showingTermsOfService = false
     @State private var showingDataPolicy = false
@@ -25,12 +26,12 @@ struct PrivacyLegalView: View {
                             .foregroundColor(.teal)
                             .padding(.top, 20)
                         
-                        Text(languageManager.localizedString("privacy_legal", comment: "Privacy & Legal"))
-                            .font(.custom("Nunito Sans", size: 28).weight(.bold))
+                Text(languageManager.localizedString("privacy_legal", comment: "Privacy & Legal"))
+                            .font(fontManager.font(.title, weight: .bold))
                             .foregroundColor(.primary)
                         
                         Text(languageManager.localizedString("privacy_legal_subtitle", comment: "Your privacy and security matter to us"))
-                            .font(.custom("Nunito Sans", size: 16))
+                            .font(fontManager.font(.callout))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 20)
@@ -77,24 +78,28 @@ struct PrivacyLegalView: View {
                     Button(languageManager.localizedString("done", comment: "Done")) {
                         dismiss()
                     }
-                    .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                    .font(fontManager.font(.callout, weight: .medium))
                     .foregroundColor(.teal)
                 }
             }
         }
         .sheet(isPresented: $showingPrivacyPolicy) {
             PrivacyPolicyView()
+                .environmentObject(fontManager)
         }
         .sheet(isPresented: $showingTermsOfService) {
             TermsOfServiceView()
+                .environmentObject(fontManager)
         }
         .sheet(isPresented: $showingDataPolicy) {
             DataProtectionView()
+                .environmentObject(fontManager)
         }
     }
 }
 
 struct LegalDocumentRow: View {
+    @EnvironmentObject var fontManager: FontManager
     let title: String
     let subtitle: String
     let icon: String
@@ -110,12 +115,12 @@ struct LegalDocumentRow: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                        .font(fontManager.font(.callout, weight: .medium))
                         .foregroundColor(.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     Text(subtitle)
-                        .font(.custom("Nunito Sans", size: 14))
+                        .font(fontManager.font(.subheadline))
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -138,18 +143,19 @@ struct LegalDocumentRow: View {
 struct PrivacyPolicyView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var fontManager: FontManager
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     Text(languageManager.localizedString("privacy_policy", comment: "Privacy Policy"))
-                        .font(.custom("Nunito Sans", size: 28).weight(.bold))
+                        .font(fontManager.font(.title, weight: .bold))
                         .foregroundColor(.primary)
                         .padding(.top, 20)
                     
                     Text(languageManager.localizedString("last_updated", comment: "Last updated: September 2025"))
-                        .font(.custom("Nunito Sans", size: 14))
+                        .font(fontManager.font(.subheadline))
                         .foregroundColor(.secondary)
                     
                     VStack(alignment: .leading, spacing: 16) {
@@ -188,7 +194,7 @@ struct PrivacyPolicyView: View {
                     Button(languageManager.localizedString("done", comment: "Done")) {
                         dismiss()
                     }
-                    .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                    .font(fontManager.font(.callout, weight: .medium))
                     .foregroundColor(.teal)
                 }
             }
@@ -200,18 +206,19 @@ struct PrivacyPolicyView: View {
 struct TermsOfServiceView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var fontManager: FontManager
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     Text(languageManager.localizedString("terms_of_service", comment: "Terms of Service"))
-                        .font(.custom("Nunito Sans", size: 28).weight(.bold))
+                        .font(fontManager.font(.title, weight: .bold))
                         .foregroundColor(.primary)
                         .padding(.top, 20)
                     
                     Text(languageManager.localizedString("last_updated", comment: "Last updated: September 2025"))
-                        .font(.custom("Nunito Sans", size: 14))
+                        .font(fontManager.font(.subheadline))
                         .foregroundColor(.secondary)
                     
                     VStack(alignment: .leading, spacing: 16) {
@@ -250,7 +257,7 @@ struct TermsOfServiceView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                    .font(fontManager.font(.callout, weight: .medium))
                     .foregroundColor(.teal)
                 }
             }
@@ -262,18 +269,19 @@ struct TermsOfServiceView: View {
 struct DataProtectionView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var fontManager: FontManager
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     Text(languageManager.localizedString("data_protection", comment: "Data Protection"))
-                        .font(.custom("Nunito Sans", size: 28).weight(.bold))
+                        .font(fontManager.font(.title, weight: .bold))
                         .foregroundColor(.primary)
                         .padding(.top, 20)
                     
                     Text(languageManager.localizedString("last_updated", comment: "Last updated: September 2025"))
-                        .font(.custom("Nunito Sans", size: 14))
+                        .font(fontManager.font(.subheadline))
                         .foregroundColor(.secondary)
                     
                     VStack(alignment: .leading, spacing: 16) {
@@ -312,7 +320,7 @@ struct DataProtectionView: View {
                     Button(languageManager.localizedString("done", comment: "Done")) {
                         dismiss()
                     }
-                    .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                    .font(fontManager.font(.callout, weight: .medium))
                     .foregroundColor(.teal)
                 }
             }
@@ -321,17 +329,18 @@ struct DataProtectionView: View {
 }
 
 struct PrivacySection: View {
+    @EnvironmentObject var fontManager: FontManager
     let title: String
     let content: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.custom("Nunito Sans", size: 18).weight(.semibold))
+                .font(fontManager.font(.headline, weight: .semibold))
                 .foregroundColor(.primary)
             
             Text(content)
-                .font(.custom("Nunito Sans", size: 15))
+                .font(fontManager.font(.subheadline))
                 .foregroundColor(.primary)
                 .lineSpacing(4)
         }
@@ -341,4 +350,6 @@ struct PrivacySection: View {
 
 #Preview {
     PrivacyLegalView()
+        .environmentObject(LanguageManager())
+        .environmentObject(FontManager.shared)
 }

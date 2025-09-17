@@ -18,17 +18,17 @@ struct AboutSettingsSection: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(languageManager.localizedString("version", comment: "Version"))
-                        .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                        .customFont(.callout, weight: .medium)
                         .foregroundColor(.primary)
                     Text(languageManager.localizedString("version_subtitle", comment: "Current app version"))
-                        .font(.custom("Nunito Sans", size: 14))
+                        .customFont(.footnote)
                         .foregroundColor(.secondary)
                 }
                 
                 Spacer()
                 
                 Text("1.0.0")
-                    .font(.custom("Nunito Sans", size: 16).weight(.medium))
+                    .customFont(.callout, weight: .medium)
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)

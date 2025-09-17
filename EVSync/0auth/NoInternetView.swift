@@ -10,13 +10,13 @@ import SwiftUI
 struct NoInternetView: View {
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var fontManager: FontManager
     @State private var isRefreshing = false
     
     let onRefresh: () -> Void
     
     var body: some View {
         ZStack {
-            // Dynamic background color
             Color(UIColor.systemBackground)
                 .ignoresSafeArea()
             
@@ -24,7 +24,6 @@ struct NoInternetView: View {
                 Spacer()
                 
                 VStack(spacing: 24) {
-                    // No Internet Icon
                     ZStack {
                         Circle()
                             .fill(Color.red.opacity(0.1))
@@ -38,14 +37,13 @@ struct NoInternetView: View {
                     VStack(spacing: 12) {
                         // Title
                         Text(languageManager.localizedString("no_internet_title"))
-                            .font(.custom("Nunito Sans", size: 24))
-                            .fontWeight(.bold)
+                            .font(fontManager.font(.title3, weight: .bold))
                             .foregroundColor(.primary)
                             .multilineTextAlignment(.center)
                         
                         // Description
                         Text(languageManager.localizedString("no_internet_description"))
-                            .font(.custom("Nunito Sans", size: 16))
+                            .font(fontManager.font(.callout))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                             .lineSpacing(4)
@@ -53,7 +51,6 @@ struct NoInternetView: View {
                     }
                 }
                 
-                // Refresh Button
                 Button(action: {
                     handleRefresh()
                 }) {
@@ -71,9 +68,8 @@ struct NoInternetView: View {
                         Text(isRefreshing ?
                              languageManager.localizedString("checking_connection") :
                              languageManager.localizedString("try_again_button"))
-                            .font(.custom("Nunito Sans", size: 16))
+                            .font(fontManager.font(.callout, weight: .medium))
                             .foregroundColor(continueButtonTextColor)
-                            .fontWeight(.medium)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
@@ -88,8 +84,7 @@ struct NoInternetView: View {
                 // Tips Section
                 VStack(spacing: 16) {
                     Text(languageManager.localizedString("connection_tips_title"))
-                        .font(.custom("Nunito Sans", size: 14))
-                        .fontWeight(.medium)
+                        .font(fontManager.font(.footnote, weight: .medium))
                         .foregroundColor(.primary)
                     
                     VStack(spacing: 8) {
@@ -116,8 +111,7 @@ struct NoInternetView: View {
         .preferredColorScheme(themeManager.currentTheme.colorScheme)
     }
     
-    // MARK: - Computed Properties for Button Styling
-    
+
     private var continueButtonBackgroundColor: Color {
         if !isRefreshing {
             return .primary
@@ -146,6 +140,7 @@ struct NoInternetView: View {
 }
 
 struct ConnectionTipRow: View {
+    @EnvironmentObject var fontManager: FontManager
     let icon: String
     let text: String
     
@@ -157,7 +152,7 @@ struct ConnectionTipRow: View {
                 .frame(width: 16)
             
             Text(text)
-                .font(.custom("Nunito Sans", size: 12))
+                .font(fontManager.font(.caption))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.leading)
             
@@ -170,4 +165,5 @@ struct ConnectionTipRow: View {
     NoInternetView(onRefresh: {})
         .environmentObject(ThemeManager())
         .environmentObject(LanguageManager())
+        .environmentObject(FontManager.shared)
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FilterOptionsView: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.fontManager) var fontManager
     let availableTypes: [ConnectorType]
     @Binding var selectedTypes: Set<ConnectorType>
     @Binding var isShowing: Bool
@@ -41,12 +42,13 @@ struct FilterOptionsView: View {
 // MARK: - Filter Header
 struct FilterHeader: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.fontManager) var fontManager
     @Binding var selectedTypes: Set<ConnectorType>
     
     var body: some View {
         HStack {
             Text("Filter by Connector Type")
-                .font(.custom("Nunito Sans", size: 18).weight(.bold))
+                .font(fontManager.font(.headline, weight: .bold))
                 .foregroundColor(colorScheme == .dark ? .white : .black)
             
             Spacer()
@@ -54,7 +56,7 @@ struct FilterHeader: View {
             Button("Clear All") {
                 selectedTypes.removeAll()
             }
-            .font(.custom("Nunito Sans", size: 14).weight(.medium))
+            .font(fontManager.font(.footnote, weight: .medium))
             .foregroundColor(.blue)
         }
     }
@@ -63,6 +65,7 @@ struct FilterHeader: View {
 // MARK: - Connector Types Grid
 struct ConnectorTypesGrid: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.fontManager) var fontManager
     let availableTypes: [ConnectorType]
     @Binding var selectedTypes: Set<ConnectorType>
     
@@ -94,6 +97,7 @@ struct ConnectorTypesGrid: View {
 // MARK: - Connector Type Button
 struct ConnectorTypeButton: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.fontManager) var fontManager
     let type: ConnectorType
     let isSelected: Bool
     let action: () -> Void
@@ -105,7 +109,7 @@ struct ConnectorTypeButton: View {
                     .foregroundColor(isSelected ? .blue : .gray)
                 
                 Text(type.displayName)
-                    .font(.custom("Nunito Sans", size: 14))
+                    .font(fontManager.font(.footnote))
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 Spacer()
@@ -129,6 +133,7 @@ struct ConnectorTypeButton: View {
 
 // MARK: - Filter Action Buttons
 struct FilterActionButtons: View {
+    @Environment(\.fontManager) var fontManager
     @Binding var isShowing: Bool
     
     var body: some View {
@@ -136,7 +141,7 @@ struct FilterActionButtons: View {
             Button("Cancel") {
                 isShowing = false
             }
-            .font(.custom("Nunito Sans", size: 16))
+            .font(fontManager.font(.callout))
             .foregroundColor(.gray)
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
@@ -150,7 +155,7 @@ struct FilterActionButtons: View {
             Button("Apply") {
                 isShowing = false
             }
-            .font(.custom("Nunito Sans", size: 16).weight(.semibold))
+            .font(fontManager.font(.callout, weight: .semibold))
             .foregroundColor(.white)
             .padding(.horizontal, 20)
             .padding(.vertical, 10)

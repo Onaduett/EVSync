@@ -1,5 +1,5 @@
 //
-//  InfoRaw.swift
+//  InfoRow.swift
 //  EVSync
 //
 //  Created by Daulet Yerkinov on 28.08.25.
@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct InfoRow: View {
+    @Environment(\.fontManager) var fontManager
     let icon: String
     let title: String
     let value: String
@@ -21,12 +22,10 @@ struct InfoRow: View {
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.custom("Nunito Sans", size: 13))
-                    .fontWeight(.semibold)
+                    .font(fontManager.font(.caption, weight: .semibold))
                     .foregroundColor(.secondary)
                 Text(value)
-                    .font(.custom("Nunito Sans", size: 15))
-                    .fontWeight(.semibold)
+                    .font(fontManager.font(.subheadline, weight: .semibold))
                     .foregroundColor(.primary)
             }
             

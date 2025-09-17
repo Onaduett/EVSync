@@ -13,6 +13,7 @@ struct SpecificationItem: View {
     let value: String
     let iconColor: Color
     let languageManager: LanguageManager
+    @EnvironmentObject var fontManager: FontManager
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -22,7 +23,7 @@ struct SpecificationItem: View {
                     .frame(width: 16)
                 
                 Text(title)
-                    .font(.caption)
+                    .customFont(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
@@ -31,8 +32,7 @@ struct SpecificationItem: View {
             }
             
             Text(value)
-                .font(.subheadline)
-                .fontWeight(.semibold)
+                .customFont(.subheadline, weight: .semibold)
                 .foregroundColor(.primary)
                 .lineLimit(nil)
                 .multilineTextAlignment(.leading)
@@ -47,18 +47,18 @@ struct ChargingTimeEstimate: View {
     let time: String
     let type: String
     @ObservedObject private var languageManager = LanguageManager()
+    @EnvironmentObject var fontManager: FontManager
     
     var body: some View {
         VStack(spacing: 4) {
             Text("\(power) \(languageManager.localizedString("kw_unit"))")
-                .font(.caption)
+                .customFont(.caption)
                 .foregroundColor(.secondary)
             Text(time)
-                .font(.subheadline)
-                .fontWeight(.semibold)
+                .customFont(.subheadline, weight: .semibold)
                 .foregroundColor(.primary)
             Text(type)
-                .font(.caption2)
+                .customFont(.caption2)
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)
@@ -75,23 +75,23 @@ struct StatCard: View {
     let title: String
     let value: String
     let color: Color
+    @EnvironmentObject var fontManager: FontManager
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: icon)
                     .foregroundColor(color)
-                    .font(.title2)
+                    .font(fontManager.font(.title2))
                 Spacer()
             }
             
             Text(value)
-                .font(.title2)
-                .fontWeight(.bold)
+                .customFont(.title2, weight: .bold)
                 .foregroundColor(.primary)
             
             Text(title)
-                .font(.caption)
+                .customFont(.caption)
                 .foregroundColor(.secondary)
         }
         .padding(16)
@@ -106,17 +106,17 @@ struct StatCard: View {
 struct ChargingSessionRow: View {
     let session: ChargingSession
     @ObservedObject private var languageManager = LanguageManager()
+    @EnvironmentObject var fontManager: FontManager
     
     var body: some View {
         HStack(spacing: 12) {
             // Date and time
             VStack(alignment: .leading, spacing: 2) {
                 Text(session.date, style: .date)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
+                    .customFont(.subheadline, weight: .semibold)
                     .foregroundColor(.primary)
                 Text(session.date, style: .time)
-                    .font(.caption)
+                    .customFont(.caption)
                     .foregroundColor(.secondary)
             }
             
@@ -125,22 +125,21 @@ struct ChargingSessionRow: View {
             // Location
             VStack(alignment: .trailing, spacing: 2) {
                 Text(session.location)
-                    .font(.subheadline)
+                    .customFont(.subheadline)
                     .foregroundColor(.primary)
                     .lineLimit(1)
                 Text("\(String(format: "%.1f", session.energyAdded)) \(languageManager.localizedString("kwh_unit"))")
-                    .font(.caption)
+                    .customFont(.caption)
                     .foregroundColor(.secondary)
             }
             
             // Cost
             VStack(alignment: .trailing, spacing: 2) {
                 Text("\(Int(session.cost)) ₸")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
+                    .customFont(.subheadline, weight: .semibold)
                     .foregroundColor(.primary)
                 Text("\(session.chargingSpeed) \(languageManager.localizedString("kw_unit"))")
-                    .font(.caption)
+                    .customFont(.caption)
                     .foregroundColor(.blue)
             }
         }
@@ -158,27 +157,27 @@ struct EnvironmentalStat: View {
     let title: String
     let value: String
     let description: String
+    @EnvironmentObject var fontManager: FontManager
     
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .foregroundColor(.green)
-                .font(.title2)
+                .font(fontManager.font(.title2))
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.subheadline)
+                    .customFont(.subheadline)
                     .foregroundColor(.primary)
                 Text(description)
-                    .font(.caption)
+                    .customFont(.caption)
                     .foregroundColor(.secondary)
             }
             
             Spacer()
             
             Text(value)
-                .font(.headline)
-                .fontWeight(.bold)
+                .customFont(.headline, weight: .bold)
                 .foregroundColor(.green)
         }
         .padding(.horizontal, 16)

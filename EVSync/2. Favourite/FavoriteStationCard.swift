@@ -16,6 +16,7 @@ struct FavoriteStationCard: View {
     
     @EnvironmentObject var languageManager: LanguageManager
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var fontManager: FontManager
     @State private var isRemoving = false
     
     var body: some View {
@@ -26,14 +27,13 @@ struct FavoriteStationCard: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(station.name)
-                            .font(.headline)
-                            .fontWeight(.semibold)
+                            .customFont(.headline, weight: .semibold)
                             .foregroundColor(textColor)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
                         
                         Text(station.address)
-                            .font(.subheadline)
+                            .customFont(.subheadline)
                             .foregroundColor(secondaryTextColor)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
@@ -64,8 +64,7 @@ struct FavoriteStationCard: View {
                         .frame(width: 8, height: 8)
                     
                     Text(station.availability.rawValue)
-                        .font(.caption)
-                        .fontWeight(.medium)
+                        .customFont(.caption, weight: .medium)
                         .foregroundColor(station.availability.color)
                     
                     Spacer()
@@ -89,9 +88,8 @@ struct FavoriteStationCard: View {
                                         .frame(width: 14, height: 14)
                                         .foregroundColor(.blue)
                                     Text(connector.rawValue)
-                                        .font(.caption2)
+                                        .customFont(.caption2, weight: .medium)
                                 }
-                                .fontWeight(.medium)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
                                 .background(chipBackgroundColor)
@@ -109,7 +107,7 @@ struct FavoriteStationCard: View {
                         .foregroundColor(tertiaryTextColor)
                     
                     Text(station.provider)
-                        .font(.caption)
+                        .customFont(.caption)
                         .foregroundColor(secondaryTextColor)
                     
                     Spacer()

@@ -20,7 +20,7 @@ extension MyCarView {
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(selectedCar.displayName)
-                            .font(.headline)
+                            .customFont(.headline)
                             .foregroundColor(.primary)
                     }
                     
@@ -46,7 +46,7 @@ extension MyCarView {
             // Technical Specifications
             VStack(alignment: .leading, spacing: 12) {
                 Text(languageManager.localizedString("specifications"))
-                    .font(.headline)
+                    .customFont(.headline)
                     .foregroundColor(.primary)
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
@@ -89,7 +89,7 @@ extension MyCarView {
             // Supported Chargers
             VStack(alignment: .leading, spacing: 12) {
                 Text(languageManager.localizedString("compatible_connectors"))
-                    .font(.headline)
+                    .customFont(.headline)
                     .foregroundColor(.primary)
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
@@ -101,7 +101,7 @@ extension MyCarView {
                                 .frame(width: 14, height: 14)
                                 .foregroundColor(.blue)
                             Text(connector.rawValue)
-                                .font(.subheadline)
+                                .customFont(.subheadline)
                             Spacer()
                         }
                         .padding(.horizontal, 12)

@@ -10,6 +10,7 @@ import SwiftUI
 struct WelcomeScreen: View {
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var fontManager: FontManager
     @State private var logoScale: CGFloat = 0.3
     @State private var logoOpacity: Double = 0.0
     @State private var textOpacity: Double = 0.0
@@ -18,7 +19,6 @@ struct WelcomeScreen: View {
     
     var body: some View {
         ZStack {
-            // Dynamic background with gradient
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color.primary.opacity(0.05),
@@ -52,12 +52,11 @@ struct WelcomeScreen: View {
                         .scaleEffect(1.2)
                     
                     Text(languageManager.localizedString("loading"))
-                        .font(.custom("Nunito Sans", size: 16))
+                        .font(fontManager.font(.callout))
                         .foregroundColor(.secondary)
                     
                     Text(languageManager.localizedString("welcome_tagline"))
-                        .font(.custom("Nunito Sans", size: 18))
-                        .fontWeight(.medium)
+                        .font(fontManager.font(.body, weight: .medium))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .opacity(textOpacity)
@@ -74,18 +73,15 @@ struct WelcomeScreen: View {
     }
     
     private func startAnimations() {
-        // Logo animation - более быстрая и плавная
         withAnimation(.spring(response: 0.6, dampingFraction: 0.7, blendDuration: 0)) {
             logoScale = 1.0
             logoOpacity = 1.0
         }
         
-        // Text animation - раньше появляется
         withAnimation(.easeOut(duration: 0.6).delay(0.2)) {
             textOpacity = 1.0
         }
         
-        // Progress indicator animation - раньше появляется
         withAnimation(.easeIn(duration: 0.4).delay(0.5)) {
             progressOpacity = 1.0
         }
@@ -109,4 +105,5 @@ struct WelcomeScreen: View {
     WelcomeScreen()
         .environmentObject(ThemeManager())
         .environmentObject(LanguageManager())
+        .environmentObject(FontManager.shared)
 }

@@ -18,17 +18,17 @@ struct UserProfileSection: View {
                 .frame(width: 80, height: 80)
                 .overlay(
                     Text(String(authManager.user?.email?.prefix(1).uppercased() ?? "GO"))
-                        .font(.custom("Nunito Sans", size: 32).weight(.bold))
+                        .customFont(.largeTitle, weight: .bold)
                         .foregroundColor(.primary)
                 )
             
             VStack(spacing: 6) {
                 Text(languageManager.localizedString("account", comment: "Account"))
-                    .font(.custom("Nunito Sans", size: 18).weight(.bold))
+                    .customFont(.headline)
                     .foregroundColor(.primary)
                 
                 Text(authManager.user?.email ?? "user@example.com")
-                    .font(.custom("Nunito Sans", size: 14))
+                    .customFont(.footnote)
                     .foregroundColor(.secondary)
             }
             
@@ -40,7 +40,7 @@ struct UserProfileSection: View {
                     Image(systemName: "rectangle.portrait.and.arrow.right")
                         .font(.system(size: 14, weight: .medium))
                     Text(languageManager.localizedString("sign_out", comment: "Sign Out"))
-                        .font(.custom("Nunito Sans", size: 14).weight(.medium))
+                        .customFont(.footnote, weight: .medium)
                 }
                 .foregroundColor(.primary)
                 .padding(.horizontal, 20)
@@ -60,3 +60,4 @@ struct UserProfileSection: View {
         .padding(.horizontal, 20)
     }
 }
+

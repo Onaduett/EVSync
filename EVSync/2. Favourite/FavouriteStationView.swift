@@ -11,7 +11,8 @@ import CoreLocation
 struct FavoriteStationsView: View {
     @StateObject private var supabaseManager = SupabaseManager.shared
     @EnvironmentObject var languageManager: LanguageManager
-    @EnvironmentObject var themeManager: ThemeManager 
+    @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var fontManager: FontManager
     @State private var favoriteStations: [UserFavorite] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
@@ -23,62 +24,70 @@ struct FavoriteStationsView: View {
     @Binding var selectedStationFromFavorites: ChargingStation?
     
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                FavoriteHeader()
-                    .opacity(contentOpacity)
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                VStack(spacing: 0) {
                 
-                if isLoading {
-                    Spacer()
-                    VStack {
-                        ProgressView()
-                            .scaleEffect(1.2)
-                            .tint(.white)
-                        
-                        Text(languageManager.localizedString("loading_favorites"))
-                            .foregroundColor(.white.opacity(0.8))
-                            .padding(.top, 8)
-                    }
-                    .opacity(contentOpacity)
-                    Spacer()
-                } else if favoriteStations.isEmpty {
-                    Spacer()
-                    EmptyFavoritesView(selectedTab: $selectedTab)
+                    if isLoading {
+                        Spacer()
+                        VStack {
+                            ProgressView()
+                                .scaleEffect(1.2)
+                                .tint(.white)
+                            
+                            Text(languageManager.localizedString("loading_favorites"))
+                                .customFont(.body)
+                                .foregroundColor(.white.opacity(0.8))
+                                .padding(.top, 8)
+                        }
                         .opacity(contentOpacity)
-                    Spacer()
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            ForEach(favoriteStations.indices, id: \.self) { index in
-                                let favorite = favoriteStations[index]
-                                if let dbStation = favorite.station {
-                                    FavoriteStationCard(
-                                        station: dbStation.toChargingStation(),
-                                        favorite: favorite,
-                                        onRemove: { favoriteId in
-                                            await removeFavorite(favoriteId)
-                                        },
-                                        onTap: { station in
-                                            selectedTab = 0
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                                selectedStationFromFavorites = station
+                        Spacer()
+                    } else if favoriteStations.isEmpty {
+                        Spacer()
+                        EmptyFavoritesView(selectedTab: $selectedTab)
+                            .opacity(contentOpacity)
+                        Spacer()
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .frame(height: 20)
+                                
+                                ForEach(favoriteStations.indices, id: \.self) { index in
+                                    let favorite = favoriteStations[index]
+                                    if let dbStation = favorite.station {
+                                        FavoriteStationCard(
+                                            station: dbStation.toChargingStation(),
+                                            favorite: favorite,
+                                            onRemove: { favoriteId in
+                                                await removeFavorite(favoriteId)
+                                            },
+                                            onTap: { station in
+                                                selectedTab = 0
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                                    selectedStationFromFavorites = station
+                                                }
                                             }
-                                        }
-                                    )
-                                    .opacity(contentOpacity)
-                                    .animation(
-                                        .easeOut(duration: 0.4)
-                                        .delay(Double(index) * 0.05),
-                                        value: contentOpacity
-                                    )
+                                        )
+                                        .opacity(contentOpacity)
+                                        .animation(
+                                            .easeOut(duration: 0.4)
+                                            .delay(Double(index) * 0.05),
+                                            value: contentOpacity
+                                        )
+                                    }
                                 }
                             }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 20)
+                            .padding(.bottom, 50) // Account for custom tab bar
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
-                        .padding(.bottom, 100) // Account for custom tab bar
                     }
                 }
+                
+                FavoriteHeader()
+                    .opacity(contentOpacity)
             }
         }
         .preferredColorScheme(themeManager.currentTheme.colorScheme) // Apply theme
@@ -96,6 +105,7 @@ struct FavoriteStationsView: View {
             Button(languageManager.localizedString("ok_button")) { }
         } message: {
             Text(errorMessage ?? languageManager.localizedString("unknown_error"))
+                .customFont(.body)
         }
     }
     
@@ -103,12 +113,10 @@ struct FavoriteStationsView: View {
         guard !hasAppeared else { return }
         hasAppeared = true
         
-        // First show interface with animation
         withAnimation(.easeIn(duration: 0.3)) {
             contentOpacity = 1.0
         }
         
-        // Then load data with small delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             Task {
                 await loadFavoriteStations()
@@ -152,5 +160,6 @@ struct FavoriteStationsView_Previews: PreviewProvider {
         )
         .environmentObject(LanguageManager())
         .environmentObject(ThemeManager())
+        .environmentObject(FontManager.shared)
     }
 }

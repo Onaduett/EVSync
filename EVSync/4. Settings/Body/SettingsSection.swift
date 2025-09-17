@@ -26,7 +26,7 @@ struct SettingsSection<Content: View>: View {
                     .foregroundColor(.secondary)
                 
                 Text(title)
-                    .font(.custom("Nunito Sans", size: 16).weight(.semibold))
+                    .customFont(.callout, weight: .semibold)
                     .foregroundColor(.primary)
                 
                 Spacer()

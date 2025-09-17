@@ -15,7 +15,7 @@
 "notifications" = "Notifications";
 "notifications_subtitle" = "Get alerts for charging status";
 "location_services" = "Location Services";
-"location_services_subtitle" = "Find nearby charging stations";
+"location_services_subtitle" = "Find charging stations";
 "privacy_legal" = "Privacy & Legal";
 "privacy_legal_subtitle" = "Your privacy and security matter to us";
 "privacy_policy" = "Privacy Policy";

@@ -11,6 +11,7 @@ struct SettingsView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var fontManager: FontManager
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @AppStorage("locationEnabled") private var locationEnabled = false
     @State private var showingPrivacyLegal = false
@@ -50,6 +51,7 @@ struct SettingsView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .sheet(isPresented: $showingPrivacyLegal) {
             PrivacyLegalView()
+                .environmentObject(fontManager)
         }
     }
 }
@@ -63,12 +65,14 @@ extension SettingsView {
         @StateObject private var authManager = AuthenticationManager()
         @StateObject private var themeManager = ThemeManager()
         @StateObject private var languageManager = LanguageManager()
+        @StateObject private var fontManager = FontManager.shared
         
         var body: some View {
             SettingsView()
                 .environmentObject(authManager)
                 .environmentObject(themeManager)
                 .environmentObject(languageManager)
+                .environmentObject(fontManager)
                 .onAppear {
                     authManager.isAuthenticated = true
                 }

@@ -14,6 +14,7 @@ struct MyCarView: View {
     @State var chargingSessions: [ChargingSession] = sampleChargingSessions
     @State var imageOpacity: Double = 0.0
     @ObservedObject var languageManager = LanguageManager()
+    @StateObject var fontManager = FontManager.shared
     
     var carStats: CarStats {
         calculateStats()
@@ -85,6 +86,8 @@ struct MyCarView: View {
         }
         .sheet(isPresented: $showingCarSelection) {
             CarSelectionView(selectedCar: $selectedCar)
+                .environmentObject(fontManager)
+                .environmentObject(languageManager)
         }
     }
 }

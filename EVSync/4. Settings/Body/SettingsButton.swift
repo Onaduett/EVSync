@@ -1,5 +1,5 @@
 //
-//  SettingsButtons.swift
+//  SettingsButton.swift
 //  EVSync
 //
 //  Created by Daulet Yerkinov on 27.08.25.
@@ -20,7 +20,7 @@ struct ThemeButton: View {
             }
         }) {
             Text(title)
-                .font(.custom("Nunito Sans", size: 13).weight(.medium))
+                .customFont(.footnote, weight: .medium)
                 .foregroundColor(isSelected ? .white : .primary)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
@@ -51,7 +51,7 @@ struct LanguageButton: View {
                     .font(.system(size: 16))
                 
                 Text(language.shortName)
-                    .font(.custom("Nunito Sans", size: 10).weight(.medium))
+                    .customFont(.caption2, weight: .medium)
                     .foregroundColor(isSelected ? .white : .primary)
             }
             .padding(.horizontal, 8)

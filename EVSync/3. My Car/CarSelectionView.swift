@@ -11,6 +11,7 @@ struct CarSelectionView: View {
     @Binding var selectedCar: ElectricVehicle
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var languageManager = LanguageManager()
+    @EnvironmentObject var fontManager: FontManager
     
     var body: some View {
         NavigationView {
@@ -26,13 +27,13 @@ struct CarSelectionView: View {
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(car.displayName)
-                            .font(.headline)
+                            .customFont(.headline)
                             .foregroundColor(.primary)
                         
                         Text(String(format: languageManager.localizedString("vehicle_info_format"),
                                    "\(car.range) \(languageManager.localizedString("km_unit"))",
                                    "\(Int(car.batteryCapacity))"))
-                            .font(.subheadline)
+                            .customFont(.subheadline)
                             .foregroundColor(.secondary)
                     }
                     
