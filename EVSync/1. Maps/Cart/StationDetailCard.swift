@@ -40,6 +40,7 @@ struct StationDetailCard: View {
                 .shadow(radius: 20, x: 0, y: 10)
         )
         .padding(.horizontal, 16)
+        .padding(.bottom, -10)
         .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showingFullDetail)
         .task {
             isFavorited = supabaseManager.favoriteIds.contains(station.id)

@@ -143,4 +143,4 @@ struct StationPreviewView: View {
             UIApplication.shared.open(dgisWebUrl)
         }
     }
-}
+} 
