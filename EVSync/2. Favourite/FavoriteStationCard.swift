@@ -57,7 +57,6 @@ struct FavoriteStationCard: View {
                     .disabled(isRemoving)
                 }
                 
-                // Station status
                 HStack {
                     Circle()
                         .fill(station.availability.color)
@@ -70,13 +69,11 @@ struct FavoriteStationCard: View {
                     Spacer()
                 }
                 
-                // Station details
                 HStack(spacing: 15) {
                     DetailChip(icon: "bolt.fill", text: station.power, color: .green)
                     PriceChip(text: station.price, languageManager: languageManager)
                 }
                 
-                // Connector types
                 if !station.connectorTypes.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {

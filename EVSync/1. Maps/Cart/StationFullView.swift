@@ -305,33 +305,32 @@ struct StationFullDetailView: View {
     }
     
     private func toggleFavorite() async {
-        let stationId = station.id
-        
-        isLoadingFavorite = true
-        
-        do {
-            if isFavorited {
-                let favorites = try await supabaseManager.getFavoriteStations()
-                if let favorite = favorites.first(where: { $0.stationId == stationId }) {
-                    try await supabaseManager.removeFromFavorites(favoriteId: favorite.id)
-                    isFavorited = false
-                    
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                    impactFeedback.impactOccurred()
+            let id = station.id
+            isLoadingFavorite = true
+            
+            do {
+                if isFavorited {
+                    try await supabaseManager.removeFavorite(stationId: id)
+                    await MainActor.run {
+                        isFavorited = false
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    }
+                } else {
+                    try await supabaseManager.addFavorite(stationId: id)
+                    await MainActor.run {
+                        isFavorited = true
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    }
                 }
-            } else {
-                try await supabaseManager.addToFavorites(stationId: stationId)
-                isFavorited = true
-                
-                let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                impactFeedback.impactOccurred()
+            } catch {
+                print("Favorite toggle error: \(error)")
+                await MainActor.run {
+                    isFavorited = supabaseManager.favoriteIds.contains(id)
+                }
             }
-        } catch {
-            print("Error toggling favorite: \(error)")
+            
+            isLoadingFavorite = false
         }
-        
-        isLoadingFavorite = false
-    }
 }
 
 // MARK: - FlowLayout for Amenities

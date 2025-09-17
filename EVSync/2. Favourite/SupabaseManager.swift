@@ -5,7 +5,6 @@
 //  Created by Daulet Yerkinov on 15.09.25.
 //
 
-
 import Foundation
 import Supabase
 
@@ -18,61 +17,111 @@ class SupabaseManager: ObservableObject {
         supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA"
     )
     
+    @Published private(set) var favoriteIds: Set<UUID> = []
+    
     private init() {}
     
-    // Get user's favorite stations
+    @MainActor
+    func syncFavorites() async {
+        do {
+            let user = try await client.auth.user()
+            let response: [[String: AnyJSON]] = try await client
+                .from("user_favorites")
+                .select("station_id")
+                .eq("user_id", value: user.id.uuidString)
+                .execute()
+                .value
+            
+            let ids = response.compactMap { row in
+                if case .string(let stationIdString) = row["station_id"] {
+                    return UUID(uuidString: stationIdString)
+                }
+                return nil
+            }
+            favoriteIds = Set(ids)
+        } catch {
+            print("Sync favorites error: \(error)")
+        }
+    }
+    
     func getFavoriteStations() async throws -> [UserFavorite] {
+        let user = try await client.auth.user()
         let response: [UserFavorite] = try await client
             .from("user_favorites")
             .select("*, charging_stations(*)")
+            .eq("user_id", value: user.id.uuidString)
+            .order("created_at", ascending: false)
             .execute()
             .value
-        
         return response
     }
     
-    // Add station to favorites
-    func addToFavorites(stationId: UUID) async throws {
+    func addFavorite(stationId: UUID) async throws {
         let user = try await client.auth.user()
-        let userId = user.id
         
-        let favorite = [
-            "user_id": userId.uuidString,
-            "station_id": stationId.uuidString
-        ]
+        _ = await MainActor.run { favoriteIds.insert(stationId) }
         
-        try await client
-            .from("user_favorites")
-            .insert(favorite)
-            .execute()
+        do {
+            try await client
+                .from("user_favorites")
+                .insert([
+                    "user_id": user.id.uuidString,
+                    "station_id": stationId.uuidString
+                ])
+                .execute()
+        } catch {
+            _ = await MainActor.run { favoriteIds.remove(stationId) }
+            throw error
+        }
     }
     
-    // Remove station from favorites
+    func removeFavorite(stationId: UUID) async throws {
+        let user = try await client.auth.user()
+        
+        _ = await MainActor.run { favoriteIds.remove(stationId) }
+        
+        do {
+            try await client
+                .from("user_favorites")
+                .delete()
+                .eq("user_id", value: user.id.uuidString)
+                .eq("station_id", value: stationId.uuidString)
+                .execute()
+        } catch {
+            _ = await MainActor.run { favoriteIds.insert(stationId) }
+            throw error
+        }
+    }
+    
+    func addToFavorites(stationId: UUID) async throws {
+        try await addFavorite(stationId: stationId)
+    }
+    
     func removeFromFavorites(favoriteId: UUID) async throws {
         try await client
             .from("user_favorites")
             .delete()
             .eq("id", value: favoriteId.uuidString)
             .execute()
+        await syncFavorites()
     }
     
-    // Check if station is favorited
     func isStationFavorited(stationId: UUID) async throws -> Bool {
-        do {
-            let user = try await client.auth.user()
-            let userId = user.id
-            
-            let response: [UserFavorite] = try await client
-                .from("user_favorites")
-                .select("id")
-                .eq("user_id", value: userId.uuidString)
-                .eq("station_id", value: stationId.uuidString)
-                .execute()
-                .value
-            
-            return !response.isEmpty
-        } catch {
-            return false
+        if favoriteIds.contains(stationId) { return true }
+        
+        let user = try await client.auth.user()
+        let response: [[String: AnyJSON]] = try await client
+            .from("user_favorites")
+            .select("station_id")
+            .eq("user_id", value: user.id.uuidString)
+            .eq("station_id", value: stationId.uuidString)
+            .execute()
+            .value
+        
+        let exists = !response.isEmpty
+        if exists {
+            _ = await MainActor.run { favoriteIds.insert(stationId) }
         }
+        return exists
     }
 }

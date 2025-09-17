@@ -151,7 +151,6 @@ struct FavoriteStationsView: View {
     }
 }
 
-// MARK: - Preview
 struct FavoriteStationsView_Previews: PreviewProvider {
     static var previews: some View {
         FavoriteStationsView(

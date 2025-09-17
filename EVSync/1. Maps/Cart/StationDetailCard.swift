@@ -42,35 +42,24 @@ struct StationDetailCard: View {
         .padding(.horizontal, 16)
         .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showingFullDetail)
         .task {
-            await checkFavoriteStatus()
-        }
-        .onChange(of: station.id) { _, newStationId in
-            showingFullDetail = false
-            isFavorited = false
-            isLoadingFavorite = false
-            
-            Task {
-                await checkFavoriteStatus()
+            isFavorited = supabaseManager.favoriteIds.contains(station.id)
+            if supabaseManager.favoriteIds.isEmpty {
+                await supabaseManager.syncFavorites()
+                isFavorited = supabaseManager.favoriteIds.contains(station.id)
             }
+        }
+        .onChange(of: station.id) { _, _ in
+            isFavorited = supabaseManager.favoriteIds.contains(station.id)
+            isLoadingFavorite = false
+            showingFullDetail = false
         }
         .onChange(of: showingDetail) { _, isShowing in
             if !isShowing {
                 showingFullDetail = false
             }
         }
-    }
-    
-    private func checkFavoriteStatus() async {
-        let stationId = station.id
-        isLoadingFavorite = true
-        
-        do {
-            isFavorited = try await supabaseManager.isStationFavorited(stationId: stationId)
-        } catch {
-            print("Error checking favorite status: \(error)")
-            isFavorited = false
+        .onReceive(supabaseManager.$favoriteIds) { ids in
+            isFavorited = ids.contains(station.id)
         }
-        
-        isLoadingFavorite = false
     }
 }
