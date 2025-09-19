@@ -150,11 +150,9 @@ class MapViewModel: ObservableObject {
     }
     
     func preloadStations() {
-        // Сначала проверяем preloader
         let preloader = StationsPreloader.shared
         
         if preloader.isLoaded && !preloader.stations.isEmpty {
-            // Если данные уже загружены в preloader - используем их
             chargingStations = preloader.stations
             filteredStations = chargingStations
             isLoading = false
@@ -162,7 +160,6 @@ class MapViewModel: ObservableObject {
             return
         }
         
-        // Если есть кеш - используем его
         if isCacheValid() {
             chargingStations = cachedStations
             filteredStations = chargingStations
@@ -171,11 +168,9 @@ class MapViewModel: ObservableObject {
             return
         }
         
-        // Запускаем preloader асинхронно
         Task {
             preloader.preloadStations()
             
-            // Ждем загрузки или используем обычный способ
             if preloader.stations.isEmpty {
                 await MainActor.run {
                     self.loadChargingStations()

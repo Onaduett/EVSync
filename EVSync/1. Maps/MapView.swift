@@ -13,6 +13,7 @@ struct MapView: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject private var viewModel = MapViewModel()
     @StateObject private var locationManager = LocationManager()
+    @StateObject private var supabaseManager = SupabaseManager.shared // Added for favorites
     @Binding var selectedStationFromFavorites: ChargingStation?
     @State private var showingLocationAlert = false
     @State private var locationAlertType: LocationManager.LocationAlertType = .disabled
@@ -26,7 +27,8 @@ struct MapView: View {
                         Annotation("", coordinate: station.coordinate) {
                             ChargingStationAnnotation(
                                 station: station,
-                                isSelected: viewModel.selectedStation?.id == station.id
+                                isSelected: viewModel.selectedStation?.id == station.id,
+                                isFavorite: supabaseManager.favoriteIds.contains(station.id)
                             )
                             .onTapGesture {
                                 viewModel.selectStation(station)
@@ -104,6 +106,10 @@ struct MapView: View {
         }
         .onAppear {
             startMapInitialization()
+            // Sync favorites when map appears
+            Task {
+                await supabaseManager.syncFavorites()
+            }
         }
         .onChange(of: viewModel.selectedConnectorTypes) {
             viewModel.applyFilters()
@@ -188,3 +194,6 @@ struct MapView: View {
         }
     }
 }
+
+// MARK: - ChargingStationAnnotation (Remove this section since we have the separate file)
+// The ChargingStationAnnotation is now in its own file
