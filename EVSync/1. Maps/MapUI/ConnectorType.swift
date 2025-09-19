@@ -18,7 +18,6 @@ enum ConnectorType: String, CaseIterable {
     case tesla = "Tesla"            // Tesla Supercharger (оригинальный)
     case universal = "Universal"     // Универсальные станции
     
-    /// Читаемое имя для UI
     var displayName: String {
         switch self {
         case .ccs1: return "CCS Combo 1"
@@ -27,7 +26,7 @@ enum ConnectorType: String, CaseIterable {
         case .type2: return "Type 2 (Mennekes)"
         case .chademo: return "CHAdeMO"
         case .gbT: return "GB/T (China)"
-        case .tesla: return "Tesla Supercharger"
+        case .tesla: return "Tesla"
         case .universal: return "Универсальная"
         }
     }

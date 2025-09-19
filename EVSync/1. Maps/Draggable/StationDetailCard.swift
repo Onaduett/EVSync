@@ -13,7 +13,9 @@ struct StationDetailCard: View {
     @State private var showingFullDetail = false
     @State private var isFavorited = false
     @State private var isLoadingFavorite = false
+    @State private var dragOffset: CGFloat = 0
     @StateObject private var supabaseManager = SupabaseManager.shared
+    @Namespace private var hero // Added namespace for matched geometry
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -24,14 +26,20 @@ struct StationDetailCard: View {
                     showingFullDetail: $showingFullDetail,
                     isFavorited: $isFavorited,
                     isLoadingFavorite: $isLoadingFavorite,
-                    supabaseManager: supabaseManager
+                    dragOffset: $dragOffset,
+                    supabaseManager: supabaseManager,
+                    ns: hero // Pass namespace to full view
                 )
+                .zIndex(1)
             } else {
                 StationPreviewView(
                     station: station,
                     showingDetail: $showingDetail,
-                    showingFullDetail: $showingFullDetail
+                    showingFullDetail: $showingFullDetail,
+                    dragOffset: $dragOffset,
+                    ns: hero // Pass namespace to preview view
                 )
+                .zIndex(1)
             }
         }
         .background(
@@ -39,9 +47,11 @@ struct StationDetailCard: View {
                 .fill(.ultraThinMaterial)
                 .shadow(radius: 20, x: 0, y: 10)
         )
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .padding(.horizontal, 16)
         .padding(.bottom, -10)
-        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showingFullDetail)
+        .offset(y: 0)
+        .animation(.spring(response: 0.5, dampingFraction: 0.88), value: showingFullDetail)
         .task {
             isFavorited = supabaseManager.favoriteIds.contains(station.id)
             if supabaseManager.favoriteIds.isEmpty {

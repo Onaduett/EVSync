@@ -2,41 +2,39 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLName</key>
-            <string>com.daulet.chargeandgo</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>com.daulet.chargeandgo</string>
-            </array>
-        </dict>
-        <dict>
-            <key>CFBundleURLName</key>
-            <string>GoogleSignIn</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>com.googleusercontent.apps.678345122697-4b7g72q8lok56lnm65spt1rqih51g0j5</string>
-            </array>
-        </dict>
-    </array>
-
-    <key>GIDClientID</key>
-    <string>678345122697-4b7g72q8lok56lnm65spt1rqih51g0j5.apps.googleusercontent.com</string>
-
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-        <string>googlechromes</string>
-        <string>googlechrome</string>
-        <string>googleapp</string>
-    </array>
-
-    <key>UIAppFonts</key>
-    <array>
-        <string>NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf</string>
-        <string>Lexend-SemiBold.ttf</string>
-    </array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.daulet.chargeandgo</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.daulet.chargeandgo</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>GoogleSignIn</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.678345122697-4b7g72q8lok56lnm65spt1rqih51g0j5</string>
+			</array>
+		</dict>
+	</array>
+	<key>GIDClientID</key>
+	<string>678345122697-4b7g72q8lok56lnm65spt1rqih51g0j5.apps.googleusercontent.com</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>googlechromes</string>
+		<string>googlechrome</string>
+		<string>googleapp</string>
+	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf</string>
+		<string>Lexend-SemiBold.ttf</string>
+	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
-
 </plist>
