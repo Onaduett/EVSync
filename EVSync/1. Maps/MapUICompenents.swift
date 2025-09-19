@@ -77,15 +77,20 @@ struct ErrorOverlay: View {
     }
 }
 
-// MARK: - Map Header с адаптивными иконками
+// MARK: - Map Header с адаптивными иконками (Updated)
 struct MapHeader: View {
     @Environment(\.fontManager) var fontManager
     let selectedConnectorTypes: Set<ConnectorType>
+    let selectedOperators: Set<String> // New parameter
     @Binding var showingFilterOptions: Bool
     @Binding var mapStyle: MKMapType
     let onLocationTap: () -> Void
     let locationManager: LocationManager
     let colorScheme: ColorScheme
+    
+    var totalActiveFilters: Int {
+        selectedConnectorTypes.count + selectedOperators.count
+    }
     
     var body: some View {
         VStack {
@@ -99,8 +104,8 @@ struct MapHeader: View {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .font(.system(size: 18))
                                 .minimumScaleFactor(0.7)
-                            if !selectedConnectorTypes.isEmpty {
-                                Text("\(selectedConnectorTypes.count)")
+                            if totalActiveFilters > 0 {
+                                Text("\(totalActiveFilters)")
                                     .font(fontManager.font(.caption2, weight: .semibold))
                                     .minimumScaleFactor(0.8)
                                     .padding(.horizontal, 6)
@@ -198,17 +203,21 @@ struct MapHeader: View {
     }
 }
 
-// MARK: - Filter Options Overlay
+// MARK: - Filter Options Overlay (Updated)
 struct FilterOptionsOverlay: View {
     let availableTypes: [ConnectorType]
+    let availableOperators: [String] // New parameter
     @Binding var selectedTypes: Set<ConnectorType>
+    @Binding var selectedOperators: Set<String> // New binding
     @Binding var isShowing: Bool
     
     var body: some View {
         VStack {
             FilterOptionsView(
                 availableTypes: availableTypes,
+                availableOperators: availableOperators,
                 selectedTypes: $selectedTypes,
+                selectedOperators: $selectedOperators,
                 isShowing: $isShowing
             )
             .transition(.move(edge: .top).combined(with: .opacity))

@@ -11,22 +11,47 @@ struct FilterOptionsView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.fontManager) var fontManager
     let availableTypes: [ConnectorType]
+    let availableOperators: [String]
     @Binding var selectedTypes: Set<ConnectorType>
+    @Binding var selectedOperators: Set<String>
     @Binding var isShowing: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header
-            FilterHeader(selectedTypes: $selectedTypes)
-            
-            // Connector Types Grid
-            ConnectorTypesGrid(
-                availableTypes: availableTypes,
-                selectedTypes: $selectedTypes
-            )
-            
-            // Action Buttons
-            FilterActionButtons(isShowing: $isShowing)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Header
+                FilterHeader(
+                    selectedTypes: $selectedTypes,
+                    selectedOperators: $selectedOperators
+                )
+                
+                // Connector Types Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Connector Types")
+                        .font(fontManager.font(.subheadline, weight: .semibold))
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                    
+                    ConnectorTypesGrid(
+                        availableTypes: availableTypes,
+                        selectedTypes: $selectedTypes
+                    )
+                }
+                
+                // Operators Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Operators")
+                        .font(fontManager.font(.subheadline, weight: .semibold))
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                    
+                    OperatorsGrid(
+                        availableOperators: availableOperators,
+                        selectedOperators: $selectedOperators
+                    )
+                }
+                
+                // Action Buttons
+                FilterActionButtons(isShowing: $isShowing)
+            }
         }
         .padding(20)
         .background(
@@ -36,6 +61,7 @@ struct FilterOptionsView: View {
         )
         .padding(.horizontal, 16)
         .padding(.top, 100)
+        .frame(maxHeight: UIScreen.main.bounds.height * 0.7)
     }
 }
 
@@ -44,20 +70,24 @@ struct FilterHeader: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.fontManager) var fontManager
     @Binding var selectedTypes: Set<ConnectorType>
+    @Binding var selectedOperators: Set<String>
     
     var body: some View {
         HStack {
-            Text("Filter by Connector Type")
+            Text("Filters")
                 .font(fontManager.font(.headline, weight: .bold))
                 .foregroundColor(colorScheme == .dark ? .white : .black)
             
             Spacer()
             
-            Button("Clear All") {
-                selectedTypes.removeAll()
+            if !selectedTypes.isEmpty || !selectedOperators.isEmpty {
+                Button("Clear All") {
+                    selectedTypes.removeAll()
+                    selectedOperators.removeAll()
+                }
+                .font(fontManager.font(.footnote, weight: .medium))
+                .foregroundColor(.blue)
             }
-            .font(fontManager.font(.footnote, weight: .medium))
-            .foregroundColor(.blue)
         }
     }
 }
@@ -94,6 +124,38 @@ struct ConnectorTypesGrid: View {
     }
 }
 
+// MARK: - Operators Grid
+struct OperatorsGrid: View {
+    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.fontManager) var fontManager
+    let availableOperators: [String]
+    @Binding var selectedOperators: Set<String>
+    
+    var body: some View {
+        LazyVGrid(columns: [
+            GridItem(.flexible()),
+            GridItem(.flexible())
+        ], spacing: 12) {
+            ForEach(availableOperators, id: \.self) { operatorName in
+                OperatorButton(
+                    operatorName: operatorName,
+                    isSelected: selectedOperators.contains(operatorName)
+                ) {
+                    toggleSelection(for: operatorName)
+                }
+            }
+        }
+    }
+    
+    private func toggleSelection(for operatorName: String) {
+        if selectedOperators.contains(operatorName) {
+            selectedOperators.remove(operatorName)
+        } else {
+            selectedOperators.insert(operatorName)
+        }
+    }
+}
+
 // MARK: - Connector Type Button
 struct ConnectorTypeButton: View {
     @Environment(\.colorScheme) var colorScheme
@@ -111,8 +173,10 @@ struct ConnectorTypeButton: View {
                 Text(type.displayName)
                     .font(fontManager.font(.footnote))
                     .foregroundColor(colorScheme == .dark ? .white : .black)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 
-                Spacer()
+                Spacer(minLength: 0)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
@@ -125,6 +189,45 @@ struct ConnectorTypeButton: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Operator Button
+struct OperatorButton: View {
+    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.fontManager) var fontManager
+    let operatorName: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(isSelected ? .green : .gray)
+                
+                Text(operatorName)
+                    .font(fontManager.font(.footnote))
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
+                
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isSelected ?
+                          Color.green.opacity(0.1) :
+                          (colorScheme == .dark ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1)))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.green : Color.clear, lineWidth: 1)
             )
         }
         .buttonStyle(PlainButtonStyle())

@@ -23,10 +23,11 @@ class MapViewModel: ObservableObject {
     @Published var showingStationDetail = false
     @Published var chargingStations: [ChargingStation] = []
     @Published var filteredStations: [ChargingStation] = []
-    @Published var isLoading = false // Изменено на false по умолчанию
+    @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var showingFilterOptions = false
     @Published var selectedConnectorTypes: Set<ConnectorType> = []
+    @Published var selectedOperators: Set<String> = [] // New filter for operators
     @Published var mapStyle: MKMapType = .standard
     
     private let almatyCenter = CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076)
@@ -45,6 +46,17 @@ class MapViewModel: ObservableObject {
     var availableConnectorTypes: [ConnectorType] {
         let allTypes = chargingStations.flatMap { $0.connectorTypes }
         return Array(Set(allTypes)).sorted { $0.rawValue < $1.rawValue }
+    }
+    
+    // New computed property for available operators
+    var availableOperators: [String] {
+        let allOperators = chargingStations.map { $0.provider }
+        return Array(Set(allOperators)).sorted()
+    }
+    
+    // Check if any filters are active
+    var hasActiveFilters: Bool {
+        return !selectedConnectorTypes.isEmpty || !selectedOperators.isEmpty
     }
     
     // MARK: - Public Methods
@@ -75,6 +87,13 @@ class MapViewModel: ObservableObject {
         withAnimation(.easeInOut(duration: 1.0)) {
             cameraPosition = .region(newRegion)
         }
+    }
+    
+    // Clear all filters
+    func clearAllFilters() {
+        selectedConnectorTypes.removeAll()
+        selectedOperators.removeAll()
+        applyFilters()
     }
     
     // MARK: - Data Loading
@@ -189,12 +208,21 @@ class MapViewModel: ObservableObject {
     // MARK: - Filtering
     
     func applyFilters() {
-        if selectedConnectorTypes.isEmpty {
-            filteredStations = chargingStations
-        } else {
-            filteredStations = chargingStations.filter { station in
-                return !Set(station.connectorTypes).isDisjoint(with: selectedConnectorTypes)
+        filteredStations = chargingStations.filter { station in
+            var matchesConnectorFilter = true
+            var matchesOperatorFilter = true
+            
+            // Apply connector type filter
+            if !selectedConnectorTypes.isEmpty {
+                matchesConnectorFilter = !Set(station.connectorTypes).isDisjoint(with: selectedConnectorTypes)
             }
+            
+            // Apply operator filter
+            if !selectedOperators.isEmpty {
+                matchesOperatorFilter = selectedOperators.contains(station.provider)
+            }
+            
+            return matchesConnectorFilter && matchesOperatorFilter
         }
         
         if !filteredStations.isEmpty && shouldAdjustForFilteredStations() {

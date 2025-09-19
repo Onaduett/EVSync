@@ -74,6 +74,7 @@ struct MapView: View {
                 VStack {
                     MapHeader(
                         selectedConnectorTypes: viewModel.selectedConnectorTypes,
+                        selectedOperators: viewModel.selectedOperators, // Added operator parameter
                         showingFilterOptions: $viewModel.showingFilterOptions,
                         mapStyle: $viewModel.mapStyle,
                         onLocationTap: handleLocationButtonTap,
@@ -83,13 +84,16 @@ struct MapView: View {
                     .opacity(isMapReady ? 1.0 : 0.0)
                     .animation(.easeInOut(duration: 0.3), value: isMapReady)
                     
+                    
                     Spacer()
                 }
                 
                 if viewModel.showingFilterOptions {
                     FilterOptionsOverlay(
                         availableTypes: viewModel.availableConnectorTypes,
+                        availableOperators: viewModel.availableOperators, // Added operators parameter
                         selectedTypes: $viewModel.selectedConnectorTypes,
+                        selectedOperators: $viewModel.selectedOperators, // Added operators binding
                         isShowing: $viewModel.showingFilterOptions
                     )
                 }
@@ -112,6 +116,9 @@ struct MapView: View {
             }
         }
         .onChange(of: viewModel.selectedConnectorTypes) {
+            viewModel.applyFilters()
+        }
+        .onChange(of: viewModel.selectedOperators) { _, _ in
             viewModel.applyFilters()
         }
         .onChange(of: selectedStationFromFavorites) { _, station in
@@ -194,6 +201,3 @@ struct MapView: View {
         }
     }
 }
-
-// MARK: - ChargingStationAnnotation (Remove this section since we have the separate file)
-// The ChargingStationAnnotation is now in its own file
