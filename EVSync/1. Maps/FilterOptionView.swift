@@ -34,89 +34,130 @@ struct FilterOptionsView: View {
         minPower...maxPower
     }
     
+    // MARK: - Active Filters Logic
+    private var hasActiveFilters: Bool {
+        let priceChanged = actualPriceRange.lowerBound < actualPriceRange.upperBound &&
+                           tempPriceRange != actualPriceRange
+        let powerChanged = actualPowerRange.lowerBound < actualPowerRange.upperBound &&
+                           tempPowerRange != actualPowerRange
+        return !selectedTypes.isEmpty || !selectedOperators.isEmpty || priceChanged || powerChanged
+    }
+    
+    private func clearAll() {
+        selectedTypes.removeAll()
+        selectedOperators.removeAll()
+        tempPriceRange = actualPriceRange
+        tempPowerRange = actualPowerRange
+    }
+    
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Header
-                FilterHeader(
-                    selectedTypes: $selectedTypes,
-                    selectedOperators: $selectedOperators,
-                    priceRange: $tempPriceRange,
-                    powerRange: $tempPowerRange,
-                    defaultPriceRange: actualPriceRange,
-                    defaultPowerRange: actualPowerRange
-                )
+        ZStack(alignment: .top) {
+            // Main background rectangle with scrollable content
+            VStack {
+                // Top spacer for header
+                Spacer()
+                    .frame(height: 60)
                 
-                // Price Range Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Price Range (₸/kWh)")
-                        .font(fontManager.font(.subheadline, weight: .semibold))
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                    
-                    PriceRangeSlider(
-                        range: $tempPriceRange,
-                        bounds: actualPriceRange,
-                        step: 1.0
-                    )
+                // Scrollable content
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        // Price Range Section
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Price Range (₸/kWh)")
+                                .font(fontManager.font(.subheadline, weight: .semibold))
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                            
+                            PriceRangeSlider(
+                                range: $tempPriceRange,
+                                bounds: actualPriceRange,
+                                step: 1.0
+                            )
+                        }
+                        
+                        // Power Range Section
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Power Range (kW)")
+                                .font(fontManager.font(.subheadline, weight: .semibold))
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                            
+                            PowerRangeSlider(
+                                range: $tempPowerRange,
+                                bounds: actualPowerRange,
+                                step: 5.0
+                            )
+                        }
+                        
+                        // Connector Types Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Connector Types")
+                                .font(fontManager.font(.subheadline, weight: .semibold))
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                            
+                            ConnectorTypesGrid(
+                                availableTypes: availableTypes,
+                                selectedTypes: $selectedTypes
+                            )
+                        }
+                        
+                        // Operators Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Operators")
+                                .font(fontManager.font(.subheadline, weight: .semibold))
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                            
+                            OperatorsGrid(
+                                availableOperators: availableOperators,
+                                selectedOperators: $selectedOperators
+                            )
+                        }
+                        
+                        // Bottom spacer for action buttons
+                        Spacer()
+                            .frame(height: 80)
+                    }
+                    .padding(20)
                 }
                 
-                // Power Range Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Power Range (kW)")
-                        .font(fontManager.font(.subheadline, weight: .semibold))
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                    
-                    PowerRangeSlider(
-                        range: $tempPowerRange,
-                        bounds: actualPowerRange,
-                        step: 5.0
-                    )
-                }
+                Spacer()
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(colorScheme == .dark ? Color.black : Color.white)
+                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 100)
+            .frame(maxHeight: UIScreen.main.bounds.height * 0.8)
+            
+            // Header overlay at the top (like FavoriteHeader)
+            VStack {
+                FilterHeader()
+                .padding(.horizontal, 36)
+                .padding(.top, 120)
                 
-                // Connector Types Section
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Connector Types")
-                        .font(fontManager.font(.subheadline, weight: .semibold))
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                    
-                    ConnectorTypesGrid(
-                        availableTypes: availableTypes,
-                        selectedTypes: $selectedTypes
-                    )
-                }
+                Spacer()
+            }
+            
+            // Action buttons overlay at the bottom
+            VStack {
+                Spacer()
                 
-                // Operators Section
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Operators")
-                        .font(fontManager.font(.subheadline, weight: .semibold))
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                    
-                    OperatorsGrid(
-                        availableOperators: availableOperators,
-                        selectedOperators: $selectedOperators
-                    )
-                }
-                
-                // Action Buttons
                 FilterActionButtons(
                     isShowing: $isShowing,
+                    hasActiveFilters: hasActiveFilters,
                     onApply: {
                         priceRange = tempPriceRange
                         powerRange = tempPowerRange
                         isShowing = false
+                    },
+                    onClearAll: {
+                        clearAll()
                     }
                 )
+                .padding(.horizontal, 36)
+                .padding(.bottom, 20)
             }
         }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(colorScheme == .dark ? Color.black : Color.white)
-                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
-        )
-        .padding(.horizontal, 16)
-        .padding(.top, 100)
-        .frame(maxHeight: UIScreen.main.bounds.height * 0.8)
         .onAppear {
             initializeTempRanges()
         }
@@ -151,16 +192,10 @@ struct FilterOptionsView: View {
     }
 }
 
-// MARK: - Updated Filter Header
+// MARK: - Updated Filter Header (Clear All removed)
 struct FilterHeader: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.fontManager) var fontManager
-    @Binding var selectedTypes: Set<ConnectorType>
-    @Binding var selectedOperators: Set<String>
-    @Binding var priceRange: ClosedRange<Double>
-    @Binding var powerRange: ClosedRange<Double>
-    let defaultPriceRange: ClosedRange<Double>
-    let defaultPowerRange: ClosedRange<Double>
     
     var body: some View {
         HStack {
@@ -169,34 +204,9 @@ struct FilterHeader: View {
                 .foregroundColor(colorScheme == .dark ? .white : .black)
             
             Spacer()
-            
-            if hasActiveFilters {
-                Button("Clear All") {
-                    selectedTypes.removeAll()
-                    selectedOperators.removeAll()
-                    priceRange = defaultPriceRange
-                    powerRange = defaultPowerRange
-                }
-                .font(fontManager.font(.footnote, weight: .medium))
-                .foregroundColor(.blue)
-            }
         }
     }
-    
-    private var hasActiveFilters: Bool {
-        let priceRangeChanged = defaultPriceRange.lowerBound < defaultPriceRange.upperBound &&
-                               priceRange != defaultPriceRange
-        let powerRangeChanged = defaultPowerRange.lowerBound < defaultPowerRange.upperBound &&
-                               powerRange != defaultPowerRange
-        
-        return !selectedTypes.isEmpty ||
-               !selectedOperators.isEmpty ||
-               priceRangeChanged ||
-               powerRangeChanged
-    }
 }
-
-
 
 struct PriceRangeSlider: View {
     @Environment(\.colorScheme) var colorScheme
@@ -357,7 +367,6 @@ struct RangeSlider: View {
                                     isDraggingLower = true
                                 }
                                 
-                                // Простой расчет позиции
                                 let thumbX = value.location.x
                                 let normalizedPosition = max(0, min(1, (thumbX - 20) / trackWidth))
                                 
@@ -391,7 +400,6 @@ struct RangeSlider: View {
                                     isDraggingUpper = true
                                 }
                                 
-                                // Простой расчет позиции
                                 let thumbX = value.location.x
                                 let normalizedPosition = max(0, min(1, (thumbX - 20) / trackWidth))
                                 
@@ -414,6 +422,7 @@ struct RangeSlider: View {
         .frame(height: 32)
     }
 }
+
 // MARK: - Connector Types Grid
 struct ConnectorTypesGrid: View {
     @Environment(\.colorScheme) var colorScheme
@@ -556,25 +565,41 @@ struct OperatorButton: View {
     }
 }
 
-// MARK: - Filter Action Buttons
+// MARK: - Updated Filter Action Buttons
 struct FilterActionButtons: View {
     @Environment(\.fontManager) var fontManager
     @Binding var isShowing: Bool
+    let hasActiveFilters: Bool
     let onApply: () -> Void
+    let onClearAll: () -> Void
     
     var body: some View {
         HStack {
-            Button("Cancel") {
-                isShowing = false
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    if hasActiveFilters {
+                        onClearAll()
+                    } else {
+                        isShowing = false
+                    }
+                }
+            } label: {
+                Text(hasActiveFilters ? "Clear All" : "Cancel")
+                    .font(fontManager.font(.callout))
+                    .foregroundColor(hasActiveFilters ? .red : .white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.ultraThinMaterial)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white, lineWidth: 0.2)
+                            )
+                    )
+                    // плавное изменение ширины текста
+                    .animation(.easeInOut(duration: 0.25), value: hasActiveFilters)
             }
-            .font(fontManager.font(.callout))
-            .foregroundColor(.gray)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.2))
-            )
             
             Spacer()
             
@@ -582,12 +607,16 @@ struct FilterActionButtons: View {
                 onApply()
             }
             .font(fontManager.font(.callout, weight: .semibold))
-            .foregroundColor(.white)
+            .foregroundColor(.teal)
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.blue)
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white, lineWidth: 0.2)
+                    )
             )
         }
     }
