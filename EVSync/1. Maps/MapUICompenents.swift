@@ -81,7 +81,11 @@ struct ErrorOverlay: View {
 struct MapHeader: View {
     @Environment(\.fontManager) var fontManager
     let selectedConnectorTypes: Set<ConnectorType>
-    let selectedOperators: Set<String> // New parameter
+    let selectedOperators: Set<String>
+    let priceRange: ClosedRange<Double>
+    let powerRange: ClosedRange<Double>
+    let defaultPriceRange: ClosedRange<Double>
+    let defaultPowerRange: ClosedRange<Double>
     @Binding var showingFilterOptions: Bool
     @Binding var mapStyle: MKMapType
     let onLocationTap: () -> Void
@@ -89,13 +93,22 @@ struct MapHeader: View {
     let colorScheme: ColorScheme
     
     var totalActiveFilters: Int {
-        selectedConnectorTypes.count + selectedOperators.count
+        var count = selectedConnectorTypes.count + selectedOperators.count
+        
+        if priceRange != defaultPriceRange {
+            count += 1
+        }
+        
+        if powerRange != defaultPowerRange {
+            count += 1
+        }
+        
+        return count
     }
     
     var body: some View {
         VStack {
             HStack {
-                // Left side - Filter button
                 HStack {
                     Button(action: {
                         showingFilterOptions.toggle()
@@ -129,7 +142,6 @@ struct MapHeader: View {
                 }
                 .frame(maxWidth: .infinity)
                 
-                // Center - App title
                 HStack {
                     Spacer()
                     Text("Charge&Go")
@@ -141,7 +153,6 @@ struct MapHeader: View {
                 }
                 .frame(maxWidth: .infinity)
                 
-                // Right side - Location and Map style buttons
                 HStack {
                     Spacer()
                     
@@ -206,9 +217,15 @@ struct MapHeader: View {
 // MARK: - Filter Options Overlay (Updated)
 struct FilterOptionsOverlay: View {
     let availableTypes: [ConnectorType]
-    let availableOperators: [String] // New parameter
+    let availableOperators: [String]
     @Binding var selectedTypes: Set<ConnectorType>
-    @Binding var selectedOperators: Set<String> // New binding
+    @Binding var selectedOperators: Set<String>
+    @Binding var priceRange: ClosedRange<Double>
+    @Binding var powerRange: ClosedRange<Double>
+    let maxPrice: Double
+    let maxPower: Double
+    let minPrice: Double
+    let minPower: Double
     @Binding var isShowing: Bool
     
     var body: some View {
@@ -218,15 +235,23 @@ struct FilterOptionsOverlay: View {
                 availableOperators: availableOperators,
                 selectedTypes: $selectedTypes,
                 selectedOperators: $selectedOperators,
-                isShowing: $isShowing
+                isShowing: $isShowing,
+                priceRange: $priceRange,
+                powerRange: $powerRange,
+                maxPrice: maxPrice,
+                maxPower: maxPower,
+                minPrice: minPrice,
+                minPower: minPower
             )
-            .transition(.move(edge: .top).combined(with: .opacity))
             
             Spacer()
         }
-        .background(Color.black.opacity(0.3))
-        .onTapGesture {
-            isShowing = false
-        }
+        .background(
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    isShowing = false
+                }
+        )
     }
 }

@@ -13,7 +13,7 @@ struct MapView: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject private var viewModel = MapViewModel()
     @StateObject private var locationManager = LocationManager()
-    @StateObject private var supabaseManager = SupabaseManager.shared // Added for favorites
+    @StateObject private var supabaseManager = SupabaseManager.shared
     @Binding var selectedStationFromFavorites: ChargingStation?
     @State private var showingLocationAlert = false
     @State private var locationAlertType: LocationManager.LocationAlertType = .disabled
@@ -74,7 +74,11 @@ struct MapView: View {
                 VStack {
                     MapHeader(
                         selectedConnectorTypes: viewModel.selectedConnectorTypes,
-                        selectedOperators: viewModel.selectedOperators, // Added operator parameter
+                        selectedOperators: viewModel.selectedOperators,
+                        priceRange: viewModel.priceRange,
+                        powerRange: viewModel.powerRange,
+                        defaultPriceRange: viewModel.minPrice...viewModel.maxPrice,
+                        defaultPowerRange: viewModel.minPower...viewModel.maxPower,
                         showingFilterOptions: $viewModel.showingFilterOptions,
                         mapStyle: $viewModel.mapStyle,
                         onLocationTap: handleLocationButtonTap,
@@ -88,15 +92,22 @@ struct MapView: View {
                     Spacer()
                 }
                 
-                if viewModel.showingFilterOptions {
-                    FilterOptionsOverlay(
-                        availableTypes: viewModel.availableConnectorTypes,
-                        availableOperators: viewModel.availableOperators, // Added operators parameter
-                        selectedTypes: $viewModel.selectedConnectorTypes,
-                        selectedOperators: $viewModel.selectedOperators, // Added operators binding
-                        isShowing: $viewModel.showingFilterOptions
-                    )
-                }
+                // Filter overlay with manual opacity control
+                FilterOptionsOverlay(
+                    availableTypes: viewModel.availableConnectorTypes,
+                    availableOperators: viewModel.availableOperators,
+                    selectedTypes: $viewModel.selectedConnectorTypes,
+                    selectedOperators: $viewModel.selectedOperators,
+                    priceRange: $viewModel.priceRange,
+                    powerRange: $viewModel.powerRange,
+                    maxPrice: viewModel.maxPrice,
+                    maxPower: viewModel.maxPower,
+                    minPrice: viewModel.minPrice,
+                    minPower: viewModel.minPower,
+                    isShowing: $viewModel.showingFilterOptions
+                )
+                .opacity(viewModel.showingFilterOptions ? 1.0 : 0.0)
+                .animation(.easeInOut(duration: 0.25), value: viewModel.showingFilterOptions)
                 
                 if viewModel.showingStationDetail, let station = viewModel.selectedStation {
                     VStack {
@@ -110,7 +121,6 @@ struct MapView: View {
         }
         .onAppear {
             startMapInitialization()
-            // Sync favorites when map appears
             Task {
                 await supabaseManager.syncFavorites()
             }
@@ -119,6 +129,12 @@ struct MapView: View {
             viewModel.applyFilters()
         }
         .onChange(of: viewModel.selectedOperators) { _, _ in
+            viewModel.applyFilters()
+        }
+        .onChange(of: viewModel.priceRange) { _, _ in
+            viewModel.applyFilters()
+        }
+        .onChange(of: viewModel.powerRange) { _, _ in
             viewModel.applyFilters()
         }
         .onChange(of: selectedStationFromFavorites) { _, station in
@@ -135,7 +151,6 @@ struct MapView: View {
         } message: {
             Text(locationAlertType.message)
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.showingFilterOptions)
     }
     
     // MARK: - Private Methods

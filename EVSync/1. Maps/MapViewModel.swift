@@ -27,8 +27,12 @@ class MapViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showingFilterOptions = false
     @Published var selectedConnectorTypes: Set<ConnectorType> = []
-    @Published var selectedOperators: Set<String> = [] // New filter for operators
+    @Published var selectedOperators: Set<String> = []
     @Published var mapStyle: MKMapType = .standard
+    
+    // Price and Power Range Filters
+    @Published var priceRange: ClosedRange<Double> = 0...100
+    @Published var powerRange: ClosedRange<Double> = 0...350
     
     private let almatyCenter = CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076)
     private let almatySpan = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
@@ -48,15 +52,39 @@ class MapViewModel: ObservableObject {
         return Array(Set(allTypes)).sorted { $0.rawValue < $1.rawValue }
     }
     
-    // New computed property for available operators
     var availableOperators: [String] {
         let allOperators = chargingStations.map { $0.provider }
         return Array(Set(allOperators)).sorted()
     }
     
-    // Check if any filters are active
+    var minPrice: Double {
+        let prices = chargingStations.compactMap { $0.pricePerKWh }
+        return prices.isEmpty ? 0 : prices.min() ?? 0
+    }
+    
+    var maxPrice: Double {
+        let prices = chargingStations.compactMap { $0.pricePerKWh }
+        return prices.isEmpty ? 100 : prices.max() ?? 100
+    }
+    
+    var minPower: Double {
+        let powers = chargingStations.compactMap { $0.maxPower }
+        return powers.isEmpty ? 0 : powers.min() ?? 0
+    }
+    
+    var maxPower: Double {
+        let powers = chargingStations.compactMap { $0.maxPower }
+        return powers.isEmpty ? 350 : powers.max() ?? 350
+    }
+    
     var hasActiveFilters: Bool {
-        return !selectedConnectorTypes.isEmpty || !selectedOperators.isEmpty
+        let defaultPriceRange = minPrice...maxPrice
+        let defaultPowerRange = minPower...maxPower
+        
+        return !selectedConnectorTypes.isEmpty ||
+               !selectedOperators.isEmpty ||
+               priceRange != defaultPriceRange ||
+               powerRange != defaultPowerRange
     }
     
     // MARK: - Public Methods
@@ -89,11 +117,26 @@ class MapViewModel: ObservableObject {
         }
     }
     
-    // Clear all filters
     func clearAllFilters() {
         selectedConnectorTypes.removeAll()
         selectedOperators.removeAll()
+        priceRange = minPrice...maxPrice
+        powerRange = minPower...maxPower
         applyFilters()
+    }
+    
+    func initializeFilterRanges() {
+        if chargingStations.isEmpty { return }
+        
+        let defaultPriceRange = minPrice...maxPrice
+        let defaultPowerRange = minPower...maxPower
+        
+        if priceRange == 0...100 {
+            priceRange = defaultPriceRange
+        }
+        if powerRange == 0...350 {
+            powerRange = defaultPowerRange
+        }
     }
     
     // MARK: - Data Loading
@@ -103,6 +146,8 @@ class MapViewModel: ObservableObject {
             chargingStations = cachedStations
             filteredStations = chargingStations
             isLoading = false
+            
+            initializeFilterRanges()
             
             if !hasInitialLoad {
                 setAlmatyRegion()
@@ -124,13 +169,14 @@ class MapViewModel: ObservableObject {
 
                 let loadedStations = response.map { $0.toChargingStation() }
                 
-                // Обновляем кеш
                 self.cachedStations = loadedStations
                 self.cacheTimestamp = Date()
                 
                 self.chargingStations = loadedStations
                 self.filteredStations = loadedStations
                 self.isLoading = false
+                
+                self.initializeFilterRanges()
 
                 if !hasInitialLoad {
                     setAlmatyRegion()
@@ -176,6 +222,7 @@ class MapViewModel: ObservableObject {
             filteredStations = chargingStations
             isLoading = false
             hasInitialLoad = true
+            initializeFilterRanges()
             return
         }
         
@@ -184,6 +231,7 @@ class MapViewModel: ObservableObject {
             filteredStations = chargingStations
             isLoading = false
             hasInitialLoad = true
+            initializeFilterRanges()
             return
         }
         
@@ -200,6 +248,7 @@ class MapViewModel: ObservableObject {
                     self.filteredStations = preloader.stations
                     self.isLoading = false
                     self.hasInitialLoad = true
+                    self.initializeFilterRanges()
                 }
             }
         }
@@ -211,18 +260,26 @@ class MapViewModel: ObservableObject {
         filteredStations = chargingStations.filter { station in
             var matchesConnectorFilter = true
             var matchesOperatorFilter = true
+            var matchesPriceFilter = true
+            var matchesPowerFilter = true
             
-            // Apply connector type filter
             if !selectedConnectorTypes.isEmpty {
                 matchesConnectorFilter = !Set(station.connectorTypes).isDisjoint(with: selectedConnectorTypes)
             }
             
-            // Apply operator filter
             if !selectedOperators.isEmpty {
                 matchesOperatorFilter = selectedOperators.contains(station.provider)
             }
             
-            return matchesConnectorFilter && matchesOperatorFilter
+            if let stationPrice = station.pricePerKWh {
+                matchesPriceFilter = priceRange.contains(stationPrice)
+            }
+            
+            if let stationPower = station.maxPower {
+                matchesPowerFilter = powerRange.contains(stationPower)
+            }
+            
+            return matchesConnectorFilter && matchesOperatorFilter && matchesPriceFilter && matchesPowerFilter
         }
         
         if !filteredStations.isEmpty && shouldAdjustForFilteredStations() {

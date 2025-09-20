@@ -5,7 +5,6 @@
 //  Created by Daulet Yerkinov on 28.08.25.
 //
 
-
 import Foundation
 import CoreLocation
 import SwiftUI
@@ -24,7 +23,28 @@ struct ChargingStation: Identifiable, Equatable {
     let phoneNumber: String?
     let provider: String
     
-    // Equatable conformance
+    var pricePerKWh: Double? {
+        let cleanPrice = price.replacingOccurrences(of: "₸/kWh", with: "")
+            .replacingOccurrences(of: "₸", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return Double(cleanPrice)
+    }
+    
+    var maxPower: Double? {
+        let cleanPower = power.replacingOccurrences(of: "kW", with: "")
+            .replacingOccurrences(of: "AC", with: "")
+            .replacingOccurrences(of: "DC", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if cleanPower.contains("/") {
+            let components = cleanPower.components(separatedBy: "/")
+            let powers = components.compactMap { Double($0.trimmingCharacters(in: .whitespacesAndNewlines)) }
+            return powers.max()
+        }
+        
+        return Double(cleanPower)
+    }
+    
     static func == (lhs: ChargingStation, rhs: ChargingStation) -> Bool {
         return lhs.id == rhs.id
     }
