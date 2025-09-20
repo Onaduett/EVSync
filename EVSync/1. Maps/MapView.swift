@@ -88,7 +88,6 @@ struct MapView: View {
                     .opacity(isMapReady ? 1.0 : 0.0)
                     .animation(.easeInOut(duration: 0.3), value: isMapReady)
                     
-                    
                     Spacer()
                 }
                 
@@ -109,13 +108,24 @@ struct MapView: View {
                 .opacity(viewModel.showingFilterOptions ? 1.0 : 0.0)
                 .animation(.easeInOut(duration: 0.25), value: viewModel.showingFilterOptions)
                 
-                if viewModel.showingStationDetail, let station = viewModel.selectedStation {
+                // Station Detail Card with smooth animations
+                if viewModel.selectedStation != nil {
                     VStack {
                         Spacer()
-                        StationDetailCard(station: station, showingDetail: $viewModel.showingStationDetail)
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                        
+                        StationDetailCard(
+                            station: viewModel.selectedStation!,
+                            showingDetail: $viewModel.showingStationDetail
+                        )
                     }
-                    .animation(.spring(response: 0.4, dampingFraction: 0.9), value: viewModel.showingStationDetail)
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95)),
+                            removal: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95))
+                        )
+                    )
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: viewModel.showingStationDetail)
+                    .zIndex(2)
                 }
             }
         }
@@ -216,3 +226,4 @@ struct MapView: View {
         }
     }
 }
+

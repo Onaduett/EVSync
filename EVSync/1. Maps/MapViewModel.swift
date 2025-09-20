@@ -40,7 +40,7 @@ class MapViewModel: ObservableObject {
     
     private var cachedStations: [ChargingStation] = []
     private var cacheTimestamp: Date?
-    private let cacheExpirationTime: TimeInterval = 300 // 5 минут
+    private let cacheExpirationTime: TimeInterval = 300 // 5
     
     private let supabase = SupabaseClient(
         supabaseURL: URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co")!,
@@ -57,6 +57,7 @@ class MapViewModel: ObservableObject {
         return Array(Set(allOperators)).sorted()
     }
     
+    // Price and Power bounds based on available stations
     var minPrice: Double {
         let prices = chargingStations.compactMap { $0.pricePerKWh }
         return prices.isEmpty ? 0 : prices.min() ?? 0
@@ -77,6 +78,7 @@ class MapViewModel: ObservableObject {
         return powers.isEmpty ? 350 : powers.max() ?? 350
     }
     
+    // Check if any filters are active
     var hasActiveFilters: Bool {
         let defaultPriceRange = minPrice...maxPrice
         let defaultPowerRange = minPower...maxPower
@@ -91,7 +93,7 @@ class MapViewModel: ObservableObject {
     
     func selectStation(_ station: ChargingStation) {
         selectedStation = station
-        showingStationDetail = true
+        showingStationDetail = false // Сначала false
         centerMapOnStation(station)
     }
     
