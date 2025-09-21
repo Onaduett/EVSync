@@ -286,3 +286,19 @@
 "loading_charging_stations" = "Станциялар жүктелуде...";
 "retry" = "Қайталау";
 "cancel" = "Бас тарту";
+
+// MARK: - FILTERS (Kazakh)
+"filters" = "Сүзгілер";
+"price_range" = "Баға";
+"power_range" = "Қуат";
+"connector_types" = "Қосқыштар";
+"operators" = "Операторлар";
+"apply" = "Қолдану";
+"clear_all" = "Барлығын тазарту";
+"cancel" = "Бас тарту";
+
+// MARK: - FILTER UNITS (Kazakh)
+"price_unit" = "₸/кВт·сағ";
+"power_unit" = "кВт";
+
+

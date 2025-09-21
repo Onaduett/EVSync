@@ -51,7 +51,7 @@ extension MyCarView {
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
                     SpecificationItem(
-                        icon: "battery.100",
+                        icon: "batteryblock.stack",
                         title: languageManager.localizedString("battery_capacity"),
                         value: "\(Int(selectedCar.batteryCapacity)) \(languageManager.localizedString("kwh_unit"))",
                         iconColor: .teal,

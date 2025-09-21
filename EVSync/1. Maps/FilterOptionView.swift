@@ -10,6 +10,8 @@ import SwiftUI
 struct FilterOptionsView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.fontManager) var fontManager
+    @EnvironmentObject var languageManager: LanguageManager // Add this
+    
     let availableTypes: [ConnectorType]
     let availableOperators: [String]
     @Binding var selectedTypes: Set<ConnectorType>
@@ -63,7 +65,7 @@ struct FilterOptionsView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         // Price Range Section
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Price Range (₸/kWh)")
+                            Text("\(languageManager.localizedString("price_range")) (\(languageManager.localizedString("price_unit")))")
                                 .font(fontManager.font(.subheadline, weight: .semibold))
                                 .foregroundColor(colorScheme == .dark ? .white : .black)
                             
@@ -76,7 +78,7 @@ struct FilterOptionsView: View {
                         
                         // Power Range Section
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Power Range (kW)")
+                            Text("\(languageManager.localizedString("power_range")) (\(languageManager.localizedString("power_unit")))")
                                 .font(fontManager.font(.subheadline, weight: .semibold))
                                 .foregroundColor(colorScheme == .dark ? .white : .black)
                             
@@ -89,7 +91,7 @@ struct FilterOptionsView: View {
                         
                         // Connector Types Section
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Connector Types")
+                            Text(languageManager.localizedString("connector_types"))
                                 .font(fontManager.font(.subheadline, weight: .semibold))
                                 .foregroundColor(colorScheme == .dark ? .white : .black)
                             
@@ -101,7 +103,7 @@ struct FilterOptionsView: View {
                         
                         // Operators Section
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Operators")
+                            Text(languageManager.localizedString("operators"))
                                 .font(fontManager.font(.subheadline, weight: .semibold))
                                 .foregroundColor(colorScheme == .dark ? .white : .black)
                             
@@ -129,7 +131,7 @@ struct FilterOptionsView: View {
             .padding(.top, 100)
             .frame(maxHeight: UIScreen.main.bounds.height * 0.8)
             
-            // Header overlay at the top (like FavoriteHeader)
+            // Header overlay at the top
             VStack {
                 FilterHeader()
                 .padding(.horizontal, 36)
@@ -191,15 +193,14 @@ struct FilterOptionsView: View {
         }
     }
 }
-
-// MARK: - Updated Filter Header (Clear All removed)
 struct FilterHeader: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.fontManager) var fontManager
+    @EnvironmentObject var languageManager: LanguageManager
     
     var body: some View {
         HStack {
-            Text("Filters")
+            Text(languageManager.localizedString("filters"))
                 .font(fontManager.font(.headline, weight: .bold))
                 .foregroundColor(colorScheme == .dark ? .white : .black)
             
@@ -211,6 +212,7 @@ struct FilterHeader: View {
 struct PriceRangeSlider: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.fontManager) var fontManager
+    @EnvironmentObject var languageManager: LanguageManager
     @Binding var range: ClosedRange<Double>
     let bounds: ClosedRange<Double>
     let step: Double
@@ -259,15 +261,16 @@ struct PriceRangeSlider: View {
 struct PowerRangeSlider: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.fontManager) var fontManager
+    @EnvironmentObject var languageManager: LanguageManager
     @Binding var range: ClosedRange<Double>
     let bounds: ClosedRange<Double>
     let step: Double
     
     var body: some View {
         VStack(spacing: 12) {
-            // Value display
+            // Value display with localized unit
             HStack {
-                Text("\(Int(range.lowerBound)) kW")
+                Text("\(Int(range.lowerBound)) \(languageManager.localizedString("power_unit"))")
                     .font(fontManager.font(.caption, weight: .semibold))
                     .foregroundColor(.green)
                     .padding(.horizontal, 8)
@@ -279,7 +282,7 @@ struct PowerRangeSlider: View {
                 
                 Spacer()
                 
-                Text("\(Int(range.upperBound)) kW")
+                Text("\(Int(range.upperBound)) \(languageManager.localizedString("power_unit"))")
                     .font(fontManager.font(.caption, weight: .semibold))
                     .foregroundColor(.green)
                     .padding(.horizontal, 8)
@@ -568,6 +571,7 @@ struct OperatorButton: View {
 // MARK: - Updated Filter Action Buttons
 struct FilterActionButtons: View {
     @Environment(\.fontManager) var fontManager
+    @EnvironmentObject var languageManager: LanguageManager
     @Binding var isShowing: Bool
     let hasActiveFilters: Bool
     let onApply: () -> Void
@@ -584,9 +588,9 @@ struct FilterActionButtons: View {
                     }
                 }
             } label: {
-                Text(hasActiveFilters ? "Clear All" : "Cancel")
+                Text(hasActiveFilters ? languageManager.localizedString("clear_all") : languageManager.localizedString("cancel"))
                     .font(fontManager.font(.callout))
-                    .foregroundColor(hasActiveFilters ? .red : .white)
+                    .foregroundColor(hasActiveFilters ? .red : .primary)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
                     .background(
@@ -597,13 +601,12 @@ struct FilterActionButtons: View {
                                     .stroke(Color.white, lineWidth: 0.2)
                             )
                     )
-                    // плавное изменение ширины текста
                     .animation(.easeInOut(duration: 0.25), value: hasActiveFilters)
             }
             
             Spacer()
             
-            Button("Apply") {
+            Button(languageManager.localizedString("apply")) {
                 onApply()
             }
             .font(fontManager.font(.callout, weight: .semibold))

@@ -27,20 +27,10 @@ struct FavoriteStationsView: View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
                 VStack(spacing: 0) {
-                
                     if isLoading {
                         Spacer()
-                        VStack {
-                            ProgressView()
-                                .scaleEffect(1.2)
-                                .tint(.white)
-                            
-                            Text(languageManager.localizedString("loading_favorites"))
-                                .customFont(.body)
-                                .foregroundColor(.white.opacity(0.8))
-                                .padding(.top, 8)
-                        }
-                        .opacity(contentOpacity)
+                        LoadingView()
+                            .opacity(contentOpacity)
                         Spacer()
                     } else if favoriteStations.isEmpty {
                         Spacer()
@@ -49,11 +39,7 @@ struct FavoriteStationsView: View {
                         Spacer()
                     } else {
                         ScrollView {
-                            LazyVStack(spacing: 16) {
-                                Rectangle()
-                                    .fill(Color.clear)
-                                    .frame(height: 20)
-                                
+                            LazyVStack(spacing: 12) {
                                 ForEach(favoriteStations.indices, id: \.self) { index in
                                     let favorite = favoriteStations[index]
                                     if let dbStation = favorite.station {
@@ -79,18 +65,20 @@ struct FavoriteStationsView: View {
                                     }
                                 }
                             }
-                            .padding(.horizontal, 20)
-                            .padding(.top, 20)
-                            .padding(.bottom, 50) // Account for custom tab bar
+                            .padding(.horizontal, 16)
+                            .padding(.top, 100) // Space for header
+                            .padding(.bottom, 100) // Space for tab bar
                         }
                     }
                 }
                 
+                // Header
                 FavoriteHeader()
                     .opacity(contentOpacity)
             }
         }
-        .preferredColorScheme(themeManager.currentTheme.colorScheme) // Apply theme
+        .background(backgroundColor.ignoresSafeArea())
+        .preferredColorScheme(themeManager.currentTheme.colorScheme)
         .onAppear {
             startFavoriteViewAnimation()
         }
@@ -109,6 +97,19 @@ struct FavoriteStationsView: View {
         }
     }
     
+    // MARK: - Private Views
+    private var backgroundColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return Color(.systemGroupedBackground)
+        case .dark:
+            return Color(.systemBackground)
+        case .auto:
+            return Color(.systemGroupedBackground)
+        }
+    }
+    
+    // MARK: - Private Methods
     private func startFavoriteViewAnimation() {
         guard !hasAppeared else { return }
         hasAppeared = true
@@ -141,7 +142,7 @@ struct FavoriteStationsView: View {
     private func removeFavorite(_ favoriteId: UUID) async {
         do {
             try await supabaseManager.removeFromFavorites(favoriteId: favoriteId)
-            await loadFavoriteStations() // Refresh the list
+            await loadFavoriteStations()
         } catch {
             await MainActor.run {
                 errorMessage = error.localizedDescription
@@ -151,6 +152,24 @@ struct FavoriteStationsView: View {
     }
 }
 
+// MARK: - Loading View
+struct LoadingView: View {
+    @EnvironmentObject var languageManager: LanguageManager
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ProgressView()
+                .scaleEffect(1.2)
+                .tint(.white)
+            
+            Text(languageManager.localizedString("loading_favorites"))
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
+// MARK: - Preview
 struct FavoriteStationsView_Previews: PreviewProvider {
     static var previews: some View {
         FavoriteStationsView(

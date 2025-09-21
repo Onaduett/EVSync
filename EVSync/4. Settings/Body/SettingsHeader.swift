@@ -15,7 +15,7 @@ struct SettingsGradientOverlay: View {
         LinearGradient(
             gradient: Gradient(stops: [
                 .init(color: Color.teal, location: 0.0),
-                .init(color: Color.teal.opacity(0.3), location: 0.0),
+                .init(color: Color.teal.opacity(0.1), location: 0.0),
                 .init(color: .clear, location: 0.5)
             ]),
             startPoint: .top,

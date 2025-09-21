@@ -19,11 +19,10 @@ struct DatabaseChargingStation: Identifiable, Codable {
     let is_available: Bool
     let price_per_kwh: Double?
     let station_operator: String?
-    let phone_number: String? // Добавляем поле phone_number
+    let phone_number: String?
     let created_at: String
     let updated_at: String
     
-    // Convert to UI model
     func toChargingStation() -> ChargingStation {
         let connectorTypes = connector_types.compactMap { ConnectorType(rawValue: $0) }
         let availability: StationAvailability = is_available ? .available : .occupied
@@ -38,8 +37,8 @@ struct DatabaseChargingStation: Identifiable, Codable {
             power: power_kw != nil ? "\(power_kw!) kW" : "Unknown",
             price: price_per_kwh != nil ? String(format: "%.1f ₸/kWh", price_per_kwh!) : "Contact for pricing",
             amenities: generateAmenities(),
-            operatingHours: "24/7", // Default since not in DB
-            phoneNumber: phone_number, // Теперь используем реальные данные из БД
+            operatingHours: "24/7",
+            phoneNumber: phone_number,
             provider: station_operator ?? "EVSync Network"
         )
     }
@@ -47,7 +46,6 @@ struct DatabaseChargingStation: Identifiable, Codable {
     private func generateAmenities() -> [String] {
         var amenities = ["EV Charging"]
         
-        // Add amenities based on location name/address
         if name.lowercased().contains("mall") || address.lowercased().contains("mall") {
             amenities.append(contentsOf: ["Shopping Mall", "Restaurant", "WiFi"])
         }

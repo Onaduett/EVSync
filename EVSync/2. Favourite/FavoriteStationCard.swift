@@ -49,15 +49,15 @@ struct FavoriteStationCard: View {
                         }
                     }) {
                         Image(systemName: isRemoving ? "heart.slash" : "heart.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(isRemoving ? .gray : .red)
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(isRemoving ? secondaryTextColor : .red)
                             .scaleEffect(isRemoving ? 0.8 : 1.0)
                             .animation(.easeInOut(duration: 0.2), value: isRemoving)
                     }
                     .disabled(isRemoving)
                 }
                 
-                HStack {
+                HStack(spacing: 6) {
                     Circle()
                         .fill(station.availability.color)
                         .frame(width: 8, height: 8)
@@ -69,9 +69,10 @@ struct FavoriteStationCard: View {
                     Spacer()
                 }
                 
-                HStack(spacing: 15) {
+                HStack(spacing: 12) {
                     DetailChip(icon: "bolt.fill", text: station.power, color: .green)
                     PriceChip(text: station.price, languageManager: languageManager)
+                    Spacer()
                 }
                 
                 if !station.connectorTypes.isEmpty {
@@ -82,47 +83,49 @@ struct FavoriteStationCard: View {
                                     Image(connector.icon)
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 14, height: 14)
+                                        .frame(width: 12, height: 12)
                                         .foregroundColor(.blue)
+                                    
                                     Text(connector.rawValue)
                                         .customFont(.caption2, weight: .medium)
+                                        .foregroundColor(textColor)
                                 }
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
                                 .background(chipBackgroundColor)
-                                .foregroundColor(textColor)
                                 .clipShape(Capsule())
                             }
                         }
                         .padding(.horizontal, 1)
                     }
                 }
-                
+                // Provider and navigation indicator
                 HStack {
-                    Image(systemName: "building.2")
-                        .font(.caption)
-                        .foregroundColor(tertiaryTextColor)
-                    
-                    Text(station.provider)
-                        .customFont(.caption)
-                        .foregroundColor(secondaryTextColor)
+                    HStack(spacing: 6) {
+                        Image(systemName: "building.2")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(tertiaryTextColor)
+                        
+                        Text(station.provider)
+                            .customFont(.caption)
+                            .foregroundColor(secondaryTextColor)
+                    }
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
-                        .font(.caption)
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(tertiaryTextColor)
                 }
             }
             .padding(16)
-            .background {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(cardBackgroundColor)
-                    .glassEffect()
-                    .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-            }
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.ultraThinMaterial)
+                    .shadow(color: shadowColor, radius: 4, x: 0, y: 2)
+            )
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(FavoriteCardButtonStyle())
     }
     
     // MARK: - Theme-based colors
@@ -140,7 +143,7 @@ struct FavoriteStationCard: View {
     private var secondaryTextColor: Color {
         switch themeManager.currentTheme {
         case .light:
-            return .black.opacity(0.7)
+            return .gray
         case .dark:
             return .white.opacity(0.8)
         case .auto:
@@ -151,7 +154,7 @@ struct FavoriteStationCard: View {
     private var tertiaryTextColor: Color {
         switch themeManager.currentTheme {
         case .light:
-            return .black.opacity(0.5)
+            return .gray.opacity(0.7)
         case .dark:
             return .white.opacity(0.6)
         case .auto:
@@ -159,25 +162,35 @@ struct FavoriteStationCard: View {
         }
     }
     
-    private var cardBackgroundColor: Material {
-        switch themeManager.currentTheme {
-        case .light:
-            return .regularMaterial
-        case .dark:
-            return .regularMaterial
-        case .auto:
-            return .regularMaterial
-        }
-    }
-    
     private var chipBackgroundColor: Color {
         switch themeManager.currentTheme {
         case .light:
-            return Color.black.opacity(0.1)
+            return Color.black.opacity(0.06)
         case .dark:
-            return Color.white.opacity(0.2)
+            return Color.white.opacity(0.15)
         case .auto:
-            return Color.primary.opacity(0.1)
+            return Color.primary.opacity(0.08)
         }
+    }
+    
+    private var shadowColor: Color {
+        switch themeManager.currentTheme {
+        case .light:
+            return Color.black.opacity(0.15)
+        case .dark:
+            return Color.white.opacity(0.1)
+        case .auto:
+            return Color.primary.opacity(0.15)
+        }
+    }
+}
+
+// MARK: - Custom Button Style
+struct FavoriteCardButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }

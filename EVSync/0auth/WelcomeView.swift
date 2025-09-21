@@ -18,6 +18,8 @@ struct WelcomeView: View {
     @State private var confirmPassword = ""
     @State private var authState: AuthState = .enterEmail
     @State private var isCheckingUser = false
+    @State private var showLanguageSelector = false
+    @State private var showingPrivacyLegal = false
     
     enum AuthState {
         case enterEmail
@@ -277,16 +279,104 @@ struct WelcomeView: View {
                     
                     Spacer()
                     
-                    // Terms and conditions (only show in signup state)
-                    if authState == .signUp {
-                        Text(languageManager.localizedString("terms_and_conditions"))
-                            .font(fontManager.font(.caption))
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 30)
-                            .padding(.bottom, 20)
-                            .transition(.opacity)
+                    VStack(spacing: 16) {
+                        // Terms and conditions (only show in signup state)
+                        if authState == .signUp {
+                            Text(languageManager.localizedString("terms_and_conditions"))
+                                .font(fontManager.font(.caption))
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 30)
+                                .transition(.opacity)
+                        }
+                        
+                        // Bottom navigation (only show in enterEmail state)
+                        if authState == .enterEmail {
+                            HStack {
+                                // Privacy Policy link
+                                Button(action: {
+                                    showingPrivacyLegal = true
+                                }) {
+                                    Text(languageManager.localizedString("privacy_policy"))
+                                        .font(fontManager.font(.caption))
+                                        .foregroundColor(.secondary)
+                                        .underline()
+                                }
+                                
+                                Spacer()
+                                
+                                // Language selector button
+                                Button(action: {
+                                    showLanguageSelector.toggle()
+                                }) {
+                                    Image(systemName: "translate")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            .transition(.asymmetric(
+                                insertion: .opacity.combined(with: .move(edge: .bottom)),
+                                removal: .opacity.combined(with: .move(edge: .bottom))
+                            ))
+                        }
                     }
+                    .padding(.bottom, 20)
+                }
+                
+                // Language Selector Overlay
+                if showLanguageSelector {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showLanguageSelector = false
+                            }
+                        }
+                    
+                    VStack {
+                        Spacer()
+                        
+                        VStack(spacing: 20) {
+                            Text("Select Language")
+                                .font(fontManager.font(.headline, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 12) {
+                                ForEach(LanguageManager.AppLanguage.allCases, id: \.self) { language in
+                                    LanguageButton(
+                                        language: language,
+                                        isSelected: language == languageManager.currentLanguage,
+                                        languageManager: languageManager
+                                    )
+                                    .onTapGesture {
+                                        if language != languageManager.currentLanguage {
+                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                languageManager.setLanguage(language)
+                                                showLanguageSelector = false
+                                            }
+                                        } else {
+                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                showLanguageSelector = false
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color(UIColor.systemBackground))
+                        )
+                        .padding(.horizontal, 40)
+                        
+                        Spacer()
+                    }
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .scale.combined(with: .opacity)
+                    ))
                 }
             }
         }
@@ -295,6 +385,12 @@ struct WelcomeView: View {
             authManager.errorMessage = nil
         }
         .animation(.easeInOut(duration: 0.3), value: authState)
+        .animation(.easeInOut(duration: 0.3), value: showLanguageSelector)
+        .sheet(isPresented: $showingPrivacyLegal) {
+            PrivacyLegalView()
+                .environmentObject(languageManager)
+                .environmentObject(fontManager)
+        }
     }
     
     // MARK: - Computed Properties for Button Styling

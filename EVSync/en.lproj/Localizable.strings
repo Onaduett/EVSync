@@ -290,3 +290,17 @@
 "loading_charging_stations" = "Loading charging stations...";
 "retry" = "Retry";
 "cancel" = "Cancel";
+
+// MARK: - FILTERS
+"filters" = "Filters";
+"price_range" = "Price Range";
+"power_range" = "Power Range";
+"connector_types" = "Connector Types";
+"operators" = "Operators";
+"apply" = "Apply";
+"clear_all" = "Clear All";
+"cancel" = "Cancel";
+
+// MARK: - FILTER UNITS
+"price_unit" = "₸/kWh";
+"power_unit" = "kW";

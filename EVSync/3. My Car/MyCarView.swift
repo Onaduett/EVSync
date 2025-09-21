@@ -13,6 +13,7 @@ struct MyCarView: View {
     @State var showingCarSelection = false
     @State var chargingSessions: [ChargingSession] = sampleChargingSessions
     @State var imageOpacity: Double = 0.0
+    @State var gradientOpacity: Double = 0.0
     @ObservedObject var languageManager = LanguageManager()
     @StateObject var fontManager = FontManager.shared
     
@@ -45,9 +46,9 @@ struct MyCarView: View {
                                     gradient: Gradient(stops: [
                                         .init(color: Color(.systemBackground), location: 0.0),
                                         .init(color: Color(.systemBackground).opacity(0.8), location: 0.1),
-                                        .init(color: Color(.systemBackground).opacity(0.5), location: 0.25),
+                                        .init(color: Color(.systemBackground).opacity(0.4), location: 0.25),
                                         .init(color: Color(.systemBackground).opacity(0.2), location: 0.4),
-                                        .init(color: Color.clear, location: 0.6)
+                                        .init(color: Color.clear, location: 0.4)
                                     ]),
                                     startPoint: .leading,
                                     endPoint: .trailing
@@ -55,7 +56,8 @@ struct MyCarView: View {
                                 .frame(height: geometry.size.width * 0.7)
                                 .frame(maxWidth: .infinity)
                                 .cornerRadius(12)
-                                .animation(.easeInOut(duration: 0.5), value: imageOpacity)
+                                .opacity(gradientOpacity)
+                                .animation(.easeInOut(duration: 1.0).delay(0.3), value: gradientOpacity)
                             }
                             
                             carInfoCard
@@ -76,12 +78,19 @@ struct MyCarView: View {
             withAnimation(.easeInOut(duration: 0.8)) {
                 imageOpacity = 1.0
             }
+            withAnimation(.easeInOut(duration: 1.0).delay(0.3)) {
+                gradientOpacity = 1.0
+            }
         }
         .onChange(of: selectedCar.id) {
             saveSelectedCar()
             imageOpacity = 0.0
+            gradientOpacity = 0.0
             withAnimation(.easeInOut(duration: 0.8)) {
                 imageOpacity = 1.0
+            }
+            withAnimation(.easeInOut(duration: 1.0).delay(0.3)) {
+                gradientOpacity = 1.0
             }
         }
         .sheet(isPresented: $showingCarSelection) {

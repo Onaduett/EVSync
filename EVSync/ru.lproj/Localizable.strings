@@ -282,3 +282,18 @@
 "loading_charging_stations" = "Загрузка станций...";
 "retry" = "Повторить";
 "cancel" = "Отмена";
+
+// MARK: - FILTERS (Russian)
+"filters" = "Фильтры";
+"price_range" = "Цены";
+"power_range" = "Мощность";
+"connector_types" = "Разъёмы";
+"operators" = "Операторы";
+"apply" = "Применить";
+"clear_all" = "Сбросить всё";
+"cancel" = "Отмена";
+
+// MARK: - FILTER UNITS (Russian)
+"price_unit" = "₸/кВт·ч";
+"power_unit" = "кВт";
+
