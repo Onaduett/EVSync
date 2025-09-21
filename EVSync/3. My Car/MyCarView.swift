@@ -46,9 +46,9 @@ struct MyCarView: View {
                                     gradient: Gradient(stops: [
                                         .init(color: Color(.systemBackground), location: 0.0),
                                         .init(color: Color(.systemBackground).opacity(0.8), location: 0.1),
-                                        .init(color: Color(.systemBackground).opacity(0.4), location: 0.25),
+                                        .init(color: Color(.systemBackground).opacity(0.5), location: 0.25),
                                         .init(color: Color(.systemBackground).opacity(0.2), location: 0.4),
-                                        .init(color: Color.clear, location: 0.4)
+                                        .init(color: Color.clear, location: 0.6)
                                     ]),
                                     startPoint: .leading,
                                     endPoint: .trailing
