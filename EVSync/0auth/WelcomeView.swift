@@ -171,22 +171,27 @@ struct WelcomeView: View {
                             }
                             
                             // Continue Button
-                            Button(action: handleContinue) {
+                            Button(action: {
+                                if isContinueButtonEnabled && !authManager.isLoading && !isCheckingUser {
+                                    handleContinue()
+                                }
+                            }) {
                                 if authManager.isLoading || isCheckingUser {
                                     ProgressView()
                                         .progressViewStyle(CircularProgressViewStyle(tint: continueButtonTextColor))
                                         .scaleEffect(0.9)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 } else {
                                     Text(getContinueButtonText())
                                         .font(fontManager.font(.callout, weight: .medium))
                                         .foregroundColor(continueButtonTextColor)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 }
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                             .background(continueButtonBackgroundColor)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .disabled(!isContinueButtonEnabled || authManager.isLoading || isCheckingUser)
                             .padding(.horizontal, 20)
                             
                             // Back button for password states
@@ -307,7 +312,9 @@ struct WelcomeView: View {
                                 
                                 // Language selector button
                                 Button(action: {
-                                    showLanguageSelector.toggle()
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        showLanguageSelector.toggle()
+                                    }
                                 }) {
                                     Image(systemName: "translate")
                                         .font(.system(size: 18))
@@ -325,58 +332,55 @@ struct WelcomeView: View {
                 }
                 
                 // Language Selector Overlay
-                if showLanguageSelector {
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showLanguageSelector = false
-                            }
+                Color.black.opacity(showLanguageSelector ? 0.3 : 0.0)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showLanguageSelector = false
                         }
+                    }
+                    .allowsHitTesting(showLanguageSelector)
+                
+                VStack {
+                    Spacer()
                     
-                    VStack {
-                        Spacer()
+                    VStack(spacing: 20) {
+                        Text("Select Language")
+                            .font(fontManager.font(.headline, weight: .semibold))
+                            .foregroundColor(.primary)
                         
-                        VStack(spacing: 20) {
-                            Text("Select Language")
-                                .font(fontManager.font(.headline, weight: .semibold))
-                                .foregroundColor(.primary)
-                            
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 12) {
-                                ForEach(LanguageManager.AppLanguage.allCases, id: \.self) { language in
-                                    LanguageButton(
-                                        language: language,
-                                        isSelected: language == languageManager.currentLanguage,
-                                        languageManager: languageManager
-                                    )
-                                    .onTapGesture {
-                                        if language != languageManager.currentLanguage {
-                                            withAnimation(.easeInOut(duration: 0.3)) {
-                                                languageManager.setLanguage(language)
-                                                showLanguageSelector = false
-                                            }
-                                        } else {
-                                            withAnimation(.easeInOut(duration: 0.3)) {
-                                                showLanguageSelector = false
-                                            }
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 12) {
+                            ForEach(LanguageManager.AppLanguage.allCases, id: \.self) { language in
+                                LanguageButton(
+                                    language: language,
+                                    isSelected: language == languageManager.currentLanguage,
+                                    languageManager: languageManager
+                                )
+                                .onTapGesture {
+                                    if language != languageManager.currentLanguage {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            languageManager.setLanguage(language)
+                                            showLanguageSelector = false
+                                        }
+                                    } else {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            showLanguageSelector = false
                                         }
                                     }
                                 }
                             }
                         }
-                        .padding(24)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color(UIColor.systemBackground))
-                        )
-                        .padding(.horizontal, 40)
-                        
-                        Spacer()
                     }
-                    .transition(.asymmetric(
-                        insertion: .scale.combined(with: .opacity),
-                        removal: .scale.combined(with: .opacity)
-                    ))
+                    .padding(24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(UIColor.systemBackground))
+                    )
+                    .padding(.horizontal, 40)
+                    .opacity(showLanguageSelector ? 1.0 : 0.0)
+                    .scaleEffect(showLanguageSelector ? 1.0 : 0.95)
+                    
+                    Spacer()
                 }
             }
         }
