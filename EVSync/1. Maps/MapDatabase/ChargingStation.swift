@@ -23,6 +23,10 @@ struct ChargingStation: Identifiable, Equatable {
     let phoneNumber: String?
     let provider: String
     
+    var hasPhoneNumber: Bool {
+        return phoneNumber != nil && !phoneNumber!.isEmpty
+    }
+    
     var pricePerKWh: Double? {
         let cleanPrice = price.replacingOccurrences(of: "₸/kWh", with: "")
             .replacingOccurrences(of: "₸", with: "")

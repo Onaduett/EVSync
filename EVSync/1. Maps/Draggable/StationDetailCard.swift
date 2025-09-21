@@ -18,42 +18,35 @@ struct StationDetailCard: View {
     @StateObject private var languageManager = LanguageManager()
     private let fontManager = FontManager.shared
     
+    // Namespace для matched geometry
+    @Namespace private var animationNamespace
+    
+    // Фазы анимации
+    private enum Phase { case preview, fadingOut, loading, expanded, fadingIn }
+    @State private var phase: Phase = .preview
+    @State private var contentOpacity: Double = 1.0
+    
     private let previewHeight: CGFloat = 220
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Draggable Handle
-            VStack(spacing: 4) {
-                RoundedRectangle(cornerRadius: 2.5)
-                    .fill(Color.secondary.opacity(0.3))
-                    .frame(width: 40, height: 5)
-                    .scaleEffect(dragOffset != 0 ? 1.2 : 1.0)
-                    .animation(.interactiveSpring(response: 0.3, dampingFraction: 0.7), value: dragOffset)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .contentShape(Rectangle())
-            .gesture(dragGesture)
-            .onTapGesture {
-                withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.8)) {
-                    showingFullDetail.toggle()
-                }
-            }
+            dragHandle
             
             VStack(alignment: .leading, spacing: 12) {
-                // Header (always visible)
+                // Header (всегда видимый)
                 headerSection
                 
-                // Basic info (always visible)
+                // Basic info (всегда видимый)
                 basicInfoSection
                 
-                // Expanded content (only when full detail)
+                // Expanded content (только при полном развертывании)
                 if showingFullDetail {
-                    expandedContent
-                        .transition(.asymmetric(
-                            insertion: .opacity.combined(with: .move(edge: .top)),
-                            removal: .opacity
-                        ))
+                    Group {
+                        expandedContentView
+                            .redacted(reason: phase == .loading ? .placeholder : [])
+                    }
+                    .transition(.opacity)
                 }
                 
                 // Action buttons
@@ -61,24 +54,15 @@ struct StationDetailCard: View {
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 16)
+            .opacity(contentOpacity)
+            .animation(.none, value: showingFullDetail)
         }
         .frame(height: showingFullDetail ? nil : previewHeight, alignment: .top)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.regularMaterial)
-                .shadow(
-                    color: Color.black.opacity(0.12),
-                    radius: 15,
-                    x: 0,
-                    y: 8
-                )
-        )
+        .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .padding(.horizontal, 16)
         .padding(.bottom, -15)
         .opacity(showingDetail ? 1.0 : 0.0)
-        .animation(.interactiveSpring(response: 0.6, dampingFraction: 0.8), value: showingFullDetail)
-        .animation(.easeInOut(duration: 0.3), value: showingDetail)
         .onAppear {
             // Анимируем появление карточки
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
@@ -92,27 +76,15 @@ struct StationDetailCard: View {
         .task {
             await syncFavoriteStatus()
         }
-        .onChange(of: station.id) { _, _ in
-            // ÐÐ½Ð¸Ð¼Ð°Ñ†Ð¸Ñ Ð¿Ñ€Ð¸ Ð¿ÐµÑ€ÐµÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ð¸ ÑÑ‚Ð°Ð½Ñ†Ð¸Ð¹
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showingDetail = false
-            }
-            
-            // ÐÐµÐ±Ð¾Ð»ÑŒÑˆÐ°Ñ Ð·Ð°Ð´ÐµÑ€Ð¶ÐºÐ° Ð¿ÐµÑ€ÐµÐ´ Ð¿Ð¾ÐºÐ°Ð·Ð¾Ð¼ Ð½Ð¾Ð²Ð¾Ð¹ ÑÑ‚Ð°Ð½Ñ†Ð¸Ð¸
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                isFavorited = supabaseManager.favoriteIds.contains(station.id)
-                isLoadingFavorite = false
-                showingFullDetail = false
-                
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showingDetail = true
-                }
-            }
-        }
         .onChange(of: showingDetail) { _, isShowing in
             if !isShowing {
                 showingFullDetail = false
+                phase = .preview
+                contentOpacity = 1.0
             }
+        }
+        .onChange(of: station.id) { _, _ in
+            handleStationChange()
         }
         .onReceive(supabaseManager.$favoriteIds) { ids in
             isFavorited = ids.contains(station.id)
@@ -121,31 +93,65 @@ struct StationDetailCard: View {
     
     // MARK: - UI Components
     
+    private var dragHandle: some View {
+        VStack(spacing: 4) {
+            RoundedRectangle(cornerRadius: 2.5)
+                .fill(Color.secondary.opacity(0.3))
+                .frame(width: 40, height: 5)
+                .scaleEffect(dragOffset != 0 ? 1.2 : 1.0)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .gesture(dragGesture)
+        .onTapGesture {
+            if phase == .preview {
+                expandWithFade()
+            } else if phase == .expanded {
+                collapseWithFade()
+            }
+        }
+    }
+    
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: 20)
+            .fill(.regularMaterial)
+            .shadow(
+                color: Color.black.opacity(0.12),
+                radius: 15,
+                x: 0,
+                y: 8
+            )
+    }
+    
     @ViewBuilder
     private var headerSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
+                // Используем matchedGeometryEffect для плавного перехода
                 Text(station.name)
                     .font(fontManager.font(showingFullDetail ? .title2 : .headline, weight: .bold))
                     .foregroundColor(.primary)
-                    .animation(.none, value: showingFullDetail)
+                    .matchedGeometryEffect(id: "stationName", in: animationNamespace)
                 
                 if !showingFullDetail {
                     Text(station.address)
                         .font(fontManager.font(.subheadline, weight: .medium))
                         .foregroundColor(.secondary)
                         .lineLimit(2)
+                        .transition(.opacity)
                 } else {
                     Text(station.provider)
                         .font(fontManager.font(.subheadline))
                         .foregroundColor(.secondary)
+                        .transition(.opacity)
                 }
             }
             
             Spacer()
             
             Button(action: {
-                withAnimation(.easeOut(duration: 0.25)) {
+                withAnimation(.easeInOut(duration: 0.25)) {
                     showingDetail = false
                 }
             }) {
@@ -159,47 +165,60 @@ struct StationDetailCard: View {
     @ViewBuilder
     private var basicInfoSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Status Badge (only in full detail)
+            // Status Badge (только в полном режиме)
             if showingFullDetail {
-                HStack {
-                    Circle()
-                        .fill(station.availability.color)
-                        .frame(width: 12, height: 12)
-                    
-                    Text(station.availability.localizedString(using: languageManager))
-                        .font(fontManager.font(.subheadline, weight: .bold))
-                        .foregroundColor(station.availability.color)
-                    
-                    Spacer()
-                }
-                .transition(.opacity.combined(with: .move(edge: .top)))
+                statusBadge
+                    .transition(.scale.combined(with: .opacity))
             }
             
-            // Power and Price
+            // Power and Price - кэшируем с matchedGeometryEffect
             HStack(spacing: 16) {
                 DetailChip(icon: "bolt.fill", text: station.power, color: .green)
+                    .matchedGeometryEffect(id: "powerChip", in: animationNamespace)
                 Spacer()
                 PriceChip(text: station.price, languageManager: languageManager)
+                    .matchedGeometryEffect(id: "priceChip", in: animationNamespace)
             }
             
-            // Connector types
+            // Connector types (только в свернутом режиме)
             if !showingFullDetail {
-                // Compact horizontal scroll for preview
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 8) {
-                        ForEach(station.connectorTypes, id: \.self) { connector in
-                            connectorChip(connector)
-                        }
-                    }
-                    .padding(.horizontal, 1)
-                }
+                compactConnectorTypes
+                    .transition(.opacity)
             }
         }
     }
     
+    private var statusBadge: some View {
+        HStack {
+            Circle()
+                .fill(station.availability.color)
+                .frame(width: 12, height: 12)
+            
+            Text(station.availability.localizedString(using: languageManager))
+                .font(fontManager.font(.subheadline, weight: .bold))
+                .foregroundColor(station.availability.color)
+            
+            Spacer()
+        }
+    }
+    
+    // Кэшированный компонент для connector types
+    private var compactConnectorTypes: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 8) {
+                ForEach(station.connectorTypes, id: \.self) { connector in
+                    ConnectorChipView(connector: connector, fontManager: fontManager)
+                }
+            }
+            .padding(.horizontal, 1)
+        }
+        .id(station.id) // Принудительно пересоздаем при смене станции
+    }
+    
+    // Отдельная View для тяжелого контента
     @ViewBuilder
-    private var expandedContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    private var expandedContentView: some View {
+        LazyVStack(alignment: .leading, spacing: 12) {
             Divider()
             
             // Full address info
@@ -215,74 +234,36 @@ struct StationDetailCard: View {
                 value: station.operatingHours
             )
             
-            if let phone = station.phoneNumber {
-                InfoRow(
-                    icon: "phone",
-                    title: languageManager.localizedString("phone"),
-                    value: phone
-                )
-            }
+            // Phone info - show different content based on availability
+            InfoRow(
+                icon: "phone",
+                title: languageManager.localizedString("phone"),
+                value: station.hasPhoneNumber ? station.phoneNumber! : languageManager.localizedString("no_support_number")
+            )
             
             Divider()
             
-            // Connector types (grid layout for full view)
-            VStack(alignment: .leading, spacing: 8) {
-                Text(languageManager.localizedString("connector_types"))
-                    .font(fontManager.font(.headline, weight: .bold))
-                    .foregroundColor(.primary)
-                
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
-                    ForEach(station.connectorTypes, id: \.self) { connector in
-                        HStack(spacing: 8) {
-                            Image(connector.icon)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 14, height: 14)
-                                .foregroundColor(.blue)
-                            
-                            Text(connector.rawValue)
-                                .font(fontManager.font(.footnote, weight: .semibold))
-                                .foregroundColor(.primary)
-                            
-                            Spacer()
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color(.systemGray6))
-                        )
-                    }
-                }
-            }
+            // Connector types (grid layout)
+            ConnectorTypesGridView(
+                station: station,
+                languageManager: languageManager,
+                fontManager: fontManager
+            )
             
             // Amenities
             if !station.amenities.isEmpty {
                 Divider()
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(languageManager.localizedString("amenities"))
-                        .font(fontManager.font(.headline, weight: .bold))
-                        .foregroundColor(.primary)
-                    
-                    FlowLayout(alignment: .leading, spacing: 6) {
-                        ForEach(station.amenities, id: \.self) { amenity in
-                            Text(localizedAmenity(amenity))
-                                .font(fontManager.font(.caption, weight: .semibold))
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(
-                                    Capsule()
-                                        .fill(Color.blue.opacity(0.1))
-                                )
-                                .foregroundColor(.teal)
-                        }
-                    }
-                }
+                AmenitiesView(
+                    station: station,
+                    languageManager: languageManager,
+                    fontManager: fontManager
+                )
             }
             
             Divider()
         }
+        .transition(.opacity)
+        .id(station.id) // Принудительно пересоздаем при смене станции
     }
     
     @ViewBuilder
@@ -291,88 +272,119 @@ struct StationDetailCard: View {
             if showingFullDetail {
                 // Full detail buttons layout
                 HStack(spacing: 12) {
-                    // Call Button
-                    Button(action: callStation) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "phone.fill")
-                                .font(.system(size: 14, weight: .bold))
-                            Text(languageManager.localizedString("call"))
-                                .font(fontManager.font(.subheadline, weight: .bold))
-                        }
-                        .foregroundColor(.blue)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                    .disabled(station.phoneNumber == nil)
-                    
-                    // Favorite Button
-                    Button(action: {
-                        Task { await toggleFavorite() }
-                    }) {
-                        HStack(spacing: 6) {
-                            if isLoadingFavorite {
-                                ProgressView()
-                                    .scaleEffect(0.8)
-                                    .tint(isFavorited ? .white : .red)
-                            } else {
-                                Image(systemName: isFavorited ? "heart.fill" : "heart")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(isFavorited ? .white : .red)
-                            }
-                            Text(isFavorited ?
-                                languageManager.localizedString("saved") :
-                                languageManager.localizedString("save")
-                            )
-                                .font(fontManager.font(.subheadline, weight: .bold))
-                        }
-                        .foregroundColor(isFavorited ? .white : .red)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(isFavorited ? Color.red : Color.red.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                    .disabled(isLoadingFavorite)
+                    callButton
+                    favoriteButton
                 }
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
+                .transition(.opacity)
             }
             
-            // Navigate button (always visible)
-            Button(action: navigateToStation) {
-                HStack {
-                    Image(systemName: "location.fill")
-                    Text(languageManager.localizedString("navigate"))
-                }
-                .font(fontManager.font(.subheadline, weight: .bold))
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(Color.blue)
-                .cornerRadius(12)
+            // Navigate button (всегда видимый)
+            navigateButton
+        }
+    }
+    
+    private var callButton: some View {
+        Button(action: callStation) {
+            HStack(spacing: 6) {
+                Image(systemName: "phone.fill")
+                    .font(.system(size: 14, weight: .bold))
+                Text(languageManager.localizedString("call"))
+                    .font(fontManager.font(.subheadline, weight: .bold))
             }
+            .foregroundColor(station.hasPhoneNumber ? .blue : .gray)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(station.hasPhoneNumber ? Color.blue.opacity(0.1) : Color.gray.opacity(0.1))
+            .cornerRadius(12)
+        }
+        .disabled(!station.hasPhoneNumber)
+    }
+    
+    private var favoriteButton: some View {
+        Button(action: {
+            Task { await toggleFavorite() }
+        }) {
+            HStack(spacing: 6) {
+                if isLoadingFavorite {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                        .tint(isFavorited ? .white : .red)
+                } else {
+                    Image(systemName: isFavorited ? "heart.fill" : "heart")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(isFavorited ? .white : .red)
+                }
+                Text(isFavorited ?
+                    languageManager.localizedString("saved") :
+                    languageManager.localizedString("save")
+                )
+                    .font(fontManager.font(.subheadline, weight: .bold))
+            }
+            .foregroundColor(isFavorited ? .white : .red)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(isFavorited ? Color.red : Color.red.opacity(0.1))
+            .cornerRadius(12)
+        }
+        .disabled(isLoadingFavorite)
+    }
+    
+    private var navigateButton: some View {
+        Button(action: navigateToStation) {
+            HStack {
+                Image(systemName: "location.fill")
+                Text(languageManager.localizedString("navigate"))
+            }
+            .font(fontManager.font(.subheadline, weight: .bold))
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(Color.blue)
+            .cornerRadius(12)
         }
     }
     
     // MARK: - Helper Methods
     
-    @ViewBuilder
-    private func connectorChip(_ connector: ConnectorType) -> some View {
-        HStack(spacing: 4) {
-            Image(connector.icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 14, height: 14)
-                .foregroundColor(.blue)
-            Text(connector.rawValue)
-                .font(fontManager.font(.caption, weight: .bold))
+    private func expandWithFade() {
+        guard phase == .preview else { return }
+        phase = .fadingOut
+        withAnimation(.easeInOut(duration: 0.18)) { contentOpacity = 0 }
+
+        // после фейд-аута монтируем full и "грузим"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.20) {
+            showingFullDetail = true   // монтируем expandedContent
+            phase = .loading
+
+            // имитация «подгрузки» тяжёлого UI кадр спустя
+            DispatchQueue.main.async {
+                phase = .fadingIn
+                withAnimation(.easeInOut(duration: 0.22)) {
+                    contentOpacity = 1
+                }
+                // финальная стадия
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
+                    phase = .expanded
+                }
+            }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(
-            Capsule()
-                .fill(Color(.systemGray6))
-        )
+    }
+
+    private func collapseWithFade() {
+        guard phase == .expanded else { return }
+        phase = .fadingOut
+        withAnimation(.easeInOut(duration: 0.18)) { contentOpacity = 0 }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.20) {
+            showingFullDetail = false  // демонтируем тяжёлый контент пока невидимо
+            phase = .fadingIn
+            withAnimation(.easeInOut(duration: 0.22)) {
+                contentOpacity = 1
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
+                phase = .preview
+            }
+        }
     }
     
     private var dragGesture: some Gesture {
@@ -393,20 +405,35 @@ struct StationDetailCard: View {
                 let translation = value.translation.height
                 let velocity = value.predictedEndTranslation.height
                 
-                withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.8)) {
-                    if !showingFullDetail && (translation < -40 || velocity < -80) {
-                        showingFullDetail = true
-                    } else if showingFullDetail && (translation > 30 || velocity > 80) {
-                        showingFullDetail = false
+                if phase == .preview, (translation < -40 || velocity < -80) {
+                    expandWithFade()
+                } else if phase == .expanded, (translation > 30 || velocity > 80) {
+                    collapseWithFade()
+                } else {
+                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                        dragOffset = 0
                     }
-                    dragOffset = 0
                 }
             }
     }
     
-    private func localizedAmenity(_ amenity: String) -> String {
-        let amenityKey = amenity.lowercased().replacingOccurrences(of: " ", with: "_")
-        return languageManager.localizedString("amenity_\(amenityKey)")
+    private func handleStationChange() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            showingDetail = false
+        }
+        
+        // Небольшая задержка перед показом новой станции
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            isFavorited = supabaseManager.favoriteIds.contains(station.id)
+            isLoadingFavorite = false
+            showingFullDetail = false
+            phase = .preview
+            contentOpacity = 1.0
+            
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showingDetail = true
+            }
+        }
     }
     
     private func syncFavoriteStatus() async {
@@ -418,9 +445,30 @@ struct StationDetailCard: View {
     }
     
     private func callStation() {
-        guard let phone = station.phoneNumber,
-              let url = URL(string: "tel://\(phone)") else { return }
-        UIApplication.shared.open(url)
+        // Check if phone number is available
+        guard station.hasPhoneNumber, let phoneNumber = station.phoneNumber else {
+            print("No phone number available for this station")
+            return
+        }
+        
+        // Clean the phone number - remove spaces, dashes, parentheses
+        let cleanPhoneNumber = phoneNumber
+            .replacingOccurrences(of: " ", with: "")
+            .replacingOccurrences(of: "-", with: "")
+            .replacingOccurrences(of: "(", with: "")
+            .replacingOccurrences(of: ")", with: "")
+        
+        guard let url = URL(string: "tel://\(cleanPhoneNumber)") else {
+            print("Invalid phone number: \(phoneNumber)")
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url)
+        } else {
+            print("Cannot open phone URL: \(url)")
+            // Optional: Show an alert to user that calling is not available
+        }
     }
     
     private func navigateToStation() {
@@ -456,5 +504,104 @@ struct StationDetailCard: View {
         }
         
         isLoadingFavorite = false
+    }
+}
+
+// MARK: - Extracted Components
+
+// Отдельная View для connector chip для избежания пересоздания
+struct ConnectorChipView: View {
+    let connector: ConnectorType
+    let fontManager: FontManager
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(connector.icon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+                .foregroundColor(.blue)
+            Text(connector.rawValue)
+                .font(fontManager.font(.caption, weight: .bold))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            Capsule()
+                .fill(Color(.systemGray6))
+        )
+    }
+}
+
+// Отдельная View для grid connector types
+struct ConnectorTypesGridView: View {
+    let station: ChargingStation
+    let languageManager: LanguageManager
+    let fontManager: FontManager
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(languageManager.localizedString("connector_types"))
+                .font(fontManager.font(.headline, weight: .bold))
+                .foregroundColor(.primary)
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
+                ForEach(station.connectorTypes, id: \.self) { connector in
+                    HStack(spacing: 8) {
+                        Image(connector.icon)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                            .foregroundColor(.blue)
+                        
+                        Text(connector.rawValue)
+                            .font(fontManager.font(.footnote, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(.systemGray6))
+                    )
+                }
+            }
+        }
+    }
+}
+
+// Отдельная View для amenities
+struct AmenitiesView: View {
+    let station: ChargingStation
+    let languageManager: LanguageManager
+    let fontManager: FontManager
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(languageManager.localizedString("amenities"))
+                .font(fontManager.font(.headline, weight: .bold))
+                .foregroundColor(.primary)
+            
+            FlowLayout(alignment: .leading, spacing: 6) {
+                ForEach(station.amenities, id: \.self) { amenity in
+                    Text(localizedAmenity(amenity))
+                        .font(fontManager.font(.caption, weight: .semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule()
+                                .fill(Color.blue.opacity(0.1))
+                        )
+                        .foregroundColor(.teal)
+                }
+            }
+        }
+    }
+    
+    private func localizedAmenity(_ amenity: String) -> String {
+        let amenityKey = amenity.lowercased().replacingOccurrences(of: " ", with: "_")
+        return languageManager.localizedString("amenity_\(amenityKey)")
     }
 }
