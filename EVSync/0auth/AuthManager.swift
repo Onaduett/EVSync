@@ -477,6 +477,88 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             }
         }
     }
+
+    func deleteAccount() {
+        Task {
+            await MainActor.run {
+                self.isLoading = true
+                self.errorMessage = nil
+            }
+            
+            do {
+                guard let session = try? await supabase.auth.session else {
+                    await MainActor.run {
+                        self.errorMessage = "No active session found"
+                        self.isLoading = false
+                    }
+                    return
+                }
+                
+                // Простой HTTP запрос к Edge Function
+                guard let url = URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co/functions/v1/delete-user") else {
+                    await MainActor.run {
+                        self.errorMessage = "Invalid function URL"
+                        self.isLoading = false
+                    }
+                    return
+                }
+                
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.setValue("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA", forHTTPHeaderField: "apikey")
+                
+                // Пустой JSON body
+                request.httpBody = "{}".data(using: .utf8)
+                
+                let (data, response) = try await URLSession.shared.data(for: request)
+                
+                // Проверяем HTTP статус
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("HTTP Status: \(httpResponse.statusCode)")
+                    
+                    if httpResponse.statusCode == 200 {
+                        // Парсим ответ
+                        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                           let success = json["success"] as? Bool, success {
+                            
+                            // Успешное удаление
+                            await MainActor.run {
+                                self.isAuthenticated = false
+                                self.user = nil
+                                self.errorMessage = nil
+                                print("Account successfully deleted")
+                            }
+                            
+                            // Очищаем Google Sign-In
+                            GIDSignIn.sharedInstance.signOut()
+                            
+                        } else {
+                            let errorMsg = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String ?? "Unknown error"
+                            await MainActor.run {
+                                self.errorMessage = "Failed to delete account: \(errorMsg)"
+                            }
+                        }
+                    } else {
+                        await MainActor.run {
+                            self.errorMessage = "Server error: \(httpResponse.statusCode)"
+                        }
+                    }
+                }
+                
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "Network error: \(error.localizedDescription)"
+                    print("Delete account error: \(error)")
+                }
+            }
+            
+            await MainActor.run {
+                self.isLoading = false
+            }
+        }
+    }
 }
 
 // MARK: - Presentation Context Provider

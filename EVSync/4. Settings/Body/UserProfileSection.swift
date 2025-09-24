@@ -10,6 +10,7 @@ import SwiftUI
 struct UserProfileSection: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var languageManager: LanguageManager
+    @State private var showDeleteAlert = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -32,23 +33,53 @@ struct UserProfileSection: View {
                     .foregroundColor(.secondary)
             }
             
-            // Sign Out Button
-            Button(action: {
-                authManager.signOut()
-            }) {
-                HStack {
-                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                        .font(.system(size: 14, weight: .medium))
-                    Text(languageManager.localizedString("sign_out", comment: "Sign Out"))
-                        .customFont(.footnote, weight: .medium)
+            VStack(spacing: 12) {
+                // Sign Out Button
+                Button(action: {
+                    authManager.signOut()
+                }) {
+                    HStack {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .font(.system(size: 14, weight: .medium))
+                        Text(languageManager.localizedString("sign_out", comment: "Sign Out"))
+                            .customFont(.footnote, weight: .medium)
+                    }
+                    .foregroundColor(.primary)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.primary.opacity(0.3), lineWidth: 1)
+                    )
                 }
-                .foregroundColor(.primary)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.primary.opacity(0.3), lineWidth: 1)
-                )
+                
+                // Delete Account Button
+                Button(action: {
+                    showDeleteAlert = true
+                }) {
+                    HStack {
+                        Image(systemName: "trash")
+                            .font(.system(size: 14, weight: .medium))
+                        Text(languageManager.localizedString("delete_account", comment: "Delete Account"))
+                            .customFont(.footnote, weight: .medium)
+                    }
+                    .foregroundColor(.red)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                    )
+                }
+                .disabled(authManager.isLoading)
+            }
+            
+            if let errorMessage = authManager.errorMessage {
+                Text(errorMessage)
+                    .customFont(.caption)
+                    .foregroundColor(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
             }
         }
         .padding(.vertical, 24)
@@ -58,6 +89,19 @@ struct UserProfileSection: View {
                 .fill(Color.primary.opacity(0.05))
         )
         .padding(.horizontal, 20)
+        .alert("Delete Account", isPresented: $showDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                authManager.deleteAccount()
+            }
+        } message: {
+            Text("Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.")
+        }
     }
 }
 
+#Preview {
+    UserProfileSection()
+        .environmentObject(AuthenticationManager())
+        .environmentObject(LanguageManager())
+}
