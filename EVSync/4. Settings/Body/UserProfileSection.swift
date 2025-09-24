@@ -10,7 +10,7 @@ import SwiftUI
 struct UserProfileSection: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var languageManager: LanguageManager
-    @State private var showDeleteAlert = false
+    @State private var showingDeleteAccountAlert = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -33,7 +33,8 @@ struct UserProfileSection: View {
                     .foregroundColor(.secondary)
             }
             
-            VStack(spacing: 12) {
+            // Buttons in horizontal layout
+            HStack(spacing: 12) {
                 // Sign Out Button
                 Button(action: {
                     authManager.signOut()
@@ -55,7 +56,7 @@ struct UserProfileSection: View {
                 
                 // Delete Account Button
                 Button(action: {
-                    showDeleteAlert = true
+                    showingDeleteAccountAlert = true
                 }) {
                     HStack {
                         Image(systemName: "trash")
@@ -63,7 +64,7 @@ struct UserProfileSection: View {
                         Text(languageManager.localizedString("delete_account", comment: "Delete Account"))
                             .customFont(.footnote, weight: .medium)
                     }
-                    .foregroundColor(.red)
+                    .foregroundColor(.white)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
                     .background(
@@ -89,7 +90,7 @@ struct UserProfileSection: View {
                 .fill(Color.primary.opacity(0.05))
         )
         .padding(.horizontal, 20)
-        .alert("Delete Account", isPresented: $showDeleteAlert) {
+        .alert("Delete Account", isPresented: $showingDeleteAccountAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
                 authManager.deleteAccount()

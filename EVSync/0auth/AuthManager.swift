@@ -169,17 +169,20 @@ class AuthenticationManager: NSObject, ObservableObject {
                 self.user = user
                 self.isAuthenticated = true
                 
-                // Insert user profile into profiles table
                 let profile: [String: AnyJSON] = [
                     "id": AnyJSON.string(user.id.uuidString),
                     "email": AnyJSON.string(email),
                     "created_at": AnyJSON.string(ISO8601DateFormatter().string(from: Date()))
                 ]
                 
-                try await supabase
-                    .from("profiles")
-                    .insert(profile)
-                    .execute()
+                do {
+                    try await supabase
+                        .from("profiles")
+                        .upsert(profile)
+                        .execute()
+                } catch {
+                    print("Error creating/updating profile: \(error)")
+                }
                 
             } catch {
                 self.errorMessage = error.localizedDescription
@@ -216,14 +219,12 @@ class AuthenticationManager: NSObject, ObservableObject {
             do {
                 try await supabase.auth.signOut()
                 
-                // Also sign out from Google
                 GIDSignIn.sharedInstance.signOut()
                 
                 self.isAuthenticated = false
                 self.user = nil
                 self.errorMessage = nil
                 
-                // Clean up presentation context provider
                 self.presentationContextProvider = nil
             } catch {
                 self.errorMessage = error.localizedDescription
@@ -250,7 +251,6 @@ class AuthenticationManager: NSObject, ObservableObject {
             }
             
             do {
-                // Get the presenting view controller
                 guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                       let window = windowScene.windows.first,
                       let rootViewController = window.rootViewController else {
@@ -258,13 +258,11 @@ class AuthenticationManager: NSObject, ObservableObject {
                                 userInfo: [NSLocalizedDescriptionKey: "No presenting view controller found"])
                 }
                 
-                // Get the top-most view controller
                 var topViewController = rootViewController
                 while let presentedViewController = topViewController.presentedViewController {
                     topViewController = presentedViewController
                 }
                 
-                // Start Google Sign-In flow
                 let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
                 
                 guard let idToken = result.user.idToken?.tokenString else {
@@ -274,7 +272,6 @@ class AuthenticationManager: NSObject, ObservableObject {
                 
                 let accessToken = result.user.accessToken.tokenString
                 
-                // Sign in with Supabase using the Google tokens (no custom nonce needed)
                 let response = try await supabase.auth.signInWithIdToken(
                     credentials: .init(
                         provider: .google,
@@ -494,7 +491,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                     return
                 }
                 
-                // Простой HTTP запрос к Edge Function
                 guard let url = URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co/functions/v1/delete-user") else {
                     await MainActor.run {
                         self.errorMessage = "Invalid function URL"
@@ -514,16 +510,13 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                 
                 let (data, response) = try await URLSession.shared.data(for: request)
                 
-                // Проверяем HTTP статус
                 if let httpResponse = response as? HTTPURLResponse {
                     print("HTTP Status: \(httpResponse.statusCode)")
                     
                     if httpResponse.statusCode == 200 {
-                        // Парсим ответ
                         if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                            let success = json["success"] as? Bool, success {
                             
-                            // Успешное удаление
                             await MainActor.run {
                                 self.isAuthenticated = false
                                 self.user = nil
@@ -531,7 +524,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                                 print("Account successfully deleted")
                             }
                             
-                            // Очищаем Google Sign-In
                             GIDSignIn.sharedInstance.signOut()
                             
                         } else {

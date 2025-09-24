@@ -301,6 +301,7 @@
 "price_unit" = "₸/кВт·сағ";
 "power_unit" = "кВт";
 
+"delete_account" = "Аккаунт Жою";
 "see_you_again" = "Сау болыңыз!";
 "account_deleted_message" = "Сіздің аккаунтыңыз сәтті жойылды. Charge&Go қолданғаныңыз үшін рахмет!";
 "deleting" = "Жою...";
