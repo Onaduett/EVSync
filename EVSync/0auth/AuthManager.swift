@@ -489,7 +489,8 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             }
         }
     }
-
+    
+    
     func deleteAccount() {
         Task {
             await MainActor.run {
@@ -498,6 +499,7 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             }
             
             do {
+                // 1. СНАЧАЛА получаем активную сессию (до любых signOut!)
                 guard let session = try? await supabase.auth.session else {
                     await MainActor.run {
                         self.errorMessage = "No active session found"
@@ -506,64 +508,51 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                     return
                 }
                 
-                guard let url = URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co/functions/v1/delete-user") else {
+                print("Starting account deletion for user: \(session.user.id)")
+                
+                // 2. Удаляем профиль из БД (необязательно, но можно)
+                do {
+                    try await supabase
+                        .from("profiles")
+                        .delete()
+                        .eq("id", value: session.user.id.uuidString)
+                        .execute()
+                    print("Profile deleted from database")
+                } catch {
+                    print("Error deleting profile (continuing anyway): \(error)")
+                    // Продолжаем даже если профиль не удалился
+                }
+                
+                // 3. ГЛАВНОЕ: вызываем Edge-функцию с ВАЛИДНЫМ токеном
+                let deleteSuccess = await deleteUserFromSupabaseAuth(session: session)
+                
+                if !deleteSuccess {
+                    // Если удаление не удалось - НЕ чистим UI!
                     await MainActor.run {
-                        self.errorMessage = "Invalid function URL"
+                        self.errorMessage = "Failed to delete account from server"
                         self.isLoading = false
                     }
                     return
                 }
                 
-                var request = URLRequest(url: url)
-                request.httpMethod = "POST"
-                request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
-                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                request.setValue("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA", forHTTPHeaderField: "apikey")
+                // 4. ТОЛЬКО после успешного удаления - чистим всё локально
+                try await supabase.auth.signOut()
+                GIDSignIn.sharedInstance.signOut()
                 
-                request.httpBody = "{}".data(using: .utf8)
-                
-                let (data, response) = try await URLSession.shared.data(for: request)
-                
-                if let httpResponse = response as? HTTPURLResponse {
-                    print("HTTP Status: \(httpResponse.statusCode)")
-                    
-                    if httpResponse.statusCode == 200 {
-                        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                           let success = json["success"] as? Bool, success {
-                            
-                            // ВАЖНО: Сначала выйти из Supabase сессии
-                            try await supabase.auth.signOut()
-                            
-                            // Выйти из Google Sign-In
-                            GIDSignIn.sharedInstance.signOut()
-                            
-                            // Очистить локальное состояние
-                            await MainActor.run {
-                                self.isAuthenticated = false
-                                self.user = nil
-                                self.errorMessage = nil
-                                self.showSeeYouAgain = true
-                                self.presentationContextProvider = nil
-                                print("Account successfully deleted")
-                            }
-                            
-                        } else {
-                            let errorMsg = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String ?? "Unknown error"
-                            await MainActor.run {
-                                self.errorMessage = "Failed to delete account: \(errorMsg)"
-                            }
-                        }
-                    } else {
-                        await MainActor.run {
-                            self.errorMessage = "Server error: \(httpResponse.statusCode)"
-                        }
-                    }
+                // 5. Обновляем UI только после успешного удаления
+                await MainActor.run {
+                    self.isAuthenticated = false
+                    self.user = nil
+                    self.errorMessage = nil
+                    self.showSeeYouAgain = true
+                    self.presentationContextProvider = nil
+                    print("Account successfully deleted")
                 }
                 
             } catch {
                 await MainActor.run {
-                    self.errorMessage = "Network error: \(error.localizedDescription)"
-                    print("Delete account error: \(error)")
+                    self.errorMessage = "Could not delete account: \(error.localizedDescription)"
+                    print("Account deletion failed: \(error.localizedDescription)")
                 }
             }
             
@@ -573,8 +562,58 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
         }
     }
     
+    // Исправленная версия функции для вызова Edge-функции
+    private func deleteUserFromSupabaseAuth(session: Session) async -> Bool {
+        do {
+            guard let url = URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co/functions/v1/delete-user") else {
+                print("Invalid function URL")
+                return false
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            // ВАЖНО: используем session.accessToken, не user.accessToken!
+            request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA", forHTTPHeaderField: "apikey")
+            
+            let requestBody: [String: Any] = [
+                "user_id": session.user.id.uuidString
+            ]
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+            
+            print("Calling delete-user function for user: \(session.user.id)")
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Delete user HTTP Status: \(httpResponse.statusCode)")
+                
+                if httpResponse.statusCode == 200 {
+                    if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                       let success = json["success"] as? Bool, success {
+                        print("User successfully deleted from Supabase Auth")
+                        return true
+                    } else {
+                        let errorMsg = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String ?? "Unknown error"
+                        print("Failed to delete user: \(errorMsg)")
+                        return false
+                    }
+                } else {
+                    let responseString = String(data: data, encoding: .utf8) ?? "No response data"
+                    print("Server error \(httpResponse.statusCode): \(responseString)")
+                    return false
+                }
+            }
+            
+            return false
+            
+        } catch {
+            print("Error calling delete user function: \(error)")
+            return false
+        }
+    }
 }
-
 // MARK: - Presentation Context Provider
 
 class ApplePresentationContextProvider: NSObject, ASAuthorizationControllerPresentationContextProviding {
