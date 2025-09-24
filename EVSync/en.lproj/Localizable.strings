@@ -307,5 +307,20 @@
 
 "delete_account" = "Delete Account";
 "see_you_again" = "See You Again!";
-"account_deleted_message" = "Your account has been successfully deleted. Thank you for using Charge&Go!";
+"account_deleted_message" = "Your account has been successfully deleted. Thank you for using ";
 "deleting" = "Deleting...";
+
+"see_you_again_then" = "Then.. See You Again?";
+
+"delete_account_subtitle" = "Everyone deserves a second chance.";
+"delete_account_description" = "Once you delete your account, you will lose access to all data and features of the app.";
+"what_will_be_deleted" = "What you will lose:";
+
+// Loss items
+"lose_favorite_stations" = "Your favorites - Was always with you.";
+"lose_charging_map" = "One single map for all Stations.";
+"lose_settings" = "Your settings and personalization (theme, language, notifications, etc.).";
+
+// Final warning
+"delete_account_warning" = "After confirmation, we will completely delete your account and all related data from the system. Nothing will be kept, and it will not be possible to recover any information.";
+

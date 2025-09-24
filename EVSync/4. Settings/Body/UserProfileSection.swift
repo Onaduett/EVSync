@@ -10,7 +10,6 @@ import SwiftUI
 struct UserProfileSection: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var languageManager: LanguageManager
-    @State private var showingDeleteAccountAlert = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -33,47 +32,24 @@ struct UserProfileSection: View {
                     .foregroundColor(.secondary)
             }
             
-            // Buttons in horizontal layout
-            HStack(spacing: 12) {
-                // Sign Out Button
-                Button(action: {
-                    authManager.signOut()
-                }) {
-                    HStack {
-                        Image(systemName: "rectangle.portrait.and.arrow.right")
-                            .font(.system(size: 14, weight: .medium))
-                        Text(languageManager.localizedString("sign_out", comment: "Sign Out"))
-                            .customFont(.footnote, weight: .medium)
-                    }
-                    .foregroundColor(.primary)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.primary.opacity(0.3), lineWidth: 1)
-                    )
+            Button(action: {
+                authManager.signOut()
+            }) {
+                HStack {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.system(size: 14, weight: .medium))
+                    Text(languageManager.localizedString("sign_out", comment: "Sign Out"))
+                        .customFont(.footnote, weight: .medium)
                 }
-                
-                // Delete Account Button
-                Button(action: {
-                    showingDeleteAccountAlert = true
-                }) {
-                    HStack {
-                        Image(systemName: "trash")
-                            .font(.system(size: 14, weight: .medium))
-                        Text(languageManager.localizedString("delete_account", comment: "Delete Account"))
-                            .customFont(.footnote, weight: .medium)
-                    }
-                    .foregroundColor(.primary)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.red.opacity(0.3), lineWidth: 1)
-                    )
-                }
-                .disabled(authManager.isLoading)
+                .foregroundColor(.primary)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.primary.opacity(0.3), lineWidth: 1)
+                )
             }
+            .disabled(authManager.isLoading)
             
             if let errorMessage = authManager.errorMessage {
                 Text(errorMessage)
@@ -90,14 +66,6 @@ struct UserProfileSection: View {
                 .fill(Color.primary.opacity(0.05))
         )
         .padding(.horizontal, 20)
-        .alert("Delete Account", isPresented: $showingDeleteAccountAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
-                authManager.deleteAccount()
-            }
-        } message: {
-            Text("Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.")
-        }
     }
 }
 

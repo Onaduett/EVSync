@@ -94,7 +94,7 @@ struct CustomGlassTabBar: View {
         [
             (icon: "map", title: languageManager.localizedString("maps_tool"), tag: 0),
             (icon: "ev.charger", title: languageManager.localizedString("favourite_tool"), tag: 1),
-            (icon: "car.side", title: languageManager.localizedString("my_car_tool"), tag: 2),
+            (icon: "suv.side.roof.cargo.carrier", title: languageManager.localizedString("my_car_tool"), tag: 2),
             (icon: "person.crop.circle", title: languageManager.localizedString("account"), tag: 3)
         ]
     }

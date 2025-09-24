@@ -31,15 +31,12 @@ class AuthenticationManager: NSObject, ObservableObject {
     
     override init() {
         super.init()
-        // Configure Google Sign-In
         configureGoogleSignIn()
     }
     
     private func configureGoogleSignIn() {
-        // Try to get client ID from the plist file first
         var clientId: String?
         
-        // Try different possible file names for your Google config file
         let possibleFileNames = [
             "client_678345122697-4b7g72q8lok56lnm65spt1rqih51g0j5.apps.googleusercontent.com",
             "GoogleService-Info",
@@ -56,7 +53,6 @@ class AuthenticationManager: NSObject, ObservableObject {
             }
         }
         
-        // Fallback to hardcoded client ID if file not found
         if clientId == nil {
             clientId = "678345122697-4b7g72q8lok56lnm65spt1rqih51g0j5.apps.googleusercontent.com"
             print("Using hardcoded Google Client ID")
@@ -314,7 +310,6 @@ class AuthenticationManager: NSObject, ObservableObject {
                         .execute()
                 } catch {
                     print("Error creating/updating profile: \(error)")
-                    // Don't fail the authentication if profile creation fails
                 }
                 
             } catch {
@@ -397,7 +392,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                     return
                 }
                 
-                // Sign in with Supabase using the Apple ID token
                 let response = try await supabase.auth.signInWithIdToken(
                     credentials: .init(
                         provider: .apple,
@@ -411,7 +405,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                     self.isAuthenticated = true
                 }
                 
-                // Create or update user profile in profiles table
                 let user = response.user
                 var fullName = ""
                 if let givenName = appleIDCredential.fullName?.givenName,
@@ -434,7 +427,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                         .execute()
                 } catch {
                     print("Error creating/updating profile: \(error)")
-                    // Don't fail the authentication if profile creation fails
                 }
                 
             } catch {
@@ -447,7 +439,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             await MainActor.run {
                 self.isLoading = false
                 self.currentNonce = nil
-                // Clean up presentation context provider after completion
                 self.presentationContextProvider = nil
             }
         }
@@ -458,13 +449,11 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             await MainActor.run {
                 self.isLoading = false
                 self.currentNonce = nil
-                // Clean up presentation context provider after error
                 self.presentationContextProvider = nil
                 
                 if let authError = error as? ASAuthorizationError {
                     switch authError.code {
                     case .canceled:
-                        // User canceled, don't show error
                         return
                     case .unknown:
                         self.errorMessage = "Unknown Apple Sign-In error occurred"
@@ -499,7 +488,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             }
             
             do {
-                // 1. СНАЧАЛА получаем активную сессию (до любых signOut!)
                 guard let session = try? await supabase.auth.session else {
                     await MainActor.run {
                         self.errorMessage = "No active session found"
@@ -510,7 +498,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                 
                 print("Starting account deletion for user: \(session.user.id)")
                 
-                // 2. Удаляем профиль из БД (необязательно, но можно)
                 do {
                     try await supabase
                         .from("profiles")
@@ -520,14 +507,11 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                     print("Profile deleted from database")
                 } catch {
                     print("Error deleting profile (continuing anyway): \(error)")
-                    // Продолжаем даже если профиль не удалился
                 }
                 
-                // 3. ГЛАВНОЕ: вызываем Edge-функцию с ВАЛИДНЫМ токеном
                 let deleteSuccess = await deleteUserFromSupabaseAuth(session: session)
                 
                 if !deleteSuccess {
-                    // Если удаление не удалось - НЕ чистим UI!
                     await MainActor.run {
                         self.errorMessage = "Failed to delete account from server"
                         self.isLoading = false
@@ -535,11 +519,9 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                     return
                 }
                 
-                // 4. ТОЛЬКО после успешного удаления - чистим всё локально
                 try await supabase.auth.signOut()
                 GIDSignIn.sharedInstance.signOut()
                 
-                // 5. Обновляем UI только после успешного удаления
                 await MainActor.run {
                     self.isAuthenticated = false
                     self.user = nil
@@ -562,7 +544,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
         }
     }
     
-    // Исправленная версия функции для вызова Edge-функции
     private func deleteUserFromSupabaseAuth(session: Session) async -> Bool {
         do {
             guard let url = URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co/functions/v1/delete-user") else {
@@ -572,7 +553,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            // ВАЖНО: используем session.accessToken, не user.accessToken!
             request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA", forHTTPHeaderField: "apikey")

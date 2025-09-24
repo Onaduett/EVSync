@@ -16,6 +16,7 @@ struct SeeYouAgainView: View {
     
     @State private var animateElements = false
     @State private var showText = false
+    @State private var waveAnimation = false
     
     var body: some View {
         ZStack {
@@ -36,9 +37,15 @@ struct SeeYouAgainView: View {
                     
                     Image(systemName: "hand.wave.fill")
                         .font(.system(size: 50))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.teal)
                         .scaleEffect(animateElements ? 1.0 : 0.8)
                         .opacity(animateElements ? 1.0 : 0.0)
+                        .rotationEffect(.degrees(waveAnimation ? 25 : -10))
+                        .animation(
+                            .easeInOut(duration: 0.5)
+                                .repeatForever(autoreverses: true),
+                            value: waveAnimation
+                        )
                 }
                 
                 // Text Content
@@ -50,13 +57,23 @@ struct SeeYouAgainView: View {
                         .opacity(showText ? 1.0 : 0.0)
                         .offset(y: showText ? 0 : 20)
                     
-                    Text(languageManager.localizedString("account_deleted_message", comment: "Your account has been successfully deleted. Thank you for using EVSync!"))
-                        .customFont(.body)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                        .opacity(showText ? 1.0 : 0.0)
-                        .offset(y: showText ? 0 : 20)
+                    HStack {
+                        Text(languageManager.localizedString("account_deleted_message", comment: "Your account has been successfully deleted. Thank you for using "))
+                            .customFont(.body)
+                            .foregroundColor(.secondary)
+                        +
+                        Text("Charge&Go")
+                            .font(.custom("Lexend", size: 17))
+                            .foregroundColor(.secondary)
+                        +
+                        Text("!")
+                            .customFont(.body)
+                            .foregroundColor(.secondary)
+                    }
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+                    .opacity(showText ? 1.0 : 0.0)
+                    .offset(y: showText ? 0 : 20)
                 }
                 
                 Spacer()
@@ -89,6 +106,11 @@ struct SeeYouAgainView: View {
         // Initial icon animation
         withAnimation(.spring(response: 0.8, dampingFraction: 0.6, blendDuration: 0)) {
             animateElements = true
+        }
+        
+        // Start waving animation after icon appears
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            waveAnimation = true
         }
         
         // Text animation after icon

@@ -36,6 +36,8 @@ struct SettingsView: View {
                                 PrivacyLegalSettingsSection(showingPrivacyLegal: $showingPrivacyLegal)
                                 
                                 AboutSettingsSection()
+                                
+                                DeleteAccountSection()
                             }
                             
                             SettingsFooter()
