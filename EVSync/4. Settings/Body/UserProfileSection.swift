@@ -64,7 +64,7 @@ struct UserProfileSection: View {
                         Text(languageManager.localizedString("delete_account", comment: "Delete Account"))
                             .customFont(.footnote, weight: .medium)
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
                     .background(

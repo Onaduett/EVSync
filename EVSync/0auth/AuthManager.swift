@@ -19,11 +19,10 @@ class AuthenticationManager: NSObject, ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var user: User?
+    @Published var showSeeYouAgain = false // Новое состояние для экрана прощания
     
-    // Apple Sign In properties
     private var currentNonce: String?
     
-    // Store presentation context provider to prevent deallocation
     private var presentationContextProvider: ApplePresentationContextProvider?
     
     private let supabase = SupabaseClient(
@@ -342,6 +341,12 @@ class AuthenticationManager: NSObject, ObservableObject {
         errorMessage = nil
         authorizationController.performRequests()
     }
+    
+    // Новый метод для завершения процесса удаления аккаунта
+    func completeSeeYouAgain() {
+        showSeeYouAgain = false
+        // Здесь можно добавить дополнительную очистку если необходимо
+    }
 }
 
 // MARK: - ASAuthorizationControllerDelegate
@@ -518,6 +523,8 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                            let success = json["success"] as? Bool, success {
                             
                             await MainActor.run {
+                                // Показываем экран прощания вместо мгновенного выхода
+                                self.showSeeYouAgain = true
                                 self.isAuthenticated = false
                                 self.user = nil
                                 self.errorMessage = nil

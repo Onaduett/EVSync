@@ -28,6 +28,11 @@ struct MainContentView: View {
             } else if showNoInternet {
                 NoInternetView(onRefresh: handleRefresh)
                     .transition(.opacity.animation(.easeInOut(duration: 0.6)))
+            } else if authManager.showSeeYouAgain {
+                SeeYouAgainView {
+                    authManager.completeSeeYouAgain()
+                }
+                .transition(.opacity.animation(.easeInOut(duration: 0.6)))
             } else {
                 Group {
                     if authManager.isAuthenticated {
