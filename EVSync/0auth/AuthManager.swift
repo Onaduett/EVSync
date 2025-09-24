@@ -19,8 +19,7 @@ class AuthenticationManager: NSObject, ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var user: User?
-    @Published var showSeeYouAgain = false // Новое состояние для экрана прощания
-    
+    @Published var showSeeYouAgain = false
     private var currentNonce: String?
     
     private var presentationContextProvider: ApplePresentationContextProvider?
@@ -127,10 +126,23 @@ class AuthenticationManager: NSObject, ObservableObject {
     func checkAuthStatusAsync() async {
         do {
             let session = try await supabase.auth.session
-            await MainActor.run {
-                self.isAuthenticated = true
-                self.user = session.user
+            
+
+            do {
+                _ = try await supabase.auth.user()
+                await MainActor.run {
+                    self.isAuthenticated = true
+                    self.user = session.user
+                }
+            } catch {
+                print("Token validation failed: \(error)")
+                try? await supabase.auth.signOut()
+                await MainActor.run {
+                    self.isAuthenticated = false
+                    self.user = nil
+                }
             }
+            
         } catch {
             await MainActor.run {
                 self.isAuthenticated = false
@@ -342,10 +354,8 @@ class AuthenticationManager: NSObject, ObservableObject {
         authorizationController.performRequests()
     }
     
-    // Новый метод для завершения процесса удаления аккаунта
     func completeSeeYouAgain() {
         showSeeYouAgain = false
-        // Здесь можно добавить дополнительную очистку если необходимо
     }
 }
 
@@ -510,7 +520,6 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.setValue("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA", forHTTPHeaderField: "apikey")
                 
-                // Пустой JSON body
                 request.httpBody = "{}".data(using: .utf8)
                 
                 let (data, response) = try await URLSession.shared.data(for: request)
@@ -522,16 +531,21 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                         if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                            let success = json["success"] as? Bool, success {
                             
+                            // ВАЖНО: Сначала выйти из Supabase сессии
+                            try await supabase.auth.signOut()
+                            
+                            // Выйти из Google Sign-In
+                            GIDSignIn.sharedInstance.signOut()
+                            
+                            // Очистить локальное состояние
                             await MainActor.run {
-                                // Показываем экран прощания вместо мгновенного выхода
-                                self.showSeeYouAgain = true
                                 self.isAuthenticated = false
                                 self.user = nil
                                 self.errorMessage = nil
+                                self.showSeeYouAgain = true
+                                self.presentationContextProvider = nil
                                 print("Account successfully deleted")
                             }
-                            
-                            GIDSignIn.sharedInstance.signOut()
                             
                         } else {
                             let errorMsg = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String ?? "Unknown error"
@@ -558,6 +572,7 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             }
         }
     }
+    
 }
 
 // MARK: - Presentation Context Provider

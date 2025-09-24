@@ -19,6 +19,7 @@ struct WelcomeView: View {
     @State private var authState: AuthState = .enterEmail
     @State private var isCheckingUser = false
     @State private var showLanguageSelector = false
+    @State private var showThemeSelector = false
     @State private var showingPrivacyLegal = false
     
     enum AuthState {
@@ -298,6 +299,19 @@ struct WelcomeView: View {
                         // Bottom navigation (only show in enterEmail state)
                         if authState == .enterEmail {
                             HStack {
+                                // Theme selector button
+                                Button(action: {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        showThemeSelector.toggle()
+                                    }
+                                }) {
+                                    Image(systemName: "paintbrush.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
                                 // Privacy Policy link
                                 Button(action: {
                                     showingPrivacyLegal = true
@@ -341,6 +355,7 @@ struct WelcomeView: View {
                     }
                     .allowsHitTesting(showLanguageSelector)
                 
+                // Language Selector Content
                 VStack {
                     Spacer()
                     
@@ -382,6 +397,73 @@ struct WelcomeView: View {
                     
                     Spacer()
                 }
+                
+                // Theme Selector Overlay
+                Color.black.opacity(showThemeSelector ? 0.3 : 0.0)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showThemeSelector = false
+                        }
+                    }
+                    .allowsHitTesting(showThemeSelector)
+                
+                // Theme Selector Content
+                VStack {
+                    Spacer()
+                    
+                    VStack(spacing: 20) {
+                        Text("Select Theme")
+                            .font(fontManager.font(.headline, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        VStack(spacing: 12) {
+                            ForEach(ThemeManager.AppTheme.allCases, id: \.rawValue) { theme in
+                                Button(action: {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        themeManager.currentTheme = theme
+                                        showThemeSelector = false
+                                    }
+                                }) {
+                                    HStack {
+                                        Text(getThemeName(for: theme))
+                                            .font(fontManager.font(.callout, weight: .medium))
+                                            .foregroundColor(.primary)
+                                        
+                                        Spacer()
+                                        
+                                        if themeManager.currentTheme == theme {
+                                            Image(systemName: "checkmark")
+                                                .font(.system(size: 16, weight: .medium))
+                                                .foregroundColor(.blue)
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(themeManager.currentTheme == theme ? Color.blue.opacity(0.1) : Color.clear)
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    .padding(24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(UIColor.systemBackground))
+                    )
+                    .padding(.horizontal, 40)
+                    .opacity(showThemeSelector ? 1.0 : 0.0)
+                    .scaleEffect(showThemeSelector ? 1.0 : 0.95)
+                    
+                    Spacer()
+                }
             }
         }
         .preferredColorScheme(themeManager.currentTheme.colorScheme)
@@ -390,6 +472,7 @@ struct WelcomeView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: authState)
         .animation(.easeInOut(duration: 0.3), value: showLanguageSelector)
+        .animation(.easeInOut(duration: 0.3), value: showThemeSelector)
         .sheet(isPresented: $showingPrivacyLegal) {
             PrivacyLegalView()
                 .environmentObject(languageManager)
@@ -448,6 +531,17 @@ struct WelcomeView: View {
             return languageManager.localizedString("sign_in_button")
         case .signUp:
             return languageManager.localizedString("create_account_button")
+        }
+    }
+    
+    private func getThemeName(for theme: ThemeManager.AppTheme) -> String {
+        switch theme {
+        case .light:
+            return languageManager.localizedString("light")
+        case .dark:
+            return languageManager.localizedString("dark")
+        case .auto:
+            return languageManager.localizedString("system")
         }
     }
     
