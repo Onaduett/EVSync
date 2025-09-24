@@ -2,14 +2,14 @@
 //  FavoriteStationsView.swift
 //  EVSync
 //
-//  Created by Daulet Yerkinov on 28.08.25.
+//  Updated for API integration - Fixed version
 //
 
 import SwiftUI
 import CoreLocation
 
 struct FavoriteStationsView: View {
-    @StateObject private var supabaseManager = SupabaseManager.shared
+    @ObservedObject private var apiManager = APIManager.shared
     @EnvironmentObject var languageManager: LanguageManager
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var fontManager: FontManager
@@ -19,6 +19,9 @@ struct FavoriteStationsView: View {
     @State private var showingError = false
     @State private var hasAppeared = false
     @State private var contentOpacity: Double = 0.0
+    
+    // Mock user ID - in real app, get from auth manager
+    private let currentUserId = UUID()
 
     @Binding var selectedTab: Int
     @Binding var selectedStationFromFavorites: ChargingStation?
@@ -42,9 +45,9 @@ struct FavoriteStationsView: View {
                             LazyVStack(spacing: 12) {
                                 ForEach(favoriteStations.indices, id: \.self) { index in
                                     let favorite = favoriteStations[index]
-                                    if let dbStation = favorite.station {
+                                    if let station = favorite.station {
                                         FavoriteStationCard(
-                                            station: dbStation.toChargingStation(),
+                                            station: station,
                                             favorite: favorite,
                                             onRemove: { favoriteId in
                                                 await removeFavorite(favoriteId)
@@ -126,22 +129,28 @@ struct FavoriteStationsView: View {
     }
     
     private func loadFavoriteStations() async {
-        isLoading = true
-        do {
-            favoriteStations = try await supabaseManager.getFavoriteStations()
-        } catch {
-            errorMessage = error.localizedDescription
-            showingError = true
+        await MainActor.run {
+            isLoading = true
         }
         
-        await MainActor.run {
-            isLoading = false
+        do {
+            let stations = try await apiManager.getFavoriteStations(for: currentUserId)
+            await MainActor.run {
+                favoriteStations = stations
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                showingError = true
+                isLoading = false
+            }
         }
     }
     
     private func removeFavorite(_ favoriteId: UUID) async {
         do {
-            try await supabaseManager.removeFromFavorites(favoriteId: favoriteId)
+            try await apiManager.removeFromFavorites(favoriteId: favoriteId)
             await loadFavoriteStations()
         } catch {
             await MainActor.run {
@@ -169,7 +178,6 @@ struct LoadingView: View {
     }
 }
 
-// MARK: - Preview
 struct FavoriteStationsView_Previews: PreviewProvider {
     static var previews: some View {
         FavoriteStationsView(

@@ -12,6 +12,7 @@ enum StationAvailability: String, CaseIterable {
     case occupied = "Occupied"
     case outOfService = "Out of Service"
     case maintenance = "Maintenance"
+    case unknown = "Unknown"
     
     var color: Color {
         switch self {
@@ -19,6 +20,7 @@ enum StationAvailability: String, CaseIterable {
         case .occupied: return .orange
         case .outOfService: return .red
         case .maintenance: return .yellow
+        case .unknown: return .gray
         }
     }
     
@@ -32,6 +34,8 @@ enum StationAvailability: String, CaseIterable {
             return languageManager.localizedString("status_out_of_service")
         case .maintenance:
             return languageManager.localizedString("status_maintenance")
+        case .unknown:
+            return languageManager.localizedString("status_unknown")
         }
     }
 }

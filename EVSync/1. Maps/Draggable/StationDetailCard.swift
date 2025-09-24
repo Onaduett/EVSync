@@ -2,7 +2,7 @@
 //  StationDetailCard.swift
 //  EVSync
 //
-//  Created by Daulet Yerkinov on 28.08.25.
+//  Updated for API integration
 //
 
 import SwiftUI
@@ -14,7 +14,9 @@ struct StationDetailCard: View {
     @State private var isFavorited = false
     @State private var isLoadingFavorite = false
     @State private var dragOffset: CGFloat = 0
-    @StateObject private var supabaseManager = SupabaseManager.shared
+    
+    // Fixed: Use @ObservedObject instead of @StateObject for singleton
+    @ObservedObject private var apiManager = APIManager.shared
     @StateObject private var languageManager = LanguageManager()
     private let fontManager = FontManager.shared
     
@@ -86,7 +88,7 @@ struct StationDetailCard: View {
         .onChange(of: station.id) { _, _ in
             handleStationChange()
         }
-        .onReceive(supabaseManager.$favoriteIds) { ids in
+        .onReceive(apiManager.$favoriteIds) { ids in
             isFavorited = ids.contains(station.id)
         }
     }
@@ -424,7 +426,7 @@ struct StationDetailCard: View {
         
         // Небольшая задержка перед показом новой станции
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            isFavorited = supabaseManager.favoriteIds.contains(station.id)
+            isFavorited = apiManager.favoriteIds.contains(station.id)
             isLoadingFavorite = false
             showingFullDetail = false
             phase = .preview
@@ -437,10 +439,10 @@ struct StationDetailCard: View {
     }
     
     private func syncFavoriteStatus() async {
-        isFavorited = supabaseManager.favoriteIds.contains(station.id)
-        if supabaseManager.favoriteIds.isEmpty {
-            await supabaseManager.syncFavorites()
-            isFavorited = supabaseManager.favoriteIds.contains(station.id)
+        isFavorited = apiManager.favoriteIds.contains(station.id)
+        if apiManager.favoriteIds.isEmpty {
+            await apiManager.syncFavorites()
+            isFavorited = apiManager.favoriteIds.contains(station.id)
         }
     }
     
@@ -467,7 +469,6 @@ struct StationDetailCard: View {
             UIApplication.shared.open(url)
         } else {
             print("Cannot open phone URL: \(url)")
-            // Optional: Show an alert to user that calling is not available
         }
     }
     
@@ -492,15 +493,15 @@ struct StationDetailCard: View {
         
         do {
             if isFavorited {
-                try await supabaseManager.removeFavorite(stationId: id)
+                try await apiManager.removeFavorite(stationId: id)
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
             } else {
-                try await supabaseManager.addFavorite(stationId: id)
+                try await apiManager.addFavorite(stationId: id)
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             }
         } catch {
             print("Favorite toggle error: \(error)")
-            isFavorited = supabaseManager.favoriteIds.contains(id)
+            isFavorited = apiManager.favoriteIds.contains(id)
         }
         
         isLoadingFavorite = false
@@ -516,7 +517,7 @@ struct ConnectorChipView: View {
     
     var body: some View {
         HStack(spacing: 4) {
-            Image(connector.icon)
+            Image(systemName: connector.icon)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 14, height: 14)
@@ -548,7 +549,7 @@ struct ConnectorTypesGridView: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
                 ForEach(station.connectorTypes, id: \.self) { connector in
                     HStack(spacing: 8) {
-                        Image(connector.icon)
+                        Image(systemName: connector.icon)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 14, height: 14)

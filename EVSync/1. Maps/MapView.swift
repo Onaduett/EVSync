@@ -2,18 +2,17 @@
 //  MapView.swift
 //  EVSync
 //
-//  Created by Daulet Yerkinov on 27.08.25.
+//  Updated for API integration
 //
 
 import SwiftUI
 import MapKit
-import Supabase
 
 struct MapView: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject private var viewModel = MapViewModel()
     @StateObject private var locationManager = LocationManager()
-    @StateObject private var supabaseManager = SupabaseManager.shared
+    @StateObject private var apiManager = APIManager.shared
     @Binding var selectedStationFromFavorites: ChargingStation?
     @State private var showingLocationAlert = false
     @State private var locationAlertType: LocationManager.LocationAlertType = .disabled
@@ -28,7 +27,7 @@ struct MapView: View {
                             ChargingStationAnnotation(
                                 station: station,
                                 isSelected: viewModel.selectedStation?.id == station.id,
-                                isFavorite: supabaseManager.favoriteIds.contains(station.id)
+                                isFavorite: apiManager.favoriteIds.contains(station.id)
                             )
                             .onTapGesture {
                                 viewModel.selectStation(station)
@@ -132,7 +131,7 @@ struct MapView: View {
         .onAppear {
             startMapInitialization()
             Task {
-                await supabaseManager.syncFavorites()
+                await apiManager.syncFavorites()
             }
         }
         .onChange(of: viewModel.selectedConnectorTypes) {
@@ -226,4 +225,3 @@ struct MapView: View {
         }
     }
 }
-
