@@ -18,6 +18,16 @@ struct StationDetailCard: View {
     @StateObject private var languageManager = LanguageManager()
     private let fontManager = FontManager.shared
     
+    // Добавляем callback для очистки выбранной станции
+    let onClose: (() -> Void)?
+    
+    // Инициализатор с опциональным callback
+    init(station: ChargingStation, showingDetail: Binding<Bool>, onClose: (() -> Void)? = nil) {
+        self.station = station
+        self._showingDetail = showingDetail
+        self.onClose = onClose
+    }
+    
     // Namespace для matched geometry
     @Namespace private var animationNamespace
     
@@ -81,6 +91,8 @@ struct StationDetailCard: View {
                 showingFullDetail = false
                 phase = .preview
                 contentOpacity = 1.0
+                
+                onClose?()
             }
         }
         .onChange(of: station.id) { _, _ in
@@ -154,6 +166,7 @@ struct StationDetailCard: View {
                 withAnimation(.easeInOut(duration: 0.25)) {
                     showingDetail = false
                 }
+                onClose?()
             }) {
                 Image(systemName: "xmark.circle.fill")
                     .font(showingFullDetail ? .title2 : .title3)
@@ -409,6 +422,12 @@ struct StationDetailCard: View {
                     expandWithFade()
                 } else if phase == .expanded, (translation > 30 || velocity > 80) {
                     collapseWithFade()
+                } else if abs(translation) > 100 || abs(velocity) > 200 {
+                    // NEW: Close card with cinematic zoom out
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        showingDetail = false
+                    }
+                    onClose?() // This will trigger subtleZoomOut() in MapView
                 } else {
                     withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
                         dragOffset = 0

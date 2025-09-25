@@ -171,8 +171,8 @@ extension View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.white.opacity(0.15),
-                                Color.white.opacity(0.05)
+                                Color.primary.opacity(0.15),
+                                Color.primary.opacity(0.05)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -184,9 +184,9 @@ extension View {
                     .stroke(
                         LinearGradient(
                             colors: [
-                                Color.white.opacity(0.6),
-                                Color.white.opacity(0.1),
-                                Color.white.opacity(0.3)
+                                Color.primary.opacity(0.6),
+                                Color.primary.opacity(0.1),
+                                Color.primary.opacity(0.3)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing

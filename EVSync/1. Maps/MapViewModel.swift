@@ -34,13 +34,29 @@ class MapViewModel: ObservableObject {
     @Published var priceRange: ClosedRange<Double> = 0...100
     @Published var powerRange: ClosedRange<Double> = 0...350
     
+    // MARK: - Cinematic Map Controls - NO PATTERN MATCHING
+    
+    // Track current region separately to avoid pattern matching issues
+    @Published private var currentRegion = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076),
+        span: MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
+    )
+    
+    // How much to zoom in when selecting a station
+    private let focusSpan = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+    // How much to zoom out when closing station detail (multiplier)
+    private let zoomOutFactor: Double = 1.4
+    // Zoom limits to prevent infinite zoom
+    private let minDelta: Double = 0.002
+    private let maxDelta: Double = 1.5
+    
     private let almatyCenter = CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076)
     private let almatySpan = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
     private var hasInitialLoad = false
     
     private var cachedStations: [ChargingStation] = []
     private var cacheTimestamp: Date?
-    private let cacheExpirationTime: TimeInterval = 300 // 5
+    private let cacheExpirationTime: TimeInterval = 300 // 5 minutes
     
     private let supabase = SupabaseClient(
         supabaseURL: URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co")!,
@@ -89,23 +105,57 @@ class MapViewModel: ObservableObject {
                powerRange != defaultPowerRange
     }
     
-    // MARK: - Public Methods
+    // MARK: - Cinematic Map Methods - NO PATTERN MATCHING
     
-    func selectStation(_ station: ChargingStation) {
-        selectedStation = station
-        showingStationDetail = false // Сначала false
-        centerMapOnStation(station)
+    private func updateCurrentRegion(_ region: MKCoordinateRegion) {
+        currentRegion = region
     }
     
-    func centerMapOnStation(_ station: ChargingStation) {
-        let newRegion = MKCoordinateRegion(
-            center: station.coordinate,
-            span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+    private func setCamera(_ position: MapCameraPosition, animated: Bool) {
+        if animated {
+            withAnimation(.easeInOut(duration: 0.6)) {
+                cameraPosition = position
+            }
+        } else {
+            cameraPosition = position
+        }
+    }
+    
+    private func clamp(_ value: Double, _ minValue: Double, _ maxValue: Double) -> Double {
+        return Swift.max(minValue, Swift.min(value, maxValue))
+    }
+    
+    /// Call when tapping on a station pin or list item
+    func focusOnStation(_ station: ChargingStation, animated: Bool = true) {
+        selectedStation = station
+        let region = MKCoordinateRegion(center: station.coordinate, span: focusSpan)
+        updateCurrentRegion(region)
+        setCamera(.region(region), animated: animated)
+    }
+    
+    /// Call when closing station detail card (X button/swipe down)
+    func subtleZoomOut(animated: Bool = true) {
+        // Use the stored currentRegion - NO PATTERN MATCHING
+        let newSpan = MKCoordinateSpan(
+            latitudeDelta: clamp(currentRegion.span.latitudeDelta * zoomOutFactor, minDelta, maxDelta),
+            longitudeDelta: clamp(currentRegion.span.longitudeDelta * zoomOutFactor, minDelta, maxDelta)
         )
         
-        withAnimation(.easeInOut(duration: 1.0)) {
-            cameraPosition = .region(newRegion)
-        }
+        let newRegion = MKCoordinateRegion(center: currentRegion.center, span: newSpan)
+        updateCurrentRegion(newRegion)
+        setCamera(.region(newRegion), animated: animated)
+        
+        selectedStation = nil
+    }
+    
+    // MARK: - Legacy Methods (Updated to avoid pattern matching)
+    
+    func selectStation(_ station: ChargingStation) {
+        focusOnStation(station)
+    }
+    
+    func clearSelectedStation() {
+        subtleZoomOut()
     }
     
     func centerOnUserLocation(_ userLocation: CLLocationCoordinate2D) {
@@ -113,6 +163,8 @@ class MapViewModel: ObservableObject {
             center: userLocation,
             span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
         )
+        
+        updateCurrentRegion(newRegion)
         
         withAnimation(.easeInOut(duration: 1.0)) {
             cameraPosition = .region(newRegion)
@@ -193,15 +245,8 @@ class MapViewModel: ObservableObject {
     }
     
     func navigateToStationFromFavorites(_ station: ChargingStation) {
-        let newRegion = MKCoordinateRegion(
-            center: station.coordinate,
-            span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-        )
-        cameraPosition = .region(newRegion)
-        
         let stationToShow = chargingStations.first(where: { $0.id == station.id }) ?? station
-        
-        selectedStation = stationToShow
+        focusOnStation(stationToShow)
         showingStationDetail = true
     }
     
@@ -289,7 +334,7 @@ class MapViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Private Methods
+    // MARK: - Private Methods (NO PATTERN MATCHING)
     
     private func shouldAdjustForFilteredStations() -> Bool {
         guard filteredStations.count <= 5 else { return false }
@@ -307,10 +352,11 @@ class MapViewModel: ObservableObject {
     }
     
     private func setAlmatyRegion() {
+        let region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
+        updateCurrentRegion(region)
+        
         withAnimation(.easeInOut(duration: 1.0)) {
-            cameraPosition = .region(
-                MKCoordinateRegion(center: almatyCenter, span: almatySpan)
-            )
+            cameraPosition = .region(region)
         }
     }
     
@@ -333,8 +379,11 @@ class MapViewModel: ObservableObject {
             longitudeDelta: max(min(maxLon - minLon + 0.02, 0.15), 0.05)
         )
         
+        let region = MKCoordinateRegion(center: center, span: span)
+        updateCurrentRegion(region)
+        
         withAnimation(.easeInOut(duration: 0.5)) {
-            cameraPosition = .region(MKCoordinateRegion(center: center, span: span))
+            cameraPosition = .region(region)
         }
     }
 }

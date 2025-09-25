@@ -35,7 +35,6 @@ struct MapView: View {
                             }
                         }
                     }
-                    
                     if let userLocation = locationManager.userLocation, locationManager.isLocationEnabled {
                         Annotation("", coordinate: userLocation) {
                             Circle()
@@ -91,7 +90,30 @@ struct MapView: View {
                     Spacer()
                 }
                 
-                // Filter overlay with manual opacity control
+                // Station Detail Card with smooth animations
+                if viewModel.selectedStation != nil {
+                    VStack {
+                        Spacer()
+                        
+                        StationDetailCard(
+                            station: viewModel.selectedStation!,
+                            showingDetail: $viewModel.showingStationDetail,
+                            onClose: {
+                                viewModel.subtleZoomOut()
+                            }
+                        )
+                    }
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95)),
+                            removal: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95))
+                        )
+                    )
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: viewModel.showingStationDetail)
+                    .zIndex(2)
+                }
+                
+                // Filter overlay with manual opacity control - MOVED AFTER StationDetailCard and increased zIndex
                 FilterOptionsOverlay(
                     availableTypes: viewModel.availableConnectorTypes,
                     availableOperators: viewModel.availableOperators,
@@ -107,26 +129,7 @@ struct MapView: View {
                 )
                 .opacity(viewModel.showingFilterOptions ? 1.0 : 0.0)
                 .animation(.easeInOut(duration: 0.25), value: viewModel.showingFilterOptions)
-                
-                // Station Detail Card with smooth animations
-                if viewModel.selectedStation != nil {
-                    VStack {
-                        Spacer()
-                        
-                        StationDetailCard(
-                            station: viewModel.selectedStation!,
-                            showingDetail: $viewModel.showingStationDetail
-                        )
-                    }
-                    .transition(
-                        .asymmetric(
-                            insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95)),
-                            removal: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95))
-                        )
-                    )
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: viewModel.showingStationDetail)
-                    .zIndex(2)
-                }
+                .zIndex(3) // Higher than StationDetailCard's zIndex(2)
             }
         }
         .onAppear {
@@ -226,4 +229,3 @@ struct MapView: View {
         }
     }
 }
-
