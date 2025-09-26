@@ -112,7 +112,6 @@ struct MapView: View {
                     .zIndex(2)
                 }
                 
-
                 FilterOptionsOverlay(
                     availableTypes: viewModel.availableConnectorTypes,
                     availableOperators: viewModel.availableOperators,
@@ -133,7 +132,12 @@ struct MapView: View {
         }
         .onAppear {
             startMapInitialization()
-            Task {
+            
+            Task { @MainActor in
+                while !isMapReady {
+                    try? await Task.sleep(nanoseconds: 50_000_000)
+                }
+                try? await Task.sleep(nanoseconds: 200_000_000)
                 await supabaseManager.syncFavorites()
             }
         }

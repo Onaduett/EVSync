@@ -11,11 +11,14 @@ struct WelcomeScreen: View {
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
     @EnvironmentObject var fontManager: FontManager
+    @Binding var shouldFadeOut: Bool
+    
     @State private var logoScale: CGFloat = 0.3
     @State private var logoOpacity: Double = 0.0
     @State private var textOpacity: Double = 0.0
     @State private var progressOpacity: Double = 0.0
     @State private var backgroundOpacity: Double = 1.0
+    @State private var opacity: Double = 1.0  // управляемый fade-out
     
     var body: some View {
         ZStack {
@@ -34,7 +37,6 @@ struct WelcomeScreen: View {
             VStack {
                 Spacer()
                 
-                // Logo Section - по центру экрана
                 Image("LOGOFRONT")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -45,7 +47,6 @@ struct WelcomeScreen: View {
                 
                 Spacer()
                 
-                // Loading Indicator - внизу экрана
                 VStack(spacing: 16) {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .primary))
@@ -66,9 +67,13 @@ struct WelcomeScreen: View {
                 .padding(.bottom, 60)
             }
         }
+        .opacity(opacity)
         .preferredColorScheme(themeManager.currentTheme.colorScheme)
         .onAppear {
             startAnimations()
+        }
+        .onChange(of: shouldFadeOut) { _, new in
+            if new { fadeOut() }
         }
     }
     
@@ -87,22 +92,15 @@ struct WelcomeScreen: View {
         }
     }
     
-    // Функция для плавного исчезновения
-    func fadeOut() {
-        withAnimation(.easeOut(duration: 0.4)) {
-            logoOpacity = 0.0
-            textOpacity = 0.0
-            progressOpacity = 0.0
-        }
-        
-        withAnimation(.easeOut(duration: 0.5).delay(0.1)) {
-            backgroundOpacity = 0.0
+    private func fadeOut() {
+        withAnimation(.easeInOut(duration: 0.45)) {
+            opacity = 0
         }
     }
 }
 
 #Preview {
-    WelcomeScreen()
+    WelcomeScreen(shouldFadeOut: .constant(false))
         .environmentObject(ThemeManager())
         .environmentObject(LanguageManager())
         .environmentObject(FontManager.shared)

@@ -466,9 +466,7 @@ struct WelcomeView: View {
         .onAppear {
             authManager.errorMessage = nil
         }
-        .animation(.easeInOut(duration: 0.3), value: authState)
-        .animation(.easeInOut(duration: 0.3), value: showLanguageSelector)
-        .animation(.easeInOut(duration: 0.3), value: showThemeSelector)
+        // УБРАЛ: глобальные implicit-анимации заменены на withAnimation в нужных местах
         .sheet(isPresented: $showingPrivacyLegal) {
             PrivacyLegalView()
                 .environmentObject(languageManager)
