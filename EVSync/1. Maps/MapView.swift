@@ -162,10 +162,8 @@ struct MapView: View {
         }
         // Отладочные onChange для диагностики
         .onChange(of: viewModel.selectedStation) { oldValue, newValue in
-            print("🚉 selectedStation changed from \(oldValue?.name ?? "nil") to \(newValue?.name ?? "nil")")
         }
         .onChange(of: viewModel.showingStationDetail) { oldValue, newValue in
-            print("📱 showingStationDetail changed from \(oldValue) to \(newValue)")
         }
         .alert(locationAlertType.title, isPresented: $showingLocationAlert) {
             Button(locationAlertType.buttonTitle) {
@@ -180,13 +178,10 @@ struct MapView: View {
     // MARK: - Private Methods
     
     private func handleStationTap(_ station: ChargingStation) {
-        print("🎯 Tapped on station: \(station.name)")
         
-        // Haptic feedback
         let impactFeedback = UIImpactFeedbackGenerator(style: .light)
         impactFeedback.impactOccurred()
         
-        // Простой вызов без сложной логики
         viewModel.selectStation(station)
     }
     

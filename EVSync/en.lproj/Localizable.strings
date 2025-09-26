@@ -324,3 +324,4 @@
 // Final warning
 "delete_account_warning" = "After confirmation, we will completely delete your account and all related data from the system. Nothing will be kept, and it will not be possible to recover any information.";
 
+"search_vehicles" = "Search Vehicles";
