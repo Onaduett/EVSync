@@ -18,6 +18,7 @@ class LocationManager: NSObject, ObservableObject {
     
     private let locationManager = CLLocationManager()
     private var cancellables = Set<AnyCancellable>()
+    private var isUpdatingLocation = false
     
     enum LocationError: Error, LocalizedError {
         case servicesDisabled
@@ -76,7 +77,11 @@ class LocationManager: NSObject, ObservableObject {
             return
         }
         
-        // Move the location services check to a background queue to avoid main thread warning
+        guard !isUpdatingLocation else {
+            print("Location updates already running")
+            return
+        }
+        
         DispatchQueue.global(qos: .userInitiated).async {
             let servicesEnabled = CLLocationManager.locationServicesEnabled()
             
@@ -87,9 +92,14 @@ class LocationManager: NSObject, ObservableObject {
                     return
                 }
                 
+                // Настройка для live-обновлений
+                self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+                self.locationManager.distanceFilter = 5 // Обновлять при перемещении на 5 метров
+                
                 self.locationManager.startUpdatingLocation()
                 self.isLocationEnabled = true
-                print("Location updates started")
+                self.isUpdatingLocation = true
+                print("Live location updates started")
             }
         }
     }
@@ -98,6 +108,7 @@ class LocationManager: NSObject, ObservableObject {
         locationManager.stopUpdatingLocation()
         userLocation = nil
         isLocationEnabled = false
+        isUpdatingLocation = false
         print("Location updates stopped and user location cleared")
     }
     
@@ -196,7 +207,7 @@ class LocationManager: NSObject, ObservableObject {
     var locationButtonIcon: String {
         if !isLocationEnabled {
             return "location.slash"
-        } else if userLocation != nil {
+        } else if userLocation != nil && isUpdatingLocation {
             return "location.fill"
         } else {
             return "location"
@@ -206,7 +217,7 @@ class LocationManager: NSObject, ObservableObject {
     func locationButtonColor(colorScheme: ColorScheme) -> Color {
         if !isLocationEnabled {
             return .gray
-        } else if userLocation != nil {
+        } else if userLocation != nil && isUpdatingLocation {
             return .blue
         } else {
             return colorScheme == .dark ? .white : .black
@@ -216,7 +227,7 @@ class LocationManager: NSObject, ObservableObject {
     var locationBorderColor: Color {
         if !isLocationEnabled {
             return .clear
-        } else if userLocation != nil {
+        } else if userLocation != nil && isUpdatingLocation {
             return .blue.opacity(0.3)
         } else {
             return .clear
@@ -224,7 +235,7 @@ class LocationManager: NSObject, ObservableObject {
     }
     
     var locationBorderWidth: CGFloat {
-        (userLocation != nil && isLocationEnabled) ? 1.5 : 0
+        (userLocation != nil && isLocationEnabled && isUpdatingLocation) ? 1.5 : 0
     }
     
     // MARK: - Private Methods
@@ -232,6 +243,7 @@ class LocationManager: NSObject, ObservableObject {
     private func setupLocationManager() {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.distanceFilter = 5 // Минимальное расстояние для обновления
         authorizationStatus = locationManager.authorizationStatus
     }
     
@@ -250,13 +262,17 @@ extension LocationManager: CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         
+        // Фильтрация точности - игнорируем неточные данные
+        guard location.horizontalAccuracy < 100 else { return }
+        
         Task { @MainActor in
+            print("📍 Location updated: \(location.coordinate.latitude), \(location.coordinate.longitude), accuracy: \(location.horizontalAccuracy)m")
             self.userLocation = location.coordinate
             self.locationError = nil
         }
         
-        // Stop updating after getting first location to save battery
-        manager.stopUpdatingLocation()
+        // НЕ останавливаем обновления для live-режима
+        // Обновления будут продолжаться пока включена локация
     }
     
     nonisolated func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -284,18 +300,33 @@ extension LocationManager: CLLocationManagerDelegate {
     
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
+            print("❌ Location error: \(error.localizedDescription)")
             if let clError = error as? CLError {
                 switch clError.code {
                 case .locationUnknown:
                     self.locationError = .locationUnknown
                 case .denied:
                     self.locationError = .accessDenied
+                    self.stopLocationUpdates()
                 default:
                     self.locationError = .unknown(error)
                 }
             } else {
                 self.locationError = .unknown(error)
             }
+        }
+    }
+    
+    // Добавляем обработку паузы/возобновления (для экономии батареи в фоне)
+    nonisolated func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
+        Task { @MainActor in
+            print("⏸️ Location updates paused")
+        }
+    }
+    
+    nonisolated func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
+        Task { @MainActor in
+            print("▶️ Location updates resumed")
         }
     }
 }

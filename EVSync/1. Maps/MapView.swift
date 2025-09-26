@@ -31,7 +31,7 @@ struct MapView: View {
                                 isFavorite: supabaseManager.favoriteIds.contains(station.id)
                             )
                             .onTapGesture {
-                                viewModel.selectStation(station)
+                                handleStationTap(station)
                             }
                         }
                     }
@@ -90,25 +90,26 @@ struct MapView: View {
                     Spacer()
                 }
                 
-                if viewModel.selectedStation != nil {
+                // Карточка станции - упрощенная логика отображения
+                if let selectedStation = viewModel.selectedStation {
                     VStack {
                         Spacer()
                         
                         StationDetailCard(
-                            station: viewModel.selectedStation!,
-                            showingDetail: $viewModel.showingStationDetail,
+                            station: selectedStation,
+                            showingDetail: .constant(true),
                             onClose: {
-                                viewModel.subtleZoomOut()
+                                viewModel.clearSelectedStation()
                             }
                         )
                     }
                     .transition(
                         .asymmetric(
-                            insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95)),
-                            removal: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95))
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .move(edge: .bottom).combined(with: .opacity)
                         )
                     )
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: viewModel.showingStationDetail)
+                    .animation(.spring(response: 0.5, dampingFraction: 0.8), value: viewModel.selectedStation?.id)
                     .zIndex(2)
                 }
                 
@@ -159,6 +160,13 @@ struct MapView: View {
                 selectedStationFromFavorites = nil
             }
         }
+        // Отладочные onChange для диагностики
+        .onChange(of: viewModel.selectedStation) { oldValue, newValue in
+            print("🚉 selectedStation changed from \(oldValue?.name ?? "nil") to \(newValue?.name ?? "nil")")
+        }
+        .onChange(of: viewModel.showingStationDetail) { oldValue, newValue in
+            print("📱 showingStationDetail changed from \(oldValue) to \(newValue)")
+        }
         .alert(locationAlertType.title, isPresented: $showingLocationAlert) {
             Button(locationAlertType.buttonTitle) {
                 locationManager.handleLocationAlert(type: locationAlertType)
@@ -170,6 +178,17 @@ struct MapView: View {
     }
     
     // MARK: - Private Methods
+    
+    private func handleStationTap(_ station: ChargingStation) {
+        print("🎯 Tapped on station: \(station.name)")
+        
+        // Haptic feedback
+        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+        impactFeedback.impactOccurred()
+        
+        // Простой вызов без сложной логики
+        viewModel.selectStation(station)
+    }
     
     private func startMapInitialization() {
         Task {

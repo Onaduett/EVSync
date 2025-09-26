@@ -140,13 +140,15 @@ class MapViewModel: ObservableObject {
         selectedStation = nil
     }
     
-    // MARK: - Legacy Methods (Updated to avoid pattern matching)
-    
     func selectStation(_ station: ChargingStation) {
-        focusOnStation(station)
+        selectedStation = station
+        showingStationDetail = true
+        focusOnStation(station, animated: true)
     }
-    
+
     func clearSelectedStation() {
+        selectedStation = nil
+        showingStationDetail = false
         subtleZoomOut()
     }
     
