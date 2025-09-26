@@ -25,8 +25,8 @@ class AuthenticationManager: NSObject, ObservableObject {
     private var presentationContextProvider: ApplePresentationContextProvider?
     
     private let supabase = SupabaseClient(
-        supabaseURL: URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co")!,
-        supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA"
+        supabaseURL: SupabaseConfig.supabaseURL,
+        supabaseKey: SupabaseConfig.supabaseKey
     )
     
     override init() {
@@ -546,7 +546,7 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
     
     private func deleteUserFromSupabaseAuth(session: Session) async -> Bool {
         do {
-            guard let url = URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co/functions/v1/delete-user") else {
+            guard let url = URL(string: "\(SupabaseConfig.supabaseURL.absoluteString)/functions/v1/delete-user") else {
                 print("Invalid function URL")
                 return false
             }
@@ -555,7 +555,7 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             request.httpMethod = "POST"
             request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA", forHTTPHeaderField: "apikey")
+            request.setValue(SupabaseConfig.supabaseKey, forHTTPHeaderField: "apikey")
             
             let requestBody: [String: Any] = [
                 "user_id": session.user.id.uuidString

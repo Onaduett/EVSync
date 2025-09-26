@@ -535,11 +535,11 @@ struct ConnectorChipView: View {
     
     var body: some View {
         HStack(spacing: 4) {
-            Image(connector.icon)
+            Image(systemName: connector.icon)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 14, height: 14)
-                .foregroundColor(.blue)
+                .foregroundColor(.primary)
             Text(connector.rawValue)
                 .font(fontManager.font(.caption, weight: .bold))
         }
@@ -567,11 +567,11 @@ struct ConnectorTypesGridView: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
                 ForEach(station.connectorTypes, id: \.self) { connector in
                     HStack(spacing: 8) {
-                        Image(connector.icon)
+                        Image(systemName: connector.icon)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 14, height: 14)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.primary)
                         
                         Text(connector.rawValue)
                             .font(fontManager.font(.footnote, weight: .semibold))

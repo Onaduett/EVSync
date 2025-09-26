@@ -90,7 +90,6 @@ struct MapView: View {
                     Spacer()
                 }
                 
-                // Station Detail Card with smooth animations
                 if viewModel.selectedStation != nil {
                     VStack {
                         Spacer()
@@ -113,7 +112,7 @@ struct MapView: View {
                     .zIndex(2)
                 }
                 
-                // Filter overlay with manual opacity control - MOVED AFTER StationDetailCard and increased zIndex
+
                 FilterOptionsOverlay(
                     availableTypes: viewModel.availableConnectorTypes,
                     availableOperators: viewModel.availableOperators,
@@ -129,7 +128,7 @@ struct MapView: View {
                 )
                 .opacity(viewModel.showingFilterOptions ? 1.0 : 0.0)
                 .animation(.easeInOut(duration: 0.25), value: viewModel.showingFilterOptions)
-                .zIndex(3) // Higher than StationDetailCard's zIndex(2)
+                .zIndex(3)
             }
         }
         .onAppear {

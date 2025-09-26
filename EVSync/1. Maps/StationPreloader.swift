@@ -5,7 +5,6 @@
 //  Created by Daulet Yerkinov on 15.09.25.
 //
 
-
 import Foundation
 import Supabase
 import CoreLocation
@@ -22,8 +21,8 @@ class StationsPreloader: ObservableObject {
     private let cacheExpirationTime: TimeInterval = 300 // 5 минут
     
     private let supabase = SupabaseClient(
-        supabaseURL: URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co")!,
-        supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA"
+        supabaseURL: SupabaseConfig.supabaseURL,
+        supabaseKey: SupabaseConfig.supabaseKey
     )
     
     private init() {}

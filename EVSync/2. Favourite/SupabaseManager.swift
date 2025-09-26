@@ -8,13 +8,12 @@
 import Foundation
 import Supabase
 
-// MARK: - Supabase Manager
 class SupabaseManager: ObservableObject {
     static let shared = SupabaseManager()
     
     let client = SupabaseClient(
-        supabaseURL: URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co")!,
-        supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA"
+        supabaseURL: SupabaseConfig.supabaseURL,
+        supabaseKey: SupabaseConfig.supabaseKey
     )
     
     @Published private(set) var favoriteIds: Set<UUID> = []

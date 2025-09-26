@@ -30,23 +30,18 @@ class MapViewModel: ObservableObject {
     @Published var selectedOperators: Set<String> = []
     @Published var mapStyle: MKMapType = .standard
     
-    // Price and Power Range Filters
     @Published var priceRange: ClosedRange<Double> = 0...100
     @Published var powerRange: ClosedRange<Double> = 0...350
     
-    // MARK: - Cinematic Map Controls - NO PATTERN MATCHING
+    // MARK: - Cinematic Map Controlsssss
     
-    // Track current region separately to avoid pattern matching issues
     @Published private var currentRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076),
         span: MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
     )
     
-    // How much to zoom in when selecting a station
     private let focusSpan = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-    // How much to zoom out when closing station detail (multiplier)
     private let zoomOutFactor: Double = 1.4
-    // Zoom limits to prevent infinite zoom
     private let minDelta: Double = 0.002
     private let maxDelta: Double = 1.5
     
@@ -59,8 +54,8 @@ class MapViewModel: ObservableObject {
     private let cacheExpirationTime: TimeInterval = 300 // 5 minutes
     
     private let supabase = SupabaseClient(
-        supabaseURL: URL(string: "https://ncuoknogwyjvdikoysfa.supabase.co")!,
-        supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdW9rbm9nd3lqdmRpa295c2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDU2ODAsImV4cCI6MjA3MTg4MTY4MH0.FwzpAeHXVQWsWuD2jjDZAdMw_anIT0_uFf9P-aAe0zA"
+        supabaseURL: SupabaseConfig.supabaseURL,
+        supabaseKey: SupabaseConfig.supabaseKey
     )
     
     var availableConnectorTypes: [ConnectorType] {
@@ -125,7 +120,6 @@ class MapViewModel: ObservableObject {
         return Swift.max(minValue, Swift.min(value, maxValue))
     }
     
-    /// Call when tapping on a station pin or list item
     func focusOnStation(_ station: ChargingStation, animated: Bool = true) {
         selectedStation = station
         let region = MKCoordinateRegion(center: station.coordinate, span: focusSpan)
@@ -133,9 +127,7 @@ class MapViewModel: ObservableObject {
         setCamera(.region(region), animated: animated)
     }
     
-    /// Call when closing station detail card (X button/swipe down)
     func subtleZoomOut(animated: Bool = true) {
-        // Use the stored currentRegion - NO PATTERN MATCHING
         let newSpan = MKCoordinateSpan(
             latitudeDelta: clamp(currentRegion.span.latitudeDelta * zoomOutFactor, minDelta, maxDelta),
             longitudeDelta: clamp(currentRegion.span.longitudeDelta * zoomOutFactor, minDelta, maxDelta)

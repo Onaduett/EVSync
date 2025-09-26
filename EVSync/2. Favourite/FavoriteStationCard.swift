@@ -80,11 +80,11 @@ struct FavoriteStationCard: View {
                         HStack(spacing: 8) {
                             ForEach(station.connectorTypes, id: \.self) { connector in
                                 HStack(spacing: 4) {
-                                    Image(connector.icon)
+                                    Image(systemName: connector.icon)
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 12, height: 12)
-                                        .foregroundColor(.blue)
+                                        .foregroundColor(.primary)
                                     
                                     Text(connector.rawValue)
                                         .customFont(.caption2, weight: .medium)
@@ -102,7 +102,7 @@ struct FavoriteStationCard: View {
                 // Provider and navigation indicator
                 HStack {
                     HStack(spacing: 6) {
-                        Image(systemName: "building.2")
+                        Image(systemName: "bolt.house")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(tertiaryTextColor)
                         

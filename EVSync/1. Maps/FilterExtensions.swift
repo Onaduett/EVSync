@@ -12,7 +12,6 @@ import SwiftUI
 
 extension MapViewModel {
     
-    /// Get filter summary text for display purposes
     var filterSummaryText: String {
         var components: [String] = []
         
@@ -37,20 +36,17 @@ extension MapViewModel {
         return components.joined(separator: ", ")
     }
     
-    /// Reset to default filters
     func resetFilters() {
         selectedConnectorTypes.removeAll()
         selectedOperators.removeAll()
         applyFilters()
     }
     
-    /// Apply preset filters for common use cases
     func applyPresetFilter(_ preset: FilterPreset) {
         resetFilters()
         
         switch preset {
         case .fastCharging:
-            // Select high-power connectors
             selectedConnectorTypes = Set(availableConnectorTypes.filter { type in
                 switch type {
                 case .ccs1, .chademo, .tesla:
@@ -64,7 +60,7 @@ extension MapViewModel {
         case .evSyncOnly:
             selectedOperators.insert("EVSync Network")
         case .all:
-            break // No filters applied
+            break
         }
         
         applyFilters()
@@ -145,7 +141,6 @@ struct FilterStatistics {
 
 extension MapViewModel {
     
-    /// Get current filter statistics
     var filterStatistics: FilterStatistics {
         let connectorBreakdown = Dictionary(
             grouping: filteredStations.flatMap { $0.connectorTypes },

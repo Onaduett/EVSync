@@ -13,12 +13,12 @@ struct AppearanceSettingsSection: View {
     
     var body: some View {
         SettingsSection(
-            title: languageManager.localizedString("appearance", comment: "Appearance"),
+            title: languageManager.localizedString("appearance"),
             icon: "paintbrush.fill"
         ) {
             VStack(spacing: 12) {
                 HStack {
-                    Text(languageManager.localizedString("theme", comment: "Theme"))
+                    Text(languageManager.localizedString("theme"))
                         .customFont(.callout, weight: .medium)
                         .foregroundColor(.primary)
                     Spacer()

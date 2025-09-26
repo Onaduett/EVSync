@@ -95,11 +95,11 @@ extension MyCarView {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
                     ForEach(selectedCar.supportedChargers, id: \.self) { connector in
                         HStack {
-                            Image(connector.icon)
+                            Image(systemName: connector.icon)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 14, height: 14)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.primary)
                             Text(connector.rawValue)
                                 .customFont(.subheadline)
                             Spacer()

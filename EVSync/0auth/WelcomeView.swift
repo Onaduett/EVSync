@@ -286,7 +286,6 @@ struct WelcomeView: View {
                     Spacer()
                     
                     VStack(spacing: 16) {
-                        // Terms and conditions (only show in signup state)
                         if authState == .signUp {
                             Text(languageManager.localizedString("terms_and_conditions"))
                                 .font(fontManager.font(.caption))
@@ -296,10 +295,8 @@ struct WelcomeView: View {
                                 .transition(.opacity)
                         }
                         
-                        // Bottom navigation (only show in enterEmail state)
                         if authState == .enterEmail {
                             HStack {
-                                // Theme selector button
                                 Button(action: {
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         showThemeSelector.toggle()
@@ -312,7 +309,6 @@ struct WelcomeView: View {
                                 
                                 Spacer()
                                 
-                                // Privacy Policy link
                                 Button(action: {
                                     showingPrivacyLegal = true
                                 }) {
@@ -360,7 +356,7 @@ struct WelcomeView: View {
                     Spacer()
                     
                     VStack(spacing: 20) {
-                        Text("Select Language")
+                        Text("language_subtitle")
                             .font(fontManager.font(.headline, weight: .semibold))
                             .foregroundColor(.primary)
                         
@@ -413,7 +409,7 @@ struct WelcomeView: View {
                     Spacer()
                     
                     VStack(spacing: 20) {
-                        Text("Select Theme")
+                        Text("appearance")
                             .font(fontManager.font(.headline, weight: .semibold))
                             .foregroundColor(.primary)
                         
