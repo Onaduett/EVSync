@@ -9,8 +9,8 @@ import SwiftUI
 import Foundation
 
 class LanguageManager: ObservableObject {
-    @Published var currentLanguage: AppLanguage = .english
-    @AppStorage("selectedLanguage") private var selectedLanguageCode: String = "en"
+    @Published var currentLanguage: AppLanguage = .russian
+    @AppStorage("selectedLanguage") private var selectedLanguageCode: String = "ru"
     
     enum AppLanguage: String, CaseIterable {
         case english = "en"
