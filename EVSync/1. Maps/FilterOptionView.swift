@@ -124,7 +124,7 @@ struct FilterOptionsView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(colorScheme == .dark ? Color.black : Color.white)
+                    .fill(.thickMaterial)
                     .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
             )
             .padding(.horizontal, 16)
@@ -193,6 +193,7 @@ struct FilterOptionsView: View {
         }
     }
 }
+
 struct FilterHeader: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.fontManager) var fontManager
@@ -568,17 +569,24 @@ struct OperatorButton: View {
     }
 }
 
-// MARK: - Updated Filter Action Buttons
 struct FilterActionButtons: View {
     @Environment(\.fontManager) var fontManager
+    @Environment(\.colorScheme) var systemColorScheme
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var themeManager: ThemeManager
     @Binding var isShowing: Bool
     let hasActiveFilters: Bool
     let onApply: () -> Void
     let onClearAll: () -> Void
     
+    // Вычисляемый цвет для outline в зависимости от темы
+    private var outlineColor: Color {
+        let currentScheme = themeManager.currentTheme.colorScheme ?? systemColorScheme
+        return currentScheme == .dark ? Color.white.opacity(0.15) : Color.black.opacity(0.1)
+    }
+    
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             Button {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     if hasActiveFilters {
@@ -592,13 +600,13 @@ struct FilterActionButtons: View {
                     .font(fontManager.font(.callout))
                     .foregroundColor(hasActiveFilters ? .red : .primary)
                     .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(.ultraThinMaterial)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white, lineWidth: 0.2)
+                                    .stroke(outlineColor, lineWidth: 0.8)
                             )
                     )
                     .animation(.easeInOut(duration: 0.25), value: hasActiveFilters)
@@ -610,15 +618,15 @@ struct FilterActionButtons: View {
                 onApply()
             }
             .font(fontManager.font(.callout, weight: .semibold))
-            .foregroundColor(.teal)
+            .foregroundColor(.white)
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(.ultraThinMaterial)
+                    .fill(.teal)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.white, lineWidth: 0.2)
+                            .stroke(Color.teal.opacity(0.3), lineWidth: 0.8)
                     )
             )
         }
