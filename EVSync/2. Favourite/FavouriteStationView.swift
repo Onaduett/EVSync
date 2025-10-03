@@ -77,7 +77,6 @@ struct FavoriteStationsView: View {
                     .opacity(contentOpacity)
             }
         }
-        .background(backgroundColor.ignoresSafeArea())
         .preferredColorScheme(themeManager.currentTheme.colorScheme)
         .onAppear {
             startFavoriteViewAnimation()
@@ -97,17 +96,6 @@ struct FavoriteStationsView: View {
         }
     }
     
-    // MARK: - Private Views
-    private var backgroundColor: Color {
-        switch themeManager.currentTheme {
-        case .light:
-            return Color(.systemGroupedBackground)
-        case .dark:
-            return Color(.systemBackground)
-        case .auto:
-            return Color(.systemGroupedBackground)
-        }
-    }
     
     // MARK: - Private Methods
     private func startFavoriteViewAnimation() {

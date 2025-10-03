@@ -15,120 +15,114 @@ struct MapView: View {
     @StateObject private var locationManager = LocationManager()
     @StateObject private var supabaseManager = SupabaseManager.shared
     @Binding var selectedStationFromFavorites: ChargingStation?
+    
+    // NEW: Биндинги для управления карточкой на верхнем уровне
+    @Binding var presentedStation: ChargingStation?
+    @Binding var isStationCardShown: Bool
+    
     @State private var showingLocationAlert = false
     @State private var locationAlertType: LocationManager.LocationAlertType = .disabled
     @State private var isMapReady = false
     
+    init(
+        selectedStationFromFavorites: Binding<ChargingStation?>,
+        presentedStation: Binding<ChargingStation?> = .constant(nil),
+        isStationCardShown: Binding<Bool> = .constant(false)
+    ) {
+        _selectedStationFromFavorites = selectedStationFromFavorites
+        _presentedStation = presentedStation
+        _isStationCardShown = isStationCardShown
+    }
+    
     var body: some View {
         GeometryReader { geometry in
-            ZStack(alignment: .top) {
-                Map(position: $viewModel.cameraPosition) {
-                    ForEach(viewModel.filteredStations) { station in
-                        Annotation("", coordinate: station.coordinate) {
-                            ChargingStationAnnotation(
-                                station: station,
-                                isSelected: viewModel.selectedStation?.id == station.id,
-                                isFavorite: supabaseManager.favoriteIds.contains(station.id)
-                            )
-                            .onTapGesture {
-                                handleStationTap(station)
-                            }
-                        }
-                    }
-                    if let userLocation = locationManager.userLocation, locationManager.isLocationEnabled {
-                        Annotation("", coordinate: userLocation) {
-                            Circle()
-                                .fill(Color.blue)
-                                .frame(width: 16, height: 16)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.white, lineWidth: 3)
+            ZStack {
+                ZStack(alignment: .top) {
+                    Map(position: $viewModel.cameraPosition) {
+                        ForEach(viewModel.filteredStations) { station in
+                            Annotation("", coordinate: station.coordinate) {
+                                ChargingStationAnnotation(
+                                    station: station,
+                                    isSelected: viewModel.selectedStation?.id == station.id,
+                                    isFavorite: supabaseManager.favoriteIds.contains(station.id)
                                 )
-                                .shadow(radius: 4)
+                                .onTapGesture {
+                                    handleStationTap(station)
+                                }
+                            }
+                        }
+                        if let userLocation = locationManager.userLocation, locationManager.isLocationEnabled {
+                            Annotation("", coordinate: userLocation) {
+                                Circle()
+                                    .fill(Color.blue)
+                                    .frame(width: 16, height: 16)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.white, lineWidth: 3)
+                                    )
+                                    .shadow(radius: 4)
+                            }
                         }
                     }
-                }
-                .mapStyle(mapStyleForType(viewModel.mapStyle))
-                .ignoresSafeArea()
-                .onMapCameraChange { _ in
-                    if !isMapReady {
-                        isMapReady = true
+                    .mapStyle(mapStyleForType(viewModel.mapStyle))
+                    .ignoresSafeArea()
+                    .onMapCameraChange { _ in
+                        if !isMapReady {
+                            isMapReady = true
+                        }
                     }
-                }
-                
-                MapGradientOverlay()
-                
-                if viewModel.isLoading && isMapReady {
-                    LoadingOverlay()
-                        .transition(.opacity)
-                        .zIndex(1)
-                }
-                
-                if let errorMessage = viewModel.errorMessage {
-                    ErrorOverlay(message: errorMessage) {
-                        viewModel.loadChargingStations(forceRefresh: true)
-                    }
-                }
-                
-                VStack {
-                    MapHeader(
-                        selectedConnectorTypes: viewModel.selectedConnectorTypes,
-                        selectedOperators: viewModel.selectedOperators,
-                        priceRange: viewModel.priceRange,
-                        powerRange: viewModel.powerRange,
-                        defaultPriceRange: viewModel.minPrice...viewModel.maxPrice,
-                        defaultPowerRange: viewModel.minPower...viewModel.maxPower,
-                        showingFilterOptions: $viewModel.showingFilterOptions,
-                        mapStyle: $viewModel.mapStyle,
-                        onLocationTap: handleLocationButtonTap,
-                        locationManager: locationManager,
-                        colorScheme: colorScheme
-                    )
-                    .opacity(isMapReady ? 1.0 : 0.0)
-                    .animation(.easeInOut(duration: 0.3), value: isMapReady)
                     
-                    Spacer()
-                }
-                
-                // Карточка станции - упрощенная логика отображения
-                if let selectedStation = viewModel.selectedStation {
-                    VStack {
-                        Spacer()
-                        
-                        StationDetailCard(
-                            station: selectedStation,
-                            showingDetail: .constant(true),
-                            onClose: {
-                                viewModel.clearSelectedStation()
-                            }
-                        )
+                    MapGradientOverlay()
+                    
+                    if viewModel.isLoading && isMapReady {
+                        LoadingOverlay()
+                            .transition(.opacity)
+                            .zIndex(1)
                     }
-                    .transition(
-                        .asymmetric(
-                            insertion: .move(edge: .bottom).combined(with: .opacity),
-                            removal: .move(edge: .bottom).combined(with: .opacity)
+                    
+                    if let errorMessage = viewModel.errorMessage {
+                        ErrorOverlay(message: errorMessage) {
+                            viewModel.loadChargingStations(forceRefresh: true)
+                        }
+                    }
+                    
+                    VStack {
+                        MapHeader(
+                            selectedConnectorTypes: viewModel.selectedConnectorTypes,
+                            selectedOperators: viewModel.selectedOperators,
+                            priceRange: viewModel.priceRange,
+                            powerRange: viewModel.powerRange,
+                            defaultPriceRange: viewModel.minPrice...viewModel.maxPrice,
+                            defaultPowerRange: viewModel.minPower...viewModel.maxPower,
+                            showingFilterOptions: $viewModel.showingFilterOptions,
+                            mapStyle: $viewModel.mapStyle,
+                            onLocationTap: handleLocationButtonTap,
+                            locationManager: locationManager,
+                            colorScheme: colorScheme
                         )
+                        .opacity(isMapReady ? 1.0 : 0.0)
+                        .animation(.easeInOut(duration: 0.3), value: isMapReady)
+                        
+                        Spacer()
+                    }
+                    
+                    FilterOptionsOverlay(
+                        availableTypes: viewModel.availableConnectorTypes,
+                        availableOperators: viewModel.availableOperators,
+                        selectedTypes: $viewModel.selectedConnectorTypes,
+                        selectedOperators: $viewModel.selectedOperators,
+                        priceRange: $viewModel.priceRange,
+                        powerRange: $viewModel.powerRange,
+                        maxPrice: viewModel.maxPrice,
+                        maxPower: viewModel.maxPower,
+                        minPrice: viewModel.minPrice,
+                        minPower: viewModel.minPower,
+                        isShowing: $viewModel.showingFilterOptions
                     )
-                    .animation(.spring(response: 0.5, dampingFraction: 0.8), value: viewModel.selectedStation?.id)
-                    .zIndex(2)
+                    .opacity(viewModel.showingFilterOptions ? 1.0 : 0.0)
+                    .animation(.easeInOut(duration: 0.25), value: viewModel.showingFilterOptions)
+                    .zIndex(3)
                 }
-                
-                FilterOptionsOverlay(
-                    availableTypes: viewModel.availableConnectorTypes,
-                    availableOperators: viewModel.availableOperators,
-                    selectedTypes: $viewModel.selectedConnectorTypes,
-                    selectedOperators: $viewModel.selectedOperators,
-                    priceRange: $viewModel.priceRange,
-                    powerRange: $viewModel.powerRange,
-                    maxPrice: viewModel.maxPrice,
-                    maxPower: viewModel.maxPower,
-                    minPrice: viewModel.minPrice,
-                    minPower: viewModel.minPower,
-                    isShowing: $viewModel.showingFilterOptions
-                )
-                .opacity(viewModel.showingFilterOptions ? 1.0 : 0.0)
-                .animation(.easeInOut(duration: 0.25), value: viewModel.showingFilterOptions)
-                .zIndex(3)
             }
         }
         .onAppear {
@@ -160,11 +154,6 @@ struct MapView: View {
                 selectedStationFromFavorites = nil
             }
         }
-        // Отладочные onChange для диагностики
-        .onChange(of: viewModel.selectedStation) { oldValue, newValue in
-        }
-        .onChange(of: viewModel.showingStationDetail) { oldValue, newValue in
-        }
         .alert(locationAlertType.title, isPresented: $showingLocationAlert) {
             Button(locationAlertType.buttonTitle) {
                 locationManager.handleLocationAlert(type: locationAlertType)
@@ -178,11 +167,13 @@ struct MapView: View {
     // MARK: - Private Methods
     
     private func handleStationTap(_ station: ChargingStation) {
-        
-        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-        impactFeedback.impactOccurred()
-        
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
         viewModel.selectStation(station)
+        
+        presentedStation = station
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+            isStationCardShown = true
+        }
     }
     
     private func startMapInitialization() {
@@ -207,17 +198,31 @@ struct MapView: View {
                         viewModel.filteredStations = preloader.stations
                         viewModel.isLoading = false
                         viewModel.navigateToStationFromFavorites(station)
+                        
+                        // NEW: Показываем карточку
+                        presentedStation = station
+                        isStationCardShown = true
                     }
                 } else {
                     viewModel.loadChargingStations()
                     
                     await MainActor.run {
                         viewModel.navigateToStationFromFavorites(station)
+                        
+                        // NEW: Показываем карточку
+                        presentedStation = station
+                        isStationCardShown = true
                     }
                 }
             }
         } else {
             viewModel.navigateToStationFromFavorites(station)
+            
+            // NEW: Показываем карточку
+            presentedStation = station
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                isStationCardShown = true
+            }
         }
     }
     

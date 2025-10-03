@@ -35,11 +35,22 @@ struct DatabaseChargingStation: Identifiable, Codable {
             connectorTypes: connectorTypes,
             availability: availability,
             power: power_kw != nil ? "\(power_kw!) kW" : "Unknown",
-            price: price_per_kwh != nil ? String(format: "%.1f ₸/kWh", price_per_kwh!) : "Contact for pricing",
+            price: {
+                if let price = price_per_kwh {
+                    if price.truncatingRemainder(dividingBy: 1) == 0 {
+                        return String(format: "%.0f ₸/kWh", price) // без .0
+                    } else {
+                        return String(format: "%.1f ₸/kWh", price) // с одной цифрой после запятой
+                    }
+                } else {
+                    return "Contact for pricing"
+                }
+            }(),
+
             amenities: generateAmenities(),
             operatingHours: "24/7",
             phoneNumber: phone_number,
-            provider: station_operator ?? "EVSync Network"
+            provider: station_operator ?? "Charge&Go Network"
         )
     }
     

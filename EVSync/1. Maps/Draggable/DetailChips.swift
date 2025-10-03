@@ -26,8 +26,10 @@ struct DetailChip: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
+        .frame(width: 90)
         .background(color.opacity(0.15))
         .clipShape(Capsule())
+
     }
 }
 
@@ -38,18 +40,23 @@ struct PriceChip: View {
     @StateObject private var fontManager = FontManager.shared
     
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 6) {
+            Image(systemName: "wallet.bifold.fill")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.primary)
+            
             Text(text.replacingOccurrences(of: "/kWh", with: ""))
                 .customFont(.footnote, weight: .bold)
                 .foregroundColor(.primary)
-            
-            Text("/\(languageManager.localizedString("kwh"))")
-                .customFont(.footnote, weight: .bold)
-                .foregroundColor(.blue)
+
+
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
+        .frame(width: 90)
+
         .background(Color.blue.opacity(0.15))
         .clipShape(Capsule())
+        
     }
 }

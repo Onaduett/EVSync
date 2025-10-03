@@ -10,7 +10,7 @@ import SwiftUI
 class FontManager: ObservableObject {
     static let shared = FontManager()
     
-    private let primaryFontFamily = "Nunito Sans"
+    private let primaryFontFamily = "NT Somic"
     
     enum FontWeight {
         case light
@@ -22,23 +22,23 @@ class FontManager: ObservableObject {
         
         var swiftUIWeight: Font.Weight {
             switch self {
-            case .light: return .light
+            case .light: return .regular
             case .regular: return .regular
             case .medium: return .medium
-            case .semibold: return .semibold
+            case .semibold: return .medium
             case .bold: return .bold
-            case .heavy: return .heavy
+            case .heavy: return .bold
             }
         }
         
         var uiKitWeight: UIFont.Weight {
             switch self {
-            case .light: return .light
+            case .light: return .regular
             case .regular: return .regular
             case .medium: return .medium
-            case .semibold: return .semibold
+            case .semibold: return .medium
             case .bold: return .bold
-            case .heavy: return .heavy
+            case .heavy: return .bold
             }
         }
     }
@@ -75,7 +75,7 @@ class FontManager: ObservableObject {
         var defaultWeight: FontWeight {
             switch self {
             case .largeTitle, .title, .title2, .title3: return .bold
-            case .headline: return .semibold
+            case .headline: return .bold
             case .body, .callout, .subheadline: return .regular
             case .footnote, .caption, .caption2: return .regular
             }

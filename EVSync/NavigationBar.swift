@@ -4,6 +4,10 @@ struct NavigationBar: View {
     @State private var selectedTab = 0
     @State private var selectedStationFromFavorites: ChargingStation?
     @State private var isTransitioning = false
+    
+    @State private var presentedStation: ChargingStation?
+    @State private var isStationCardShown = false
+    
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
 
@@ -13,16 +17,27 @@ struct NavigationBar: View {
             Group {
                 switch selectedTab {
                 case 0:
-                    MapView(selectedStationFromFavorites: $selectedStationFromFavorites)
+                    // Прокидываем биндинги для управления карточкой
+                    MapView(
+                        selectedStationFromFavorites: $selectedStationFromFavorites,
+                        presentedStation: $presentedStation,
+                        isStationCardShown: $isStationCardShown
+                    )
                 case 1:
                     FavoriteStationsView(
-                        selectedTab: $selectedTab, selectedStationFromFavorites: $selectedStationFromFavorites)
+                        selectedTab: $selectedTab,
+                        selectedStationFromFavorites: $selectedStationFromFavorites
+                    )
                 case 2:
                     MyCarView()
                 case 3:
                     SettingsView()
                 default:
-                    MapView(selectedStationFromFavorites: $selectedStationFromFavorites)
+                    MapView(
+                        selectedStationFromFavorites: $selectedStationFromFavorites,
+                        presentedStation: $presentedStation,
+                        isStationCardShown: $isStationCardShown
+                    )
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -30,12 +45,58 @@ struct NavigationBar: View {
                 Color.clear
                     .frame(height: 70)
             }
+            .zIndex(0)
             
+            // NEW: Карточка станции ПОВЕРХ таббара
+            if let station = presentedStation, isStationCardShown {
+                ZStack {
+                    // Затемнение фона
+                    Color.black.opacity(0.001)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                isStationCardShown = false
+                                presentedStation = nil
+                            }
+                        }
+                    
+                    VStack {
+                        Spacer()
+                        
+                        StationDetailCard(
+                            station: station,
+                            showingDetail: .constant(true),
+                            onClose: {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    isStationCardShown = false
+                                    presentedStation = nil
+                                }
+                            }
+                        )
+                        .ignoresSafeArea(edges: .bottom)
+                    }
+                }
+                .transition(
+                    .asymmetric(
+                        insertion: .move(edge: .bottom).combined(with: .opacity),
+                        removal: .move(edge: .bottom).combined(with: .opacity)
+                    )
+                )
+                .zIndex(2)
+            }
+            
+            // Таббар — между контентом и карточкой
             VStack {
                 Spacer()
-                CustomGlassTabBar(selectedTab: $selectedTab, isTransitioning: $isTransitioning)
-                    .padding(.bottom, -15)
+                CustomGlassTabBar(
+                    selectedTab: $selectedTab,
+                    isTransitioning: $isTransitioning
+                )
+                .padding(.bottom, -15)
+                // Отключаем взаимодействие с таббаром, когда открыта карточка
+                .allowsHitTesting(!isStationCardShown)
             }
+            .zIndex(1)
         }
         .ignoresSafeArea(.keyboard)
         .onChange(of: selectedTab) { oldValue, newValue in
@@ -44,6 +105,14 @@ struct NavigationBar: View {
     }
     
     private func handleTabChange(from oldTab: Int, to newTab: Int) {
+        // Закрываем карточку при смене таба
+        if isStationCardShown {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isStationCardShown = false
+                presentedStation = nil
+            }
+        }
+        
         guard !isTransitioning else { return }
         
         if (oldTab == 0 && newTab == 1) || (oldTab == 1 && newTab == 0) {
@@ -82,6 +151,7 @@ struct NavigationBar: View {
     }
 }
 
+// CustomGlassTabBar остаётся без изменений
 struct CustomGlassTabBar: View {
     @Binding var selectedTab: Int
     @Binding var isTransitioning: Bool
@@ -151,7 +221,6 @@ struct CustomGlassTabBar: View {
         }
         .frame(width: 330, height: 70)
         .background {
-            // Glass effect
             RoundedRectangle(cornerRadius: 35)
                 .fill(.regularMaterial)
                 .glassEffect()

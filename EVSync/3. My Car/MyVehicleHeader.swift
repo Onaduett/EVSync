@@ -19,7 +19,7 @@ struct MyVehicleHeader: View {
             Spacer()
             
             Text(languageManager.localizedString("my_car"))
-                .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                .font(.custom("NT Somic", size: 20).weight(.bold))
                 .foregroundColor(.primary)
         }
         .padding(.horizontal, 20)

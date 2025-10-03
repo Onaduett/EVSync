@@ -14,7 +14,7 @@ struct InfoRow: View {
     let value: String
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 10) {
             Image(systemName: icon)
                 .foregroundColor(.primary)
                 .font(.system(size: 14, weight: .semibold))

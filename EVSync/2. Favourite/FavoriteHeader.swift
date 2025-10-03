@@ -21,7 +21,7 @@ struct FavoriteHeader: View {
             Spacer()
             
             Text(languageManager.localizedString("favorites_title"))
-                .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                .font(.custom("NT Somic", size: 20).weight(.bold))
                 .foregroundColor(.primary)
         }
         .padding(.horizontal, 20)

@@ -27,7 +27,7 @@ struct AboutSettingsSection: View {
                 
                 Spacer()
                 
-                Text("1.0.1")
+                Text("1.1.0")
                     .customFont(.callout, weight: .medium)
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 12)

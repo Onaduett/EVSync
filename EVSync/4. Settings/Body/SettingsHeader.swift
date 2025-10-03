@@ -38,7 +38,7 @@ struct SettingsHeader: View {
             Spacer()
             
             Text(languageManager.localizedString("account", comment: "Account"))
-                .font(.custom("Nunito Sans", size: 20).weight(.bold))
+                .font(.custom("NT Somic", size: 20).weight(.bold))
                 .foregroundColor(.primary)
         }
         .padding(.horizontal, 20)

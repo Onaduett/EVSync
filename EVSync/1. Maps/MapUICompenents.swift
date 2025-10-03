@@ -10,14 +10,12 @@ import MapKit
 
 // MARK: - Map Gradient Overlay
 struct MapGradientOverlay: View {
-    @Environment(\.colorScheme) var colorScheme
-    
     var body: some View {
         LinearGradient(
             gradient: Gradient(stops: [
-                .init(color: colorScheme == .dark ? .black : .white, location: 0.0),
-                .init(color: colorScheme == .dark ? .black.opacity(0.5) : .white.opacity(0.5), location: 0.3),
-                .init(color: .clear, location: 1.0)
+                .init(color: .black, location: 0.0),
+                .init(color: .black.opacity(0.5), location: 0.3),
+                .init(color: .clear, location: 0.7)
             ]),
             startPoint: .top,
             endPoint: .bottom
@@ -148,7 +146,10 @@ struct MapHeader: View {
                         .font(.custom("Lexend-SemiBold", size: 20))
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                        .foregroundColor(
+                            colorScheme == .dark
+                            ? .white
+                            : (mapStyle == .standard ? .black : .white))
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
