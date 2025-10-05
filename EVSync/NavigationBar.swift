@@ -1,4 +1,5 @@
 import SwiftUI
+import MapKit
 
 struct NavigationBar: View {
     @State private var selectedTab = 0
@@ -7,6 +8,11 @@ struct NavigationBar: View {
     
     @State private var presentedStation: ChargingStation?
     @State private var isStationCardShown = false
+    
+    @State private var shouldResetMap = false
+    @State private var shouldZoomOut = false
+    
+    @StateObject private var mapViewModel = MapViewModel()
     
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
@@ -17,11 +23,13 @@ struct NavigationBar: View {
             Group {
                 switch selectedTab {
                 case 0:
-                    // Прокидываем биндинги для управления карточкой
-                    MapView(
+                    MapViewWrapper(
                         selectedStationFromFavorites: $selectedStationFromFavorites,
                         presentedStation: $presentedStation,
-                        isStationCardShown: $isStationCardShown
+                        isStationCardShown: $isStationCardShown,
+                        shouldResetMap: $shouldResetMap,
+                        shouldZoomOut: $shouldZoomOut,
+                        mapViewModel: mapViewModel
                     )
                 case 1:
                     FavoriteStationsView(
@@ -33,10 +41,13 @@ struct NavigationBar: View {
                 case 3:
                     SettingsView()
                 default:
-                    MapView(
+                    MapViewWrapper(
                         selectedStationFromFavorites: $selectedStationFromFavorites,
                         presentedStation: $presentedStation,
-                        isStationCardShown: $isStationCardShown
+                        isStationCardShown: $isStationCardShown,
+                        shouldResetMap: $shouldResetMap,
+                        shouldZoomOut: $shouldZoomOut,
+                        mapViewModel: mapViewModel
                     )
                 }
             }
@@ -47,17 +58,12 @@ struct NavigationBar: View {
             }
             .zIndex(0)
             
-            // NEW: Карточка станции ПОВЕРХ таббара
             if let station = presentedStation, isStationCardShown {
                 ZStack {
-                    // Затемнение фона
                     Color.black.opacity(0.001)
                         .ignoresSafeArea()
                         .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                isStationCardShown = false
-                                presentedStation = nil
-                            }
+                            closeStationCard()
                         }
                     
                     VStack {
@@ -67,10 +73,7 @@ struct NavigationBar: View {
                             station: station,
                             showingDetail: .constant(true),
                             onClose: {
-                                withAnimation(.easeInOut(duration: 0.25)) {
-                                    isStationCardShown = false
-                                    presentedStation = nil
-                                }
+                                closeStationCard()
                             }
                         )
                         .ignoresSafeArea(edges: .bottom)
@@ -85,15 +88,19 @@ struct NavigationBar: View {
                 .zIndex(2)
             }
             
-            // Таббар — между контентом и карточкой
             VStack {
                 Spacer()
                 CustomGlassTabBar(
                     selectedTab: $selectedTab,
-                    isTransitioning: $isTransitioning
+                    isTransitioning: $isTransitioning,
+                    mapStyle: mapViewModel.mapStyle,
+                    onMapTabTapped: {
+                        if selectedTab == 0 {
+                            shouldResetMap = true
+                        }
+                    }
                 )
                 .padding(.bottom, -15)
-                // Отключаем взаимодействие с таббаром, когда открыта карточка
                 .allowsHitTesting(!isStationCardShown)
             }
             .zIndex(1)
@@ -104,8 +111,25 @@ struct NavigationBar: View {
         }
     }
     
+    // MARK: - Private Methods
+    
+    private func closeStationCard() {
+        withAnimation(.easeInOut(duration: 0.25)) {
+            isStationCardShown = false
+            presentedStation = nil
+        }
+        
+        // Trigger zoom out after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            shouldZoomOut = true
+            // Reset the trigger
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                shouldZoomOut = false
+            }
+        }
+    }
+    
     private func handleTabChange(from oldTab: Int, to newTab: Int) {
-        // Закрываем карточку при смене таба
         if isStationCardShown {
             withAnimation(.easeInOut(duration: 0.2)) {
                 isStationCardShown = false
@@ -151,10 +175,41 @@ struct NavigationBar: View {
     }
 }
 
-// CustomGlassTabBar остаётся без изменений
+// MARK: - MapViewWrapper
+
+struct MapViewWrapper: View {
+    @Binding var selectedStationFromFavorites: ChargingStation?
+    @Binding var presentedStation: ChargingStation?
+    @Binding var isStationCardShown: Bool
+    @Binding var shouldResetMap: Bool
+    @Binding var shouldZoomOut: Bool
+    @ObservedObject var mapViewModel: MapViewModel
+    
+    var body: some View {
+        MapView(
+            selectedStationFromFavorites: $selectedStationFromFavorites,
+            presentedStation: $presentedStation,
+            isStationCardShown: $isStationCardShown,
+            shouldResetMap: $shouldResetMap
+        )
+        .environmentObject(mapViewModel)
+        .onChange(of: shouldZoomOut) { _, newValue in
+            if newValue {
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ZoomOutFromStation"),
+                    object: nil
+                )
+            }
+        }
+    }
+}
+
 struct CustomGlassTabBar: View {
     @Binding var selectedTab: Int
     @Binding var isTransitioning: Bool
+    let mapStyle: MKMapType
+    var onMapTabTapped: () -> Void
+    
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var languageManager: LanguageManager
     @EnvironmentObject var fontManager: FontManager
@@ -181,11 +236,27 @@ struct CustomGlassTabBar: View {
     }
     
     private var selectedIconColor: Color {
-        effectiveColorScheme == .dark ? .white : .primary
+        if selectedTab == 0 {
+            // For map tab, apply the same logic as MapHeader
+            return effectiveColorScheme == .dark
+                ? .white
+                : (mapStyle == .standard ? .black : .white)
+        } else {
+            // For other tabs, use standard logic
+            return effectiveColorScheme == .dark ? .white : .primary
+        }
     }
     
     private var unselectedIconColor: Color {
-        effectiveColorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7)
+        if selectedTab == 0 {
+            // For map tab when it's visible, apply the same logic
+            return effectiveColorScheme == .dark
+                ? .white.opacity(0.7)
+                : (mapStyle == .standard ? .black.opacity(0.7) : .white.opacity(0.7))
+        } else {
+            // For other tabs, use standard logic
+            return effectiveColorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7)
+        }
     }
     
     var body: some View {
@@ -196,9 +267,18 @@ struct CustomGlassTabBar: View {
                         withAnimation(.easeInOut(duration: 0.15)) {
                             selectedTab = tab.tag
                         }
+                    } else if tab.tag == 0 {
+                        // Handle map tab tap
+                        if selectedTab == 0 {
+                            onMapTabTapped()
+                        } else {
+                            guard !isTransitioning else { return }
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedTab = tab.tag
+                            }
+                        }
                     } else {
                         guard !isTransitioning else { return }
-                        
                         withAnimation(.easeInOut(duration: 0.2)) {
                             selectedTab = tab.tag
                         }
@@ -222,13 +302,14 @@ struct CustomGlassTabBar: View {
         .frame(width: 330, height: 70)
         .background {
             RoundedRectangle(cornerRadius: 35)
-                .fill(.regularMaterial)
+                .fill(.ultraThinMaterial)
                 .glassEffect()
                 .shadow(color: .black.opacity(0.25), radius: 15, x: 0, y: 8)
                 .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTab)
         .animation(.easeInOut(duration: 0.3), value: themeManager.currentTheme)
+        .animation(.easeInOut(duration: 0.3), value: mapStyle)
     }
 }
 

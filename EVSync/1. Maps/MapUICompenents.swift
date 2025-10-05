@@ -126,7 +126,10 @@ struct MapHeader: View {
                                     .clipShape(Circle())
                             }
                         }
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                        .foregroundColor(
+                            colorScheme == .dark
+                            ? .white
+                            : (mapStyle == .standard ? .black : .white))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .background(
@@ -182,7 +185,10 @@ struct MapHeader: View {
                             Image(systemName: mapStyle == .standard ? "map" : "map.fill")
                                 .font(.system(size: 18))
                                 .minimumScaleFactor(0.7)
-                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                                .foregroundColor(
+                                    colorScheme == .dark
+                                    ? .white
+                                    : (mapStyle == .standard ? .black : .white))
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .background(

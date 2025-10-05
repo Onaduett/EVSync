@@ -33,7 +33,6 @@ class MapViewModel: ObservableObject {
     @Published var priceRange: ClosedRange<Double> = 0...100
     @Published var powerRange: ClosedRange<Double> = 0...350
     
-    // MARK: - Cinematic Map Controlsssss
     
     @Published private var currentRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076),
@@ -68,7 +67,6 @@ class MapViewModel: ObservableObject {
         return Array(Set(allOperators)).sorted()
     }
     
-    // Price and Power bounds based on available stations
     var minPrice: Double {
         let prices = chargingStations.compactMap { $0.pricePerKWh }
         return prices.isEmpty ? 0 : prices.min() ?? 0
@@ -89,7 +87,6 @@ class MapViewModel: ObservableObject {
         return powers.isEmpty ? 350 : powers.max() ?? 350
     }
     
-    // Check if any filters are active
     var hasActiveFilters: Bool {
         let defaultPriceRange = minPrice...maxPrice
         let defaultPowerRange = minPower...maxPower
@@ -100,7 +97,7 @@ class MapViewModel: ObservableObject {
                powerRange != defaultPowerRange
     }
     
-    // MARK: - Cinematic Map Methods - NO PATTERN MATCHING
+    // MARK: - Cinematic Map Methods
     
     private func updateCurrentRegion(_ region: MKCoordinateRegion) {
         currentRegion = region
@@ -162,6 +159,49 @@ class MapViewModel: ObservableObject {
         
         withAnimation(.easeInOut(duration: 1.0)) {
             cameraPosition = .region(newRegion)
+        }
+    }
+    
+    func resetToDefaultPosition() {
+        selectedStation = nil
+        showingStationDetail = false
+        
+        // Smooth zoom out animation to default position
+        let currentSpan = currentRegion.span
+        let targetSpan = almatySpan
+        
+        // Check if we need to zoom out (current view is more zoomed in than target)
+        let needsZoomOut = currentSpan.latitudeDelta < targetSpan.latitudeDelta
+        
+        if needsZoomOut {
+            // First zoom out slightly from current position
+            let intermediateSpan = MKCoordinateSpan(
+                latitudeDelta: currentSpan.latitudeDelta * 1.5,
+                longitudeDelta: currentSpan.longitudeDelta * 1.5
+            )
+            let intermediateRegion = MKCoordinateRegion(center: currentRegion.center, span: intermediateSpan)
+            
+            withAnimation(.easeOut(duration: 0.4)) {
+                cameraPosition = .region(intermediateRegion)
+            }
+            
+            // Then animate to final position
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                let region = MKCoordinateRegion(center: self.almatyCenter, span: self.almatySpan)
+                self.updateCurrentRegion(region)
+                
+                withAnimation(.easeInOut(duration: 0.6)) {
+                    self.cameraPosition = .region(region)
+                }
+            }
+        } else {
+            // Direct animation if already zoomed out
+            let region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
+            updateCurrentRegion(region)
+            
+            withAnimation(.easeInOut(duration: 0.8)) {
+                cameraPosition = .region(region)
+            }
         }
     }
     
@@ -328,7 +368,7 @@ class MapViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Private Methods (NO PATTERN MATCHING)
+    // MARK: - Private Methods
     
     private func shouldAdjustForFilteredStations() -> Bool {
         guard filteredStations.count <= 5 else { return false }

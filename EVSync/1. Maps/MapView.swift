@@ -16,9 +16,10 @@ struct MapView: View {
     @StateObject private var supabaseManager = SupabaseManager.shared
     @Binding var selectedStationFromFavorites: ChargingStation?
     
-    // NEW: Биндинги для управления карточкой на верхнем уровне
     @Binding var presentedStation: ChargingStation?
     @Binding var isStationCardShown: Bool
+    
+    @Binding var shouldResetMap: Bool
     
     @State private var showingLocationAlert = false
     @State private var locationAlertType: LocationManager.LocationAlertType = .disabled
@@ -27,11 +28,13 @@ struct MapView: View {
     init(
         selectedStationFromFavorites: Binding<ChargingStation?>,
         presentedStation: Binding<ChargingStation?> = .constant(nil),
-        isStationCardShown: Binding<Bool> = .constant(false)
+        isStationCardShown: Binding<Bool> = .constant(false),
+        shouldResetMap: Binding<Bool> = .constant(false)
     ) {
         _selectedStationFromFavorites = selectedStationFromFavorites
         _presentedStation = presentedStation
         _isStationCardShown = isStationCardShown
+        _shouldResetMap = shouldResetMap
     }
     
     var body: some View {
@@ -66,10 +69,12 @@ struct MapView: View {
                     }
                     .mapStyle(mapStyleForType(viewModel.mapStyle))
                     .ignoresSafeArea()
-                    .onMapCameraChange { _ in
+                    .onMapCameraChange { context in
                         if !isMapReady {
                             isMapReady = true
                         }
+                        // Update currentRegion when user manually moves the map
+                        viewModel.cameraPosition = .region(context.region)
                     }
                     
                     MapGradientOverlay()
@@ -136,6 +141,9 @@ struct MapView: View {
                 await supabaseManager.syncFavorites()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ZoomOutFromStation"))) { _ in
+            viewModel.clearSelectedStation()
+        }
         .onChange(of: viewModel.selectedConnectorTypes) {
             viewModel.applyFilters()
         }
@@ -154,6 +162,12 @@ struct MapView: View {
                 selectedStationFromFavorites = nil
             }
         }
+        .onChange(of: shouldResetMap) { _, shouldReset in
+            if shouldReset {
+                handleMapReset()
+                shouldResetMap = false
+            }
+        }
         .alert(locationAlertType.title, isPresented: $showingLocationAlert) {
             Button(locationAlertType.buttonTitle) {
                 locationManager.handleLocationAlert(type: locationAlertType)
@@ -166,13 +180,37 @@ struct MapView: View {
     
     // MARK: - Private Methods
     
+    private func handleMapReset() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        
+        // Close station card if open
+        if isStationCardShown {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                isStationCardShown = false
+                presentedStation = nil
+            }
+        }
+        
+        // Reset map with smooth zoom animation
+        viewModel.resetToDefaultPosition()
+    }
+    
     private func handleStationTap(_ station: ChargingStation) {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        viewModel.selectStation(station)
         
-        presentedStation = station
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-            isStationCardShown = true
+        // If a different station is already selected, switch immediately
+        if let currentStation = presentedStation, currentStation.id != station.id {
+            // Immediately update to new station without closing animation
+            viewModel.selectStation(station)
+            presentedStation = station
+            // Card stays open, just updates content
+        } else if !isStationCardShown {
+            // No card is shown, select station and show card
+            viewModel.selectStation(station)
+            presentedStation = station
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                isStationCardShown = true
+            }
         }
     }
     
@@ -199,7 +237,6 @@ struct MapView: View {
                         viewModel.isLoading = false
                         viewModel.navigateToStationFromFavorites(station)
                         
-                        // NEW: Показываем карточку
                         presentedStation = station
                         isStationCardShown = true
                     }
@@ -209,7 +246,6 @@ struct MapView: View {
                     await MainActor.run {
                         viewModel.navigateToStationFromFavorites(station)
                         
-                        // NEW: Показываем карточку
                         presentedStation = station
                         isStationCardShown = true
                     }
@@ -218,7 +254,6 @@ struct MapView: View {
         } else {
             viewModel.navigateToStationFromFavorites(station)
             
-            // NEW: Показываем карточку
             presentedStation = station
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                 isStationCardShown = true

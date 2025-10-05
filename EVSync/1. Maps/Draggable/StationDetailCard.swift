@@ -1,8 +1,8 @@
 //
 //  StationDetailCard.swift
-//  EVSync
+//  Charge&Go
 //
-//  Created by Daulet Yerkinov on 28.08.25.
+//
 //
 
 import SwiftUI
@@ -14,9 +14,12 @@ struct StationDetailCard: View {
     @State private var isFavorited = false
     @State private var isLoadingFavorite = false
     @State private var dragOffset: CGFloat = 0
+    @State private var connectorPairIndex = 0
+    @State private var showingCarSelection = false
+
     @StateObject private var supabaseManager = SupabaseManager.shared
     @StateObject private var languageManager = LanguageManager()
-    
+    @AppStorage("selectedCarId") private var selectedCarId: String = ""
     
     private let fontManager = FontManager.shared
     
@@ -31,31 +34,35 @@ struct StationDetailCard: View {
     @Namespace private var animationNamespace
     
     var body: some View {
-        // Константы высоты
-        let collapsedHeight: CGFloat = 280
+        let collapsedHeight: CGFloat = 310
         let expandedHeight: CGFloat = UIScreen.main.bounds.height * 0.85
         let bottomButtonsHeight: CGFloat = 56
         let bottomButtonsVPadding: CGFloat = 40
 
         ZStack(alignment: .bottom) {
-            // Фон + форма
             cardBackground
                 .clipShape(TopRoundedRectangle(cornerRadius: 20))
 
-            // Контент
             VStack(spacing: 0) {
-                // Drag handle + жест
                 dragHandle
 
                 if showingFullDetail {
-                    // Полная версия со скроллом
                     ScrollView(showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 0) {
                             VStack(alignment: .leading, spacing: 6) {
                                 headerSection
                                 connectorBoxes
-                                compatibilitySection
-                                    .padding(.top, 2)
+                                
+                                ChargingCompatibilityView(
+                                    station: station,
+                                    selectedCarId: selectedCarId,
+                                    languageManager: languageManager,
+                                    fontManager: fontManager,
+                                    onCarSelection: {
+                                        showingCarSelection = true
+                                    }
+                                )
+                                .padding(.top, 4)
                                 
                                 expandedContent
                                     .padding(.top, 8)
@@ -63,16 +70,23 @@ struct StationDetailCard: View {
                             .padding(.horizontal, 16)
                             .padding(.top, 0)
                         }
-                        // чтобы контент не уезжал под кнопки
                         .padding(.bottom, bottomButtonsHeight + bottomButtonsVPadding + 12)
                     }
                 } else {
-                    // Превью без скролла
                     VStack(alignment: .leading, spacing: 6) {
                         headerSection
                         connectorBoxes
-                        compatibilitySection
-                            .padding(.top, 2)
+                        
+                        ChargingCompatibilityView(
+                            station: station,
+                            selectedCarId: selectedCarId,
+                            languageManager: languageManager,
+                            fontManager: fontManager,
+                            onCarSelection: {
+                                showingCarSelection = true
+                            }
+                        )
+                        .padding(.top, 4)
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 0)
@@ -82,12 +96,10 @@ struct StationDetailCard: View {
                 }
             }
 
-            // Кнопки — ПРИШИТЫ к низу
             actionButtons
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 16)
                 .padding(.bottom, bottomButtonsVPadding)
         }
-        // Вся карточка растёт вверх; низ остаётся на месте
         .frame(
             height: showingFullDetail ? expandedHeight : collapsedHeight,
             alignment: .bottom
@@ -114,6 +126,19 @@ struct StationDetailCard: View {
         }
         .onReceive(supabaseManager.$favoriteIds) { ids in
             isFavorited = ids.contains(station.id)
+        }
+        .sheet(isPresented: $showingCarSelection) {
+            NavigationView {
+                MyCarView()
+                    .environmentObject(fontManager)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(languageManager.localizedString("done")) {
+                                showingCarSelection = false
+                            }
+                        }
+                    }
+            }
         }
     }
     
@@ -163,7 +188,6 @@ struct StationDetailCard: View {
             
             Spacer()
             
-            // Оператор в боке
             Text(station.provider)
                 .font(fontManager.font(.caption, weight: .bold))
                 .foregroundColor(.teal)
@@ -175,34 +199,63 @@ struct StationDetailCard: View {
     }
     
     private var connectorBoxes: some View {
-        HStack(spacing: 8) {
-            ForEach(Array(station.connectorTypes.prefix(2).enumerated()), id: \.element) { index, connector in
-                ConnectorBox(
-                    connector: connector,
-                    power: station.power,
-                    price: station.price,
-                    languageManager: languageManager,
-                    fontManager: fontManager
-                )
+        GeometryReader { geo in
+            let totalWidth = geo.size.width
+            let spacing: CGFloat = 8
+            let boxWidth = (totalWidth - spacing) / 2
+
+            ZStack {
+                ForEach(Array(connectorPairs.enumerated()), id: \.offset) { idx, pair in
+                    HStack(spacing: spacing) {
+                        ForEach(Array(pair.enumerated()), id: \.offset) { _, connector in
+                            ConnectorBox(
+                                connector: connector,
+                                power: station.power,
+                                price: station.price,
+                                languageManager: languageManager,
+                                fontManager: fontManager
+                            )
+                            .frame(width: boxWidth)
+                        }
+                        if pair.count == 1 {
+                            Spacer()
+                                .frame(width: boxWidth)
+                                .opacity(0)
+                        }
+                    }
+                    .opacity(connectorPairIndex == idx ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.35), value: connectorPairIndex)
+                }
+            }
+            .frame(width: totalWidth, height: 92)
+        }
+        .frame(height: 92)
+        .onReceive(Timer.publish(every: 3, on: .main, in: .common).autoconnect()) { _ in
+            let count = connectorPairs.count
+            guard count > 1 else { return }
+            withAnimation(.easeInOut(duration: 0.35)) {
+                connectorPairIndex = (connectorPairIndex + 1) % count
+            }
+        }
+        .onTapGesture {
+            let count = connectorPairs.count
+            guard count > 1 else { return }
+            withAnimation(.easeInOut(duration: 0.35)) {
+                connectorPairIndex = (connectorPairIndex + 1) % count
             }
         }
     }
-    
-    private var compatibilitySection: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "checkmark.seal.fill")
-                .foregroundColor(.green)
-                .font(.system(size: 16, weight: .semibold))
-            
-            Text("Совместимо с вашим автомобилем")
-                .font(fontManager.font(.subheadline, weight: .semibold))
-                .foregroundColor(.primary)
-            
-            Spacer()
+
+    private var connectorPairs: [[ConnectorType]] {
+        var result: [[ConnectorType]] = []
+        let arr = station.connectorTypes
+        var i = 0
+        while i < arr.count {
+            let end = min(i + 2, arr.count)
+            result.append(Array(arr[i..<end]))
+            i = end
         }
-        .padding(8)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        return result
     }
     
     @ViewBuilder
@@ -250,7 +303,6 @@ struct StationDetailCard: View {
     
     private var actionButtons: some View {
         HStack(spacing: 10) {
-            // Favorite button
             Button(action: {
                 Task { await toggleFavorite() }
             }) {
@@ -269,7 +321,6 @@ struct StationDetailCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .disabled(isLoadingFavorite)
             
-            // Call button
             Button(action: callStation) {
                 Image(systemName: "phone.fill")
                     .font(.system(size: 18, weight: .bold))
@@ -280,7 +331,6 @@ struct StationDetailCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .disabled(!station.hasPhoneNumber)
             
-            // Navigate button
             Button(action: navigateToStation) {
                 HStack {
                     Image(systemName: "location.fill")
@@ -448,9 +498,7 @@ struct ConnectorBox: View {
                     .foregroundColor(.primary)
                     .lineLimit(1)
             }
-            .alignmentGuide(.top) { $0[.top] }
             
-            // Правая часть - мощность и цена
             VStack(alignment: .trailing, spacing: 6) {
                 DetailChip(icon: "bolt.fill", text: power, color: .green)
                     .frame(width: 90, alignment: .trailing)

@@ -325,3 +325,11 @@
 "delete_account_warning" = "After confirmation, we will completely delete your account and all related data from the system. Nothing will be kept, and it will not be possible to recover any information.";
 
 "search_vehicles" = "Search Vehicles";
+
+"compatible" = "Compatible";
+"not_compatible" = "Not compatible with your vehicle";
+"select_car_for_calculation" = "Select your car to calculate time and cost";
+"hour_short" = "h";
+"min_short" = "min";
+"done" = "Done";
+"to_full_charge" = "to 100%";
