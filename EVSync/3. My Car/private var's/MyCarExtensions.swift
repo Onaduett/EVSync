@@ -10,18 +10,14 @@ import SwiftUI
 extension MyCarView {
     
     func loadSelectedCar() {
-        print("DEBUG: Loading car with ID: \(selectedCarId)")
         guard !selectedCarId.isEmpty else {
-            print("DEBUG: No car ID stored")
             selectedCar = nil
             return
         }
         
-        if let car = sampleCars.first(where: { $0.id.uuidString == selectedCarId }) {
-            print("DEBUG: Found car: \(car.displayName)")
+        if let car = sampleCars.first(where: { $0.id == selectedCarId }) {
             selectedCar = car
         } else {
-            print("DEBUG: Car not found for ID: \(selectedCarId)")
             selectedCar = nil
             selectedCarId = ""
         }
@@ -29,7 +25,7 @@ extension MyCarView {
     
     func saveSelectedCar() {
         if let car = selectedCar {
-            selectedCarId = car.id.uuidString
+            selectedCarId = car.id
         } else {
             selectedCarId = ""
         }

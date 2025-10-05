@@ -8,18 +8,16 @@
 import SwiftUI
 
 struct CarSelectionView: View {
-    @Binding var selectedCar: ElectricVehicle
+    @Binding var selectedCarId: String
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var languageManager = LanguageManager()
     @EnvironmentObject var fontManager: FontManager
     
-    @AppStorage("selectedCarId") private var selectedCarId: String = ""
-    
     @State private var searchText = ""
     @State private var hasInitialSelection: Bool
     
-    init(selectedCar: Binding<ElectricVehicle>, hasInitialSelection: Bool = true) {
-        self._selectedCar = selectedCar
+    init(selectedCarId: Binding<String>, hasInitialSelection: Bool = true) {
+        self._selectedCarId = selectedCarId
         self._hasInitialSelection = State(initialValue: hasInitialSelection)
     }
     
@@ -60,17 +58,16 @@ struct CarSelectionView: View {
                         
                         Spacer()
                         
-                        if hasInitialSelection && selectedCar.id == car.id {
+                        if hasInitialSelection && selectedCarId == car.id {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.blue)
                         }
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        selectedCar = car
                         hasInitialSelection = true
-                        // Сразу сохраняем ID в AppStorage
-                        selectedCarId = car.id.uuidString
+                        selectedCarId = car.id
+                        print("DEBUG: Selected car ID: \(selectedCarId)")
                         dismiss()
                     }
                 }

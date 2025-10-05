@@ -124,7 +124,7 @@ struct ChargingCompatibilityView: View {
     
     var selectedCar: ElectricVehicle? {
         guard !selectedCarId.isEmpty else { return nil }
-        return sampleCars.first { $0.id.uuidString == selectedCarId }
+        return sampleCars.first { $0.id == selectedCarId }
     }
     
     var calculation: ChargingCalculation? {

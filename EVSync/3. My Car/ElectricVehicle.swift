@@ -10,7 +10,7 @@ import Foundation
 extension ConnectorType: Codable {}
 
 struct ElectricVehicle: Identifiable, Codable {
-    let id: UUID
+    let id: String
     let make: String
     let model: String
     let year: Int
@@ -21,8 +21,8 @@ struct ElectricVehicle: Identifiable, Codable {
     let maxChargingSpeed: Int // kW
     let image: String
     
-    init(make: String, model: String, year: Int, batteryCapacity: Double, range: Int, efficiency: Double, supportedChargers: [ConnectorType], maxChargingSpeed: Int, image: String) {
-        self.id = UUID()
+    init(id: String, make: String, model: String, year: Int, batteryCapacity: Double, range: Int, efficiency: Double, supportedChargers: [ConnectorType], maxChargingSpeed: Int, image: String) {
+        self.id = id
         self.make = make
         self.model = model
         self.year = year

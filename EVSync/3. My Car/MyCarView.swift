@@ -80,7 +80,6 @@ struct MyCarView: View {
                         Spacer()
                         
                         VStack(spacing: 16) {
-                            // Большой заголовок
                             VStack(spacing: 8) {
                                 Text(languageManager.localizedString("my_vehicle"))
                                     .customFont(.largeTitle)
@@ -101,7 +100,6 @@ struct MyCarView: View {
                             .scaleEffect(0.85)
                             .padding(.horizontal, 16)
                             
-                            // Кнопка выбора автомобиля
                             Button(action: {
                                 showingCarSelection = true
                             }) {
@@ -146,25 +144,29 @@ struct MyCarView: View {
                 }
             }
         }
-        .onChange(of: selectedCar?.id) {
-            if selectedCar != nil {
-                saveSelectedCar()
-                imageOpacity = 0.0
-                gradientOpacity = 0.0
-                withAnimation(.easeInOut(duration: 0.8)) {
-                    imageOpacity = 1.0
+        .onChange(of: selectedCarId) { oldValue, newValue in
+            if !newValue.isEmpty {
+                loadSelectedCar()
+                if selectedCar != nil {
+                    imageOpacity = 0.0
+                    gradientOpacity = 0.0
+                    withAnimation(.easeInOut(duration: 0.8)) {
+                        imageOpacity = 1.0
+                    }
+                    withAnimation(.easeInOut(duration: 1.0).delay(0.3)) {
+                        gradientOpacity = 1.0
+                    }
                 }
-                withAnimation(.easeInOut(duration: 1.0).delay(0.3)) {
-                    gradientOpacity = 1.0
-                }
+            }
+        }
+        .task {
+            if !selectedCarId.isEmpty && selectedCar == nil {
+                loadSelectedCar()
             }
         }
         .sheet(isPresented: $showingCarSelection) {
             CarSelectionView(
-                selectedCar: Binding(
-                    get: { selectedCar ?? sampleCars[0] },
-                    set: { selectedCar = $0 }
-                ),
+                selectedCarId: $selectedCarId,
                 hasInitialSelection: selectedCar != nil
             )
             .environmentObject(fontManager)
