@@ -14,6 +14,12 @@ struct CarSelectionView: View {
     @EnvironmentObject var fontManager: FontManager
     
     @State private var searchText = ""
+    @State private var hasInitialSelection: Bool
+    
+    init(selectedCar: Binding<ElectricVehicle>, hasInitialSelection: Bool = true) {
+        self._selectedCar = selectedCar
+        self._hasInitialSelection = State(initialValue: hasInitialSelection)
+    }
     
     var filteredCars: [ElectricVehicle] {
         if searchText.isEmpty {
@@ -34,7 +40,7 @@ struct CarSelectionView: View {
                             .fill(Color.blue.opacity(0.1))
                             .frame(width: 50, height: 50)
                             .overlay(
-                                Image(systemName: "car.side.fill")
+                                Image(systemName: "bolt.car")
                                     .foregroundColor(.blue)
                             )
                         
@@ -52,7 +58,7 @@ struct CarSelectionView: View {
                         
                         Spacer()
                         
-                        if selectedCar.id == car.id {
+                        if hasInitialSelection && selectedCar.id == car.id {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.blue)
                         }
@@ -60,6 +66,7 @@ struct CarSelectionView: View {
                     .contentShape(Rectangle())
                     .onTapGesture {
                         selectedCar = car
+                        hasInitialSelection = true
                         dismiss()
                     }
                 }
@@ -106,7 +113,7 @@ struct CarSelectionView: View {
                             .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -2)
                     )
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 10) // Account for safe area
+                    .padding(.bottom, 10)
                 }
             }
         }

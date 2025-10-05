@@ -325,3 +325,5 @@
 "min_short" = "мин";
 "done" = "Готово";
 "to_full_charge" = "до 100%";
+"choose_your_vehicle" = "Выберите ваш автомобиль";
+"select_vehicle" = "Выбрать автомобиль";

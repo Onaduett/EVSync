@@ -327,3 +327,6 @@
 "hour_short" = "сағ";
 "min_short" = "мин";
 "to_full_charge" = "100%-ға дейін";
+
+"choose_your_vehicle" = "Көлігіңізді таңдаңыз";
+"select_vehicle" = "Көлікті таңдау";

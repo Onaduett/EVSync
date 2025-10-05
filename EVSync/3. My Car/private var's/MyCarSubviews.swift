@@ -11,7 +11,8 @@ import SwiftUI
 extension MyCarView {
     
     // MARK: - Car Info Card
-    var carInfoCard: some View {
+    @ViewBuilder
+    func carInfoCard(car: ElectricVehicle) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             Button(action: {
                 showingCarSelection = true
@@ -19,7 +20,7 @@ extension MyCarView {
                 HStack(spacing: 12) {
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(selectedCar.displayName)
+                        Text(car.displayName)
                             .customFont(.headline)
                             .foregroundColor(.primary)
                     }
@@ -41,7 +42,8 @@ extension MyCarView {
     }
     
     // MARK: - Specifications Section
-    var specificationsSection: some View {
+    @ViewBuilder
+    func specificationsSection(car: ElectricVehicle) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             // Technical Specifications
             VStack(alignment: .leading, spacing: 12) {
@@ -53,7 +55,7 @@ extension MyCarView {
                     SpecificationItem(
                         icon: "batteryblock.stack",
                         title: languageManager.localizedString("battery_capacity"),
-                        value: "\(Int(selectedCar.batteryCapacity)) \(languageManager.localizedString("kwh_unit"))",
+                        value: "\(Int(car.batteryCapacity)) \(languageManager.localizedString("kwh_unit"))",
                         iconColor: .teal,
                         languageManager: languageManager
                     )
@@ -61,7 +63,7 @@ extension MyCarView {
                     SpecificationItem(
                         icon: "speedometer",
                         title: languageManager.localizedString("efficiency"),
-                        value: String(format: "%.1f %@", selectedCar.efficiency, languageManager.localizedString("efficiency_unit")),
+                        value: String(format: "%.1f %@", car.efficiency, languageManager.localizedString("efficiency_unit")),
                         iconColor: .teal,
                         languageManager: languageManager
                     )
@@ -69,7 +71,7 @@ extension MyCarView {
                     SpecificationItem(
                         icon: "bolt.fill",
                         title: languageManager.localizedString("max_charging"),
-                        value: "\(selectedCar.maxChargingSpeed) \(languageManager.localizedString("kw_unit"))",
+                        value: "\(car.maxChargingSpeed) \(languageManager.localizedString("kw_unit"))",
                         iconColor: .green,
                         languageManager: languageManager
                     )
@@ -77,7 +79,7 @@ extension MyCarView {
                     SpecificationItem(
                         icon: "road.lanes",
                         title: languageManager.localizedString("range"),
-                        value: "\(selectedCar.range) \(languageManager.localizedString("km_unit"))",
+                        value: "\(car.range) \(languageManager.localizedString("km_unit"))",
                         iconColor: .green,
                         languageManager: languageManager
                     )
@@ -93,7 +95,7 @@ extension MyCarView {
                     .foregroundColor(.primary)
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
-                    ForEach(selectedCar.supportedChargers, id: \.self) { connector in
+                    ForEach(car.supportedChargers, id: \.self) { connector in
                         HStack {
                             Image(systemName: connector.icon)
                                 .resizable()

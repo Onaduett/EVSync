@@ -1,28 +1,36 @@
 //
 //  MyCarView+Extensions.swift
-//  EVSync
+//  Charge&Go
 //
 //  Created by Daulet Yerkinov on 27.08.25.
 //
 
 import SwiftUI
 
-// MARK: - MyCarView Extensions
 extension MyCarView {
     
-    // MARK: - Persistence Methods
     func loadSelectedCar() {
-        if !selectedCarId.isEmpty,
-           let savedCar = sampleCars.first(where: { $0.id.uuidString == selectedCarId }) {
-            selectedCar = savedCar
+        guard !selectedCarId.isEmpty else {
+            selectedCar = nil
+            return
+        }
+        
+        if let car = sampleCars.first(where: { $0.id.uuidString == selectedCarId }) {
+            selectedCar = car
+        } else {
+            selectedCar = nil
+            selectedCarId = ""
         }
     }
     
     func saveSelectedCar() {
-        selectedCarId = selectedCar.id.uuidString
+        if let car = selectedCar {
+            selectedCarId = car.id.uuidString
+        } else {
+            selectedCarId = ""
+        }
     }
     
-    // MARK: - Statistics Calculation
     func calculateStats() -> CarStats {
         let totalSessions = chargingSessions.count
         let totalEnergy = chargingSessions.reduce(0) { $0 + $1.energyAdded }
