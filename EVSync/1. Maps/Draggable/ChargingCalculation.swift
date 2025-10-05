@@ -15,7 +15,6 @@ struct ChargingCalculation {
     let totalCost: Double // стоимость в тенге
     let effectivePower: Double // эффективная мощность зарядки в kW
     
-    /// Форматирует время в читаемый формат (например "1 ч 23 мин")
     func formattedTime(languageManager: LanguageManager) -> String {
         let totalMinutes = Int(chargingTimeHours * 60)
         let hours = totalMinutes / 60
@@ -28,7 +27,6 @@ struct ChargingCalculation {
         }
     }
     
-    /// Форматирует стоимость (например "1,998.23 ₸")
     func formattedCost() -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
@@ -45,16 +43,12 @@ struct ChargingCalculation {
 
 // MARK: - Charging Calculator
 class ChargingCalculator {
-    
-    /// Проверяет совместимость станции с автомобилем
     static func isStationCompatible(station: ChargingStation, car: ElectricVehicle) -> Bool {
-        // Проверяем, есть ли хотя бы один общий коннектор
         let stationConnectors = Set(station.connectorTypes)
         let carConnectors = Set(car.supportedChargers)
         return !stationConnectors.intersection(carConnectors).isEmpty
     }
     
-    /// Рассчитывает время зарядки и стоимость
     static func calculateCharging(
         station: ChargingStation,
         car: ElectricVehicle,
@@ -62,7 +56,6 @@ class ChargingCalculator {
         toPercent: Double = 100
     ) -> ChargingCalculation {
         
-        // Проверка совместимости
         let compatible = isStationCompatible(station: station, car: car)
         
         guard compatible else {
@@ -74,32 +67,25 @@ class ChargingCalculator {
             )
         }
         
-        // Параметры
         let batteryCapacity = car.batteryCapacity // kWh
         let stationPower = parseStationPower(station.power) // kW
         let carMaxPower = Double(car.maxChargingSpeed) // kW
         let efficiency = 0.95 // КПД передачи (95%)
         let taperFactor = 0.20 // taper - замедление на последних 20% (+20%)
         
-        // Эффективная мощность (минимум из мощности станции и машины)
         let effectivePower = min(stationPower, carMaxPower)
         
-        // Энергия для зарядки
         let energyNeeded = batteryCapacity * (toPercent - fromPercent) / 100.0
         
-        // Идеальное время без учета потерь
         let idealTime = energyNeeded / effectivePower // часы
         
-        // Реальное время с учетом taper (если заряжаем больше 80%)
         var realTime = idealTime
         if toPercent > 80 {
             realTime = idealTime * (1 + taperFactor)
         }
         
-        // Энергия из сети с учетом КПД
         let energyFromGrid = energyNeeded / efficiency
         
-        // Стоимость (парсим цену из строки)
         let pricePerKWh = parseStationPrice(station.price)
         let totalCost = energyFromGrid * pricePerKWh
         
@@ -113,25 +99,22 @@ class ChargingCalculator {
     
     // MARK: - Helper Methods
     
-    /// Парсит мощность станции из строки (например "150 kW" -> 150.0)
     private static func parseStationPower(_ powerString: String) -> Double {
         let components = powerString.components(separatedBy: " ")
         if let firstComponent = components.first,
            let power = Double(firstComponent) {
             return power
         }
-        return 50.0 // значение по умолчанию
+        return 50.0
     }
     
-    /// Парсит цену из строки (например "50 ₸/kWh" -> 50.0)
     private static func parseStationPrice(_ priceString: String) -> Double {
-        // Убираем все нецифровые символы кроме точки
         let numericString = priceString.components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted).joined()
-        return Double(numericString) ?? 50.0 // значение по умолчанию
+        return Double(numericString) ?? 50.0 
     }
 }
 
-// MARK: - Compatibility View Component
+
 struct ChargingCompatibilityView: View {
     let station: ChargingStation
     let selectedCarId: String
@@ -153,40 +136,42 @@ struct ChargingCompatibilityView: View {
         if let car = selectedCar, let calc = calculation {
             // Автомобиль выбран
             if calc.isCompatible {
-                // Совместимо
-                HStack(spacing: 8) {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundColor(.green)
-                        .font(.system(size: 16, weight: .semibold))
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(languageManager.localizedString("compatible"))
-                            .font(fontManager.font(.subheadline, weight: .semibold))
-                            .foregroundColor(.primary)
-                        
-                        HStack(spacing: 12) {
-                            Text(calc.formattedTime(languageManager: languageManager))
-                                .font(fontManager.font(.caption, weight: .medium))
-                                .foregroundColor(.secondary)
-                            
-                            Text("•")
-                                .foregroundColor(.secondary)
-                            
-                            Text(calc.formattedCost())
-                                .font(fontManager.font(.caption, weight: .semibold))
-                                .foregroundColor(.green)
-                        }
-                    }
-                    
-                    Spacer()
-                }
+
+                                HStack(spacing: 0) {
+                                    // овместимо
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "checkmark.seal.fill")
+                                            .symbolEffect(.pulse)
+                                            .foregroundColor(.green)
+                                            .font(.system(size: 16, weight: .semibold))
+                                        
+                                        Text(languageManager.localizedString("compatible"))
+                                            .font(fontManager.font(.subheadline, weight: .semibold))
+                                            .foregroundColor(.primary)
+                                            .fixedSize()
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    
+                                    // Время
+                                    Text(calc.formattedTime(languageManager: languageManager))
+                                        .font(fontManager.font(.caption, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                    
+                                    // СЦена
+                                    Text(calc.formattedCost())
+                                        .font(fontManager.font(.caption, weight: .semibold))
+                                        .foregroundColor(.green)
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                }
                 .padding(12)
                 .background(Color.green.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
-                // Не совместимо
+                // если Не совместимо
                 HStack(spacing: 8) {
                     Image(systemName: "xmark.seal.fill")
+                        .symbolEffect(.pulse)
                         .foregroundColor(.red)
                         .font(.system(size: 16, weight: .semibold))
                     
@@ -201,10 +186,11 @@ struct ChargingCompatibilityView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         } else {
-            // Автомобиль не выбран
+            // если Автомобиль не выбраn
             Button(action: onCarSelection) {
                 HStack(spacing: 8) {
                     Image(systemName: "slash.circle")
+                        .symbolEffect(.pulse)
                         .foregroundColor(.orange)
                         .font(.system(size: 16, weight: .semibold))
                     
