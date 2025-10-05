@@ -335,3 +335,6 @@
 "to_full_charge" = "to 100%";
 "choose_your_vehicle" = "Choose Your Vehicle";
 "select_vehicle" = "Select Vehicle";
+
+"my_vehicle" = "My Vehicle";
+"select_vehicle_subtitle" = "Select your EV to view details";

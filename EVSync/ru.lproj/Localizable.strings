@@ -327,3 +327,7 @@
 "to_full_charge" = "до 100%";
 "choose_your_vehicle" = "Выберите ваш автомобиль";
 "select_vehicle" = "Выбрать автомобиль";
+
+
+"my_vehicle" = "Мой автомобиль";
+"select_vehicle_subtitle" = "Выберите свой электромобиль, чтобы просмотреть детали";

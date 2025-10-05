@@ -330,3 +330,6 @@
 
 "choose_your_vehicle" = "Көлігіңізді таңдаңыз";
 "select_vehicle" = "Көлікті таңдау";
+
+"my_vehicle" = "Менің көлігім";
+"select_vehicle_subtitle" = "Электромобиль мәліметтерін көру үшін таңдаңыз";

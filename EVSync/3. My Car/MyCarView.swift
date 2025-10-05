@@ -72,7 +72,6 @@ struct MyCarView: View {
                         }
                     }
                 } else {
-                    // Default empty state view with carInfoCard
                     VStack(spacing: 0) {
                         Rectangle()
                             .fill(Color.clear)
@@ -81,6 +80,28 @@ struct MyCarView: View {
                         Spacer()
                         
                         VStack(spacing: 16) {
+                            // Большой заголовок
+                            VStack(spacing: 8) {
+                                Text(languageManager.localizedString("my_vehicle"))
+                                    .customFont(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.primary)
+                                
+                                Text(languageManager.localizedString("select_vehicle_subtitle"))
+                                    .customFont(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.horizontal, 32)
+                            
+                            // Вставляем placeholder компонент
+                            EmptyCarStatePlaceholder(
+                                languageManager: languageManager,
+                                fontManager: fontManager
+                            )
+                            .padding(.horizontal, 16)
+                            
+                            // Кнопка выбора автомобиля
                             Button(action: {
                                 showingCarSelection = true
                             }) {
@@ -104,8 +125,8 @@ struct MyCarView: View {
                                 RoundedRectangle(cornerRadius: 16)
                                     .fill(Color.primary.opacity(0.05))
                             )
+                            .padding(.horizontal, 16)
                         }
-                        .padding(.horizontal, 16)
                         
                         Spacer()
                     }
