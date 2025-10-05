@@ -1,6 +1,6 @@
 //
 //  CarSelectionView.swift
-//  EVSync
+//  Charge&Go
 //
 //  Created by Daulet Yerkinov on 27.08.25.
 //
@@ -12,6 +12,8 @@ struct CarSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var languageManager = LanguageManager()
     @EnvironmentObject var fontManager: FontManager
+    
+    @AppStorage("selectedCarId") private var selectedCarId: String = ""
     
     @State private var searchText = ""
     @State private var hasInitialSelection: Bool
@@ -67,6 +69,8 @@ struct CarSelectionView: View {
                     .onTapGesture {
                         selectedCar = car
                         hasInitialSelection = true
+                        // Сразу сохраняем ID в AppStorage
+                        selectedCarId = car.id.uuidString
                         dismiss()
                     }
                 }

@@ -94,11 +94,11 @@ struct MyCarView: View {
                             }
                             .padding(.horizontal, 32)
                             
-                            // Вставляем placeholder компонент
                             EmptyCarStatePlaceholder(
                                 languageManager: languageManager,
                                 fontManager: fontManager
                             )
+                            .scaleEffect(0.85)
                             .padding(.horizontal, 16)
                             
                             // Кнопка выбора автомобиля
