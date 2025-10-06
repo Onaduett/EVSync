@@ -39,6 +39,8 @@ extension MapViewModel {
     func resetFilters() {
         selectedConnectorTypes.removeAll()
         selectedOperators.removeAll()
+        priceRange = minPrice...maxPrice
+        powerRange = minPower...maxPower
         applyFilters()
     }
     

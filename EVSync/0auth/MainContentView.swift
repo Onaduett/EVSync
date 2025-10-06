@@ -75,12 +75,40 @@ struct MainContentView: View {
     
     private func startInitialization() {
         Task {
-            async let connOk = networkMonitor.checkConnection()
+            // Check connection first
+            let hasConnection = await networkMonitor.checkConnection()
+            await MainActor.run { initialConnectionCheck = true }
+            
+            // If no connection, skip welcome screen and show NoInternetView immediately
+            if !hasConnection {
+                await MainActor.run {
+                    contentMounted = true
+                    shouldFadeOutWelcome = true
+                }
+                
+                try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s for welcome fade
+                
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        showWelcomeOverlay = false
+                    }
+                }
+                
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        showNoInternet = true
+                        isCheckingAuth = false
+                    }
+                }
+                return
+            }
+            
+            // Normal flow with connection
             async let authTask: Void = authManager.checkAuthStatusAsync()
-
             async let minSplash: Void = { try? await Task.sleep(nanoseconds: 2_000_000_000) }()
 
-            let hasConnection = await connOk
             _ = await authTask
             await MainActor.run { authChecked = true }
             _ = await minSplash
@@ -95,7 +123,6 @@ struct MainContentView: View {
             try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s - let map start rendering
             await MainActor.run {
                 shouldFadeOutWelcome = true
-                initialConnectionCheck = true
             }
 
             try? await Task.sleep(nanoseconds: 180_000_000) // 0.18s
@@ -110,14 +137,6 @@ struct MainContentView: View {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     showWelcomeOverlay = false
                     isCheckingAuth = false
-                }
-            }
-
-            if !hasConnection {
-                await MainActor.run {
-                    withAnimation(.easeInOut(duration: 0.4)) {
-                        showNoInternet = true
-                    }
                 }
             }
         }

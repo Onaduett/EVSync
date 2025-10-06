@@ -1,6 +1,6 @@
 //
 //  MapViewModel.swift
-//  EVSync
+//  Charge&Go
 //
 //  Created by Daulet Yerkinov on 27.08.25.
 //
@@ -25,14 +25,14 @@ class MapViewModel: ObservableObject {
     @Published var filteredStations: [ChargingStation] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var mapStyle: MKMapType = .standard
+    
+    // Filter properties
     @Published var showingFilterOptions = false
     @Published var selectedConnectorTypes: Set<ConnectorType> = []
     @Published var selectedOperators: Set<String> = []
-    @Published var mapStyle: MKMapType = .standard
-    
     @Published var priceRange: ClosedRange<Double> = 0...100
     @Published var powerRange: ClosedRange<Double> = 0...350
-    
     
     @Published private var currentRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 43.25552, longitude: 76.930076),
@@ -56,6 +56,8 @@ class MapViewModel: ObservableObject {
         supabaseURL: SupabaseConfig.supabaseURL,
         supabaseKey: SupabaseConfig.supabaseKey
     )
+    
+    // MARK: - Computed Filter Properties
     
     var availableConnectorTypes: [ConnectorType] {
         let allTypes = chargingStations.flatMap { $0.connectorTypes }
@@ -166,15 +168,12 @@ class MapViewModel: ObservableObject {
         selectedStation = nil
         showingStationDetail = false
         
-        // Smooth zoom out animation to default position
         let currentSpan = currentRegion.span
         let targetSpan = almatySpan
         
-        // Check if we need to zoom out (current view is more zoomed in than target)
         let needsZoomOut = currentSpan.latitudeDelta < targetSpan.latitudeDelta
         
         if needsZoomOut {
-            // First zoom out slightly from current position
             let intermediateSpan = MKCoordinateSpan(
                 latitudeDelta: currentSpan.latitudeDelta * 1.5,
                 longitudeDelta: currentSpan.longitudeDelta * 1.5
@@ -185,7 +184,6 @@ class MapViewModel: ObservableObject {
                 cameraPosition = .region(intermediateRegion)
             }
             
-            // Then animate to final position
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 let region = MKCoordinateRegion(center: self.almatyCenter, span: self.almatySpan)
                 self.updateCurrentRegion(region)
@@ -195,35 +193,12 @@ class MapViewModel: ObservableObject {
                 }
             }
         } else {
-            // Direct animation if already zoomed out
             let region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
             updateCurrentRegion(region)
             
             withAnimation(.easeInOut(duration: 0.8)) {
                 cameraPosition = .region(region)
             }
-        }
-    }
-    
-    func clearAllFilters() {
-        selectedConnectorTypes.removeAll()
-        selectedOperators.removeAll()
-        priceRange = minPrice...maxPrice
-        powerRange = minPower...maxPower
-        applyFilters()
-    }
-    
-    func initializeFilterRanges() {
-        if chargingStations.isEmpty { return }
-        
-        let defaultPriceRange = minPrice...maxPrice
-        let defaultPowerRange = minPower...maxPower
-        
-        if priceRange == 0...100 {
-            priceRange = defaultPriceRange
-        }
-        if powerRange == 0...350 {
-            powerRange = defaultPowerRange
         }
     }
     
@@ -335,7 +310,28 @@ class MapViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Filtering
+    // MARK: - Filter Management
+    
+    func initializeFilterRanges() {
+        guard !chargingStations.isEmpty else { return }
+        
+        let defaultPriceRange = minPrice...maxPrice
+        let defaultPowerRange = minPower...maxPower
+        
+        if priceRange == 0...100 {
+            priceRange = defaultPriceRange
+        }
+        if powerRange == 0...350 {
+            powerRange = defaultPowerRange
+        }
+    }
+    
+    func clearAllFilters() {
+        selectedConnectorTypes.removeAll()
+        selectedOperators.removeAll()
+        priceRange = minPrice...maxPrice
+        powerRange = minPower...maxPower
+    }
     
     func applyFilters() {
         filteredStations = chargingStations.filter { station in
@@ -363,21 +359,19 @@ class MapViewModel: ObservableObject {
             return matchesConnectorFilter && matchesOperatorFilter && matchesPriceFilter && matchesPowerFilter
         }
         
-        if !filteredStations.isEmpty && shouldAdjustForFilteredStations() {
+        if !filteredStations.isEmpty && shouldAdjustMapForFilteredStations() {
             updateMapRegionForFiltered()
         }
     }
     
-    // MARK: - Private Methods
-    
-    private func shouldAdjustForFilteredStations() -> Bool {
+    private func shouldAdjustMapForFilteredStations() -> Bool {
         guard filteredStations.count <= 5 else { return false }
         
         let coordinates = filteredStations.map { $0.coordinate }
-        let minLat = coordinates.map { $0.latitude }.min() ?? almatyCenter.latitude
-        let maxLat = coordinates.map { $0.latitude }.max() ?? almatyCenter.latitude
-        let minLon = coordinates.map { $0.longitude }.min() ?? almatyCenter.longitude
-        let maxLon = coordinates.map { $0.longitude }.max() ?? almatyCenter.longitude
+        let minLat = coordinates.map { $0.latitude }.min() ?? 43.25552
+        let maxLat = coordinates.map { $0.latitude }.max() ?? 43.25552
+        let minLon = coordinates.map { $0.longitude }.min() ?? 76.930076
+        let maxLon = coordinates.map { $0.longitude }.max() ?? 76.930076
         
         let latRange = maxLat - minLat
         let lonRange = maxLon - minLon
@@ -385,23 +379,15 @@ class MapViewModel: ObservableObject {
         return latRange < 0.05 && lonRange < 0.05
     }
     
-    private func setAlmatyRegion() {
-        let region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
-        updateCurrentRegion(region)
+    private func calculateRegionForFilteredStations() -> MKCoordinateRegion? {
+        guard !filteredStations.isEmpty else { return nil }
         
-        withAnimation(.easeInOut(duration: 1.0)) {
-            cameraPosition = .region(region)
-        }
-    }
-    
-    private func updateMapRegionForFiltered() {
         let coordinates = filteredStations.map { $0.coordinate }
-        guard !coordinates.isEmpty else { return }
         
-        let minLat = coordinates.map { $0.latitude }.min() ?? almatyCenter.latitude
-        let maxLat = coordinates.map { $0.latitude }.max() ?? almatyCenter.latitude
-        let minLon = coordinates.map { $0.longitude }.min() ?? almatyCenter.longitude
-        let maxLon = coordinates.map { $0.longitude }.max() ?? almatyCenter.longitude
+        let minLat = coordinates.map { $0.latitude }.min() ?? 43.25552
+        let maxLat = coordinates.map { $0.latitude }.max() ?? 43.25552
+        let minLon = coordinates.map { $0.longitude }.min() ?? 76.930076
+        let maxLon = coordinates.map { $0.longitude }.max() ?? 76.930076
         
         let center = CLLocationCoordinate2D(
             latitude: (minLat + maxLat) / 2,
@@ -413,7 +399,23 @@ class MapViewModel: ObservableObject {
             longitudeDelta: max(min(maxLon - minLon + 0.02, 0.15), 0.05)
         )
         
-        let region = MKCoordinateRegion(center: center, span: span)
+        return MKCoordinateRegion(center: center, span: span)
+    }
+    
+    // MARK: - Private Methods
+    
+    private func setAlmatyRegion() {
+        let region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
+        updateCurrentRegion(region)
+        
+        withAnimation(.easeInOut(duration: 1.0)) {
+            cameraPosition = .region(region)
+        }
+    }
+    
+    private func updateMapRegionForFiltered() {
+        guard let region = calculateRegionForFilteredStations() else { return }
+        
         updateCurrentRegion(region)
         
         withAnimation(.easeInOut(duration: 0.5)) {

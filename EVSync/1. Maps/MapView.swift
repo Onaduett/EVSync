@@ -1,6 +1,6 @@
 //
 //  MapView.swift
-//  EVSync
+//  Charge&Go
 //
 //  Created by Daulet Yerkinov on 27.08.25.
 //
@@ -73,7 +73,6 @@ struct MapView: View {
                         if !isMapReady {
                             isMapReady = true
                         }
-                        // Update currentRegion when user manually moves the map
                         viewModel.cameraPosition = .region(context.region)
                     }
                     
@@ -183,7 +182,6 @@ struct MapView: View {
     private func handleMapReset() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         
-        // Close station card if open
         if isStationCardShown {
             withAnimation(.easeInOut(duration: 0.25)) {
                 isStationCardShown = false
@@ -191,21 +189,16 @@ struct MapView: View {
             }
         }
         
-        // Reset map with smooth zoom animation
         viewModel.resetToDefaultPosition()
     }
     
     private func handleStationTap(_ station: ChargingStation) {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         
-        // If a different station is already selected, switch immediately
         if let currentStation = presentedStation, currentStation.id != station.id {
-            // Immediately update to new station without closing animation
             viewModel.selectStation(station)
             presentedStation = station
-            // Card stays open, just updates content
         } else if !isStationCardShown {
-            // No card is shown, select station and show card
             viewModel.selectStation(station)
             presentedStation = station
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
