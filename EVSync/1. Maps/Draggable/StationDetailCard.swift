@@ -128,17 +128,12 @@ struct StationDetailCard: View {
             isFavorited = ids.contains(station.id)
         }
         .sheet(isPresented: $showingCarSelection) {
-            NavigationView {
-                MyCarView()
-                    .environmentObject(fontManager)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button(languageManager.localizedString("done")) {
-                                showingCarSelection = false
-                            }
-                        }
-                    }
-            }
+            CarSelectionView(
+                selectedCarId: $selectedCarId,
+                hasInitialSelection: !selectedCarId.isEmpty
+            )
+            .environmentObject(fontManager)
+            .environmentObject(languageManager)
         }
     }
     

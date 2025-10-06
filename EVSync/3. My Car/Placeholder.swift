@@ -59,6 +59,7 @@ struct EmptyCarStatePlaceholder: View {
                 // Совместимо
                 HStack(spacing: 6) {
                     Image(systemName: "checkmark.seal.fill")
+                        .symbolEffect(.pulse)
                         .foregroundColor(.green)
                         .font(.system(size: 16, weight: .semibold))
                     

@@ -17,7 +17,11 @@ extension MyCarView {
             Button(action: {
                 showingCarSelection = true
             }) {
-                HStack(spacing: 12) {
+                HStack(spacing: 5) {
+                    Image(car.logo)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(car.displayName)

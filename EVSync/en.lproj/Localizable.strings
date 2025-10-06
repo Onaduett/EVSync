@@ -338,3 +338,6 @@
 
 "my_vehicle" = "My Vehicle";
 "select_vehicle_subtitle" = "Select your EV to view details";
+
+"delete_vehicle_alert_title" = "Delete Vehicle";
+"delete_vehicle_alert_message" = "Are you sure you want to delete this vehicle? This action cannot be undone.";

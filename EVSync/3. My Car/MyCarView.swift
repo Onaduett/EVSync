@@ -66,6 +66,9 @@ struct MyCarView: View {
                                 
                                 specificationsSection(car: car)
                                 
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .frame(height: 20)
                             }
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
@@ -157,6 +160,10 @@ struct MyCarView: View {
                         gradientOpacity = 1.0
                     }
                 }
+            } else {
+                selectedCar = nil
+                imageOpacity = 0.0
+                gradientOpacity = 0.0
             }
         }
         .task {

@@ -252,6 +252,7 @@
 			packageReferences = (
 				AAE75D412E5F63C300AE5420 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				AAC375872E73DB9200B71495 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				AAD8584F2E93C846000E3782 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AACD65EB2E5EF134000F751C /* Products */;
@@ -663,6 +664,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 9.0.0;
+			};
+		};
+		AAD8584F2E93C846000E3782 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mapbox/mapbox-maps-ios.git";
+			requirement = {
+				branch = main;
+				kind = branch;
 			};
 		};
 		AAE75D412E5F63C300AE5420 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {

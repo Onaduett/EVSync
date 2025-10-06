@@ -333,3 +333,6 @@
 
 "my_vehicle" = "Менің көлігім";
 "select_vehicle_subtitle" = "Электромобиль мәліметтерін көру үшін таңдаңыз";
+
+"delete_vehicle_alert_title" = "Көлікті жою";
+"delete_vehicle_alert_message" = "Бұл көлікті жоюға сенімдісіз бе? Бұл әрекетті қайтару мүмкін емес.";

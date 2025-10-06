@@ -15,6 +15,7 @@ struct CarSelectionView: View {
     
     @State private var searchText = ""
     @State private var hasInitialSelection: Bool
+    @State private var showingDeleteAlert = false
     
     init(selectedCarId: Binding<String>, hasInitialSelection: Bool = true) {
         self._selectedCarId = selectedCarId
@@ -34,46 +35,62 @@ struct CarSelectionView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                List(filteredCars) { car in
-                    HStack(spacing: 12) {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.blue.opacity(0.1))
-                            .frame(width: 50, height: 50)
-                            .overlay(
-                                Image(systemName: "bolt.car")
-                                    .foregroundColor(.blue)
-                            )
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(car.displayName)
-                                .customFont(.headline)
-                                .foregroundColor(.primary)
+                List {
+                    ForEach(filteredCars) { car in
+                        HStack(spacing: 12) {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.teal.opacity(0.1))
+                                .frame(width: 50, height: 50)
+                                .overlay(
+                                    Image(car.logo)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .padding(8)
+                                )
                             
-                            Text(String(format: languageManager.localizedString("vehicle_info_format"),
-                                       "\(car.range) \(languageManager.localizedString("km_unit"))",
-                                       "\(Int(car.batteryCapacity))"))
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(car.displayName)
+                                    .customFont(.headline)
+                                    .foregroundColor(.primary)
+                                
+                                Text(String(format: languageManager.localizedString("vehicle_info_format"),
+                                            "\(car.range) \(languageManager.localizedString("km_unit"))",
+                                            "\(Int(car.batteryCapacity))"))
                                 .customFont(.subheadline)
                                 .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if hasInitialSelection && selectedCarId == car.id {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.blue)
+                            }
                         }
-                        
-                        Spacer()
-                        
-                        if hasInitialSelection && selectedCarId == car.id {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.blue)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            hasInitialSelection = true
+                            selectedCarId = car.id
+                            print("DEBUG: Selected car ID: \(selectedCarId)")
+                            dismiss()
                         }
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        hasInitialSelection = true
-                        selectedCarId = car.id
-                        print("DEBUG: Selected car ID: \(selectedCarId)")
-                        dismiss()
                     }
                 }
                 .navigationTitle(languageManager.localizedString("select_vehicle"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        if hasInitialSelection && !selectedCarId.isEmpty {
+                            Button(action: {
+                                showingDeleteAlert = true
+                            }) {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                                    .font(.system(size: 13))
+                            }
+                        }
+                    }
+                    
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(languageManager.localizedString("done")) {
                             dismiss()
@@ -116,6 +133,18 @@ struct CarSelectionView: View {
                     .padding(.horizontal, 20)
                     .padding(.bottom, 10)
                 }
+            }
+            .alert(languageManager.localizedString("delete_vehicle_alert_title"), isPresented: $showingDeleteAlert) {
+                Button(languageManager.localizedString("cancel"), role: .cancel) { }
+                Button(languageManager.localizedString("delete"), role: .destructive) {
+                    withAnimation {
+                        selectedCarId = ""
+                        hasInitialSelection = false
+                    }
+                    dismiss()
+                }
+            } message: {
+                Text(languageManager.localizedString("delete_vehicle_alert_message"))
             }
         }
     }
