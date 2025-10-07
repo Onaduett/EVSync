@@ -16,6 +16,9 @@ struct StationDetailCard: View {
     @State private var dragOffset: CGFloat = 0
     @State private var connectorPairIndex = 0
     @State private var showingCarSelection = false
+    @State private var scrollOffset: CGFloat = 0
+    @State private var isScrollAtTop = true
+    @State private var lockScroll = false
 
     @StateObject private var supabaseManager = SupabaseManager.shared
     @StateObject private var languageManager = LanguageManager()
@@ -47,7 +50,9 @@ struct StationDetailCard: View {
                 dragHandle
 
                 if showingFullDetail {
-                    ScrollView(showsIndicators: false) {
+                    ScrollViewWithOffset(offset: $scrollOffset, onOffsetChange: { offset in
+                        isScrollAtTop = offset <= 0
+                    }) {
                         VStack(alignment: .leading, spacing: 0) {
                             VStack(alignment: .leading, spacing: 6) {
                                 headerSection
@@ -72,6 +77,8 @@ struct StationDetailCard: View {
                         }
                         .padding(.bottom, bottomButtonsHeight + bottomButtonsVPadding + 12)
                     }
+                    .scrollDisabled(lockScroll) // <— ключевая строка
+                    .highPriorityGesture(isScrollAtTop ? collapseDragGesture : nil) // <— перехват жеста
                 } else {
                     VStack(alignment: .leading, spacing: 6) {
                         headerSection
@@ -91,6 +98,8 @@ struct StationDetailCard: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 0)
                     .padding(.bottom, bottomButtonsHeight + bottomButtonsVPadding + 12)
+                    .contentShape(Rectangle())
+                    .gesture(expandDragGesture)
                     
                     Spacer()
                 }
@@ -149,7 +158,7 @@ struct StationDetailCard: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
-        .gesture(dragGesture)
+        .gesture(dragHandleGesture)
         .onTapGesture {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 showingFullDetail.toggle()
@@ -344,7 +353,8 @@ struct StationDetailCard: View {
     
     // MARK: - Gestures
     
-    private var dragGesture: some Gesture {
+    // Жест для ручки - работает всегда
+    private var dragHandleGesture: some Gesture {
         DragGesture()
             .onChanged { value in
                 dragOffset = value.translation.height
@@ -357,28 +367,74 @@ struct StationDetailCard: View {
                 }
             }
             .onEnded { value in
-                let translation = value.translation.height
-                let velocity = value.predictedEndTranslation.height
+                handleDragEnd(translation: value.translation.height, velocity: value.predictedEndTranslation.height)
+            }
+    }
+    
+    // Жест для разворачивания (когда карточка свернута)
+    private var expandDragGesture: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                dragOffset = value.translation.height
                 
-                if !showingFullDetail && (translation < -40 || velocity < -80) {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                        showingFullDetail = true
-                    }
-                } else if showingFullDetail && (translation > 30 || velocity > 80) {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                        showingFullDetail = false
-                    }
-                } else if abs(translation) > 100 || abs(velocity) > 200 {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        showingDetail = false
-                    }
-                    onClose?()
-                }
-                
-                withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
-                    dragOffset = 0
+                if !showingFullDetail && dragOffset < -30 && dragOffset > -40 {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
             }
+            .onEnded { value in
+                handleDragEnd(translation: value.translation.height, velocity: value.predictedEndTranslation.height)
+            }
+    }
+    
+    // Жест для сворачивания (когда карточка развернута И скролл наверху)
+    private var collapseDragGesture: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                if value.translation.height > 0 { // тянем вниз
+                    lockScroll = true            // <— глушим bounce
+                    dragOffset = value.translation.height
+                    if dragOffset > 30 && dragOffset < 40 {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    }
+                }
+            }
+            .onEnded { value in
+                defer {
+                    lockScroll = false           // <— возвращаем скролл
+                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) { dragOffset = 0 }
+                }
+                if value.translation.height > 0 {
+                    handleDragEnd(translation: value.translation.height,
+                                  velocity: value.predictedEndTranslation.height)
+                }
+            }
+    }
+
+    
+    private func handleDragEnd(translation: CGFloat, velocity: CGFloat) {
+        // Разворачивание (свайп вверх)
+        if !showingFullDetail && (translation < -40 || velocity < -80) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                showingFullDetail = true
+            }
+        }
+        // Сворачивание (свайп вниз)
+        else if showingFullDetail && (translation > 30 || velocity > 80) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                showingFullDetail = false
+            }
+        }
+        // Закрытие карточки (сильный свайп вниз)
+        else if abs(translation) > 100 || abs(velocity) > 200 {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                showingDetail = false
+            }
+            onClose?()
+        }
+        
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+            dragOffset = 0
+        }
     }
     
     // MARK: - Helper Methods
@@ -392,6 +448,8 @@ struct StationDetailCard: View {
             isFavorited = supabaseManager.favoriteIds.contains(station.id)
             isLoadingFavorite = false
             showingFullDetail = false
+            isScrollAtTop = true
+            scrollOffset = 0
             
             withAnimation(.easeInOut(duration: 0.3)) {
                 showingDetail = true
@@ -467,6 +525,45 @@ struct StationDetailCard: View {
     private func localizedAmenity(_ amenity: String) -> String {
         let amenityKey = amenity.lowercased().replacingOccurrences(of: " ", with: "_")
         return languageManager.localizedString("amenity_\(amenityKey)")
+    }
+}
+
+// MARK: - ScrollView with Offset Tracking
+struct ScrollViewWithOffset<Content: View>: View {
+    @Binding var offset: CGFloat
+    let onOffsetChange: (CGFloat) -> Void
+    let content: Content
+    
+    init(offset: Binding<CGFloat>, onOffsetChange: @escaping (CGFloat) -> Void, @ViewBuilder content: () -> Content) {
+        self._offset = offset
+        self.onOffsetChange = onOffsetChange
+        self.content = content()
+    }
+    
+    var body: some View {
+        ScrollView(showsIndicators: false) {
+            GeometryReader { geometry in
+                Color.clear.preference(
+                    key: ScrollOffsetPreferenceKey.self,
+                    value: geometry.frame(in: .named("scroll")).minY
+                )
+            }
+            .frame(height: 0)
+            
+            content
+        }
+        .coordinateSpace(name: "scroll")
+        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+            offset = value
+            onOffsetChange(value)
+        }
+    }
+}
+
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

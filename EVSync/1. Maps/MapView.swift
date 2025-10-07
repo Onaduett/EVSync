@@ -41,91 +41,11 @@ struct MapView: View {
         GeometryReader { geometry in
             ZStack {
                 ZStack(alignment: .top) {
-                    Map(position: $viewModel.cameraPosition) {
-                        ForEach(viewModel.filteredStations) { station in
-                            Annotation("", coordinate: station.coordinate) {
-                                ChargingStationAnnotation(
-                                    station: station,
-                                    isSelected: viewModel.selectedStation?.id == station.id,
-                                    isFavorite: supabaseManager.favoriteIds.contains(station.id)
-                                )
-                                .onTapGesture {
-                                    handleStationTap(station)
-                                }
-                            }
-                        }
-                        if let userLocation = locationManager.userLocation, locationManager.isLocationEnabled {
-                            Annotation("", coordinate: userLocation) {
-                                Circle()
-                                    .fill(Color.blue)
-                                    .frame(width: 16, height: 16)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.white, lineWidth: 3)
-                                    )
-                                    .shadow(radius: 4)
-                            }
-                        }
-                    }
-                    .mapStyle(mapStyleForType(viewModel.mapStyle))
-                    .ignoresSafeArea()
-                    .onMapCameraChange { context in
-                        if !isMapReady {
-                            isMapReady = true
-                        }
-                        viewModel.cameraPosition = .region(context.region)
-                    }
-                    
+                    mapContent
                     MapGradientOverlay()
-                    
-                    if viewModel.isLoading && isMapReady {
-                        LoadingOverlay()
-                            .transition(.opacity)
-                            .zIndex(1)
-                    }
-                    
-                    if let errorMessage = viewModel.errorMessage {
-                        ErrorOverlay(message: errorMessage) {
-                            viewModel.loadChargingStations(forceRefresh: true)
-                        }
-                    }
-                    
-                    VStack {
-                        MapHeader(
-                            selectedConnectorTypes: viewModel.selectedConnectorTypes,
-                            selectedOperators: viewModel.selectedOperators,
-                            priceRange: viewModel.priceRange,
-                            powerRange: viewModel.powerRange,
-                            defaultPriceRange: viewModel.minPrice...viewModel.maxPrice,
-                            defaultPowerRange: viewModel.minPower...viewModel.maxPower,
-                            showingFilterOptions: $viewModel.showingFilterOptions,
-                            mapStyle: $viewModel.mapStyle,
-                            onLocationTap: handleLocationButtonTap,
-                            locationManager: locationManager,
-                            colorScheme: colorScheme
-                        )
-                        .opacity(isMapReady ? 1.0 : 0.0)
-                        .animation(.easeInOut(duration: 0.3), value: isMapReady)
-                        
-                        Spacer()
-                    }
-                    
-                    FilterOptionsOverlay(
-                        availableTypes: viewModel.availableConnectorTypes,
-                        availableOperators: viewModel.availableOperators,
-                        selectedTypes: $viewModel.selectedConnectorTypes,
-                        selectedOperators: $viewModel.selectedOperators,
-                        priceRange: $viewModel.priceRange,
-                        powerRange: $viewModel.powerRange,
-                        maxPrice: viewModel.maxPrice,
-                        maxPower: viewModel.maxPower,
-                        minPrice: viewModel.minPrice,
-                        minPower: viewModel.minPower,
-                        isShowing: $viewModel.showingFilterOptions
-                    )
-                    .opacity(viewModel.showingFilterOptions ? 1.0 : 0.0)
-                    .animation(.easeInOut(duration: 0.25), value: viewModel.showingFilterOptions)
-                    .zIndex(3)
+                    overlaysContent
+                    headerContent
+                    filterOverlay
                 }
             }
         }
@@ -161,6 +81,11 @@ struct MapView: View {
                 selectedStationFromFavorites = nil
             }
         }
+        .onChange(of: viewModel.chargingStations.count) { oldValue, newValue in
+            if oldValue == 0 && newValue > 0 {
+                viewModel.applyFilters()
+            }
+        }
         .onChange(of: shouldResetMap) { _, shouldReset in
             if shouldReset {
                 handleMapReset()
@@ -178,6 +103,129 @@ struct MapView: View {
     }
     
     // MARK: - Private Methods
+    
+    private var mapContent: some View {
+        Map(position: $viewModel.cameraPosition) {
+            stationAnnotations
+            userLocationAnnotation
+        }
+        .mapStyle(mapStyleForType(viewModel.mapStyle))
+        .ignoresSafeArea()
+        .transaction { transaction in
+            transaction.animation = nil
+        }
+        .onMapCameraChange { context in
+            handleMapCameraChange(context)
+        }
+    }
+    
+    private var stationAnnotations: some MapContent {
+        ForEach(viewModel.visibleStations, id: \.id) { station in
+            Annotation("", coordinate: station.coordinate) {
+                ChargingStationAnnotation(
+                    station: station,
+                    isSelected: viewModel.selectedStation?.id == station.id,
+                    isFavorite: supabaseManager.favoriteIds.contains(station.id)
+                )
+                .drawingGroup()
+                .onTapGesture {
+                    handleStationTap(station)
+                }
+            }
+        }
+    }
+    
+    @MapContentBuilder
+    private var userLocationAnnotation: some MapContent {
+        if let userLocation = locationManager.userLocation, locationManager.isLocationEnabled {
+            Annotation("", coordinate: userLocation) {
+                Circle()
+                    .fill(Color.blue)
+                    .frame(width: 16, height: 16)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white, lineWidth: 3)
+                    )
+                    .shadow(radius: 4)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var overlaysContent: some View {
+        if viewModel.isLoading && isMapReady {
+            LoadingOverlay()
+                .transition(.opacity)
+                .zIndex(1)
+        }
+        
+        if let errorMessage = viewModel.errorMessage {
+            ErrorOverlay(message: errorMessage) {
+                viewModel.loadChargingStations(forceRefresh: true)
+            }
+        }
+    }
+    
+    private var headerContent: some View {
+        VStack {
+            MapHeader(
+                selectedConnectorTypes: viewModel.selectedConnectorTypes,
+                selectedOperators: viewModel.selectedOperators,
+                priceRange: viewModel.priceRange,
+                powerRange: viewModel.powerRange,
+                defaultPriceRange: viewModel.minPrice...viewModel.maxPrice,
+                defaultPowerRange: viewModel.minPower...viewModel.maxPower,
+                showingFilterOptions: $viewModel.showingFilterOptions,
+                mapStyle: $viewModel.mapStyle,
+                onLocationTap: handleLocationButtonTap,
+                locationManager: locationManager,
+                colorScheme: colorScheme
+            )
+            .opacity(isMapReady ? 1.0 : 0.0)
+            .animation(.easeInOut(duration: 0.3), value: isMapReady)
+            
+            Spacer()
+        }
+    }
+    
+    private var filterOverlay: some View {
+        FilterOptionsOverlay(
+            availableTypes: viewModel.availableConnectorTypes,
+            availableOperators: viewModel.availableOperators,
+            selectedTypes: $viewModel.selectedConnectorTypes,
+            selectedOperators: $viewModel.selectedOperators,
+            priceRange: $viewModel.priceRange,
+            powerRange: $viewModel.powerRange,
+            maxPrice: viewModel.maxPrice,
+            maxPower: viewModel.maxPower,
+            minPrice: viewModel.minPrice,
+            minPower: viewModel.minPower,
+            isShowing: $viewModel.showingFilterOptions
+        )
+        .opacity(viewModel.showingFilterOptions ? 1.0 : 0.0)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.showingFilterOptions)
+        .zIndex(3)
+    }
+    
+    private func handleMapCameraChange(_ context: MapCameraUpdateContext) {
+        if !isMapReady {
+            isMapReady = true
+            return
+        }
+        
+        guard let currentRegion = viewModel.cameraPosition.region else {
+            viewModel.updateCurrentRegion(context.region)
+            return
+        }
+        
+        let threshold = 0.0001
+        let latDiff = abs(context.region.center.latitude - currentRegion.center.latitude)
+        let lonDiff = abs(context.region.center.longitude - currentRegion.center.longitude)
+        
+        guard latDiff > threshold || lonDiff > threshold else { return }
+        
+        viewModel.updateCurrentRegion(context.region)
+    }
     
     private func handleMapReset() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()

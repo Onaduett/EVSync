@@ -57,6 +57,77 @@ class MapViewModel: ObservableObject {
         supabaseKey: SupabaseConfig.supabaseKey
     )
     
+    // MARK: - Position & Filter Persistence
+    
+    private let positionKey = "savedMapPosition"
+    private let filtersKey = "savedMapFilters"
+    private var shouldRestorePosition = true
+    
+    init() {
+        restoreMapPosition()
+        restoreFilters()
+    }
+    
+    private func saveMapPosition() {
+        let position = SavedMapPosition(
+            latitude: currentRegion.center.latitude,
+            longitude: currentRegion.center.longitude,
+            latitudeDelta: currentRegion.span.latitudeDelta,
+            longitudeDelta: currentRegion.span.longitudeDelta
+        )
+        
+        if let encoded = try? JSONEncoder().encode(position) {
+            UserDefaults.standard.set(encoded, forKey: positionKey)
+        }
+    }
+    
+    private func restoreMapPosition() {
+        guard let data = UserDefaults.standard.data(forKey: positionKey),
+              let position = try? JSONDecoder().decode(SavedMapPosition.self, from: data) else {
+            return
+        }
+        
+        let center = CLLocationCoordinate2D(
+            latitude: position.latitude,
+            longitude: position.longitude
+        )
+        let span = MKCoordinateSpan(
+            latitudeDelta: position.latitudeDelta,
+            longitudeDelta: position.longitudeDelta
+        )
+        
+        let region = MKCoordinateRegion(center: center, span: span)
+        currentRegion = region
+        cameraPosition = .region(region)
+    }
+    
+    private func saveFilters() {
+        let filters = SavedMapFilters(
+            connectorTypes: Array(selectedConnectorTypes.map { $0.rawValue }),
+            operators: Array(selectedOperators),
+            priceRangeLower: priceRange.lowerBound,
+            priceRangeUpper: priceRange.upperBound,
+            powerRangeLower: powerRange.lowerBound,
+            powerRangeUpper: powerRange.upperBound
+        )
+        
+        if let encoded = try? JSONEncoder().encode(filters) {
+            UserDefaults.standard.set(encoded, forKey: filtersKey)
+        }
+    }
+    
+    private func restoreFilters() {
+        guard let data = UserDefaults.standard.data(forKey: filtersKey),
+              let filters = try? JSONDecoder().decode(SavedMapFilters.self, from: data) else {
+            return
+        }
+        
+        selectedConnectorTypes = Set(filters.connectorTypes.compactMap { ConnectorType(rawValue: $0) })
+        selectedOperators = Set(filters.operators)
+        priceRange = filters.priceRangeLower...filters.priceRangeUpper
+        powerRange = filters.powerRangeLower...filters.powerRangeUpper
+    }
+    
     // MARK: - Computed Filter Properties
     
     var availableConnectorTypes: [ConnectorType] {
@@ -99,14 +170,37 @@ class MapViewModel: ObservableObject {
                powerRange != defaultPowerRange
     }
     
+    // MARK: - Виртуализация станций (оптимизация рендеринга)
+    
+    var visibleStations: [ChargingStation] {
+        let region = currentRegion
+        let buffer = 0.15 // 15% буфер для плавной подгрузки
+        
+        return filteredStations.filter { station in
+            let latDiff = abs(station.coordinate.latitude - region.center.latitude)
+            let lonDiff = abs(station.coordinate.longitude - region.center.longitude)
+            
+            return latDiff <= region.span.latitudeDelta * (0.5 + buffer) &&
+                   lonDiff <= region.span.longitudeDelta * (0.5 + buffer)
+        }
+    }
+    
     // MARK: - Cinematic Map Methods
     
-    private func updateCurrentRegion(_ region: MKCoordinateRegion) {
+    func updateCurrentRegion(_ region: MKCoordinateRegion) {
+        // Обновляем только если реально изменилось (порог 0.0001 градуса)
+        let threshold = 0.0001
+        guard abs(currentRegion.center.latitude - region.center.latitude) > threshold ||
+              abs(currentRegion.center.longitude - region.center.longitude) > threshold ||
+              abs(currentRegion.span.latitudeDelta - region.span.latitudeDelta) > threshold else {
+            return
+        }
         currentRegion = region
+        saveMapPosition()
     }
     
     private func setCamera(_ position: MapCameraPosition, animated: Bool) {
-        if animated {
+        if animated && !isLoading {
             withAnimation(.easeInOut(duration: 0.6)) {
                 cameraPosition = position
             }
@@ -168,37 +262,11 @@ class MapViewModel: ObservableObject {
         selectedStation = nil
         showingStationDetail = false
         
-        let currentSpan = currentRegion.span
-        let targetSpan = almatySpan
+        let region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
+        updateCurrentRegion(region)
         
-        let needsZoomOut = currentSpan.latitudeDelta < targetSpan.latitudeDelta
-        
-        if needsZoomOut {
-            let intermediateSpan = MKCoordinateSpan(
-                latitudeDelta: currentSpan.latitudeDelta * 1.5,
-                longitudeDelta: currentSpan.longitudeDelta * 1.5
-            )
-            let intermediateRegion = MKCoordinateRegion(center: currentRegion.center, span: intermediateSpan)
-            
-            withAnimation(.easeOut(duration: 0.4)) {
-                cameraPosition = .region(intermediateRegion)
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                let region = MKCoordinateRegion(center: self.almatyCenter, span: self.almatySpan)
-                self.updateCurrentRegion(region)
-                
-                withAnimation(.easeInOut(duration: 0.6)) {
-                    self.cameraPosition = .region(region)
-                }
-            }
-        } else {
-            let region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
-            updateCurrentRegion(region)
-            
-            withAnimation(.easeInOut(duration: 0.8)) {
-                cameraPosition = .region(region)
-            }
+        withAnimation(.easeInOut(duration: 0.6)) {
+            cameraPosition = .region(region)
         }
     }
     
@@ -207,13 +275,14 @@ class MapViewModel: ObservableObject {
     func loadChargingStations(forceRefresh: Bool = false) {
         if !forceRefresh && isCacheValid() {
             chargingStations = cachedStations
-            filteredStations = chargingStations
+            applyFilters()
             isLoading = false
             
             initializeFilterRanges()
             
-            if !hasInitialLoad {
-                setAlmatyRegion()
+            // Не сбрасываем позицию при загрузке данных
+            if !hasInitialLoad && shouldRestorePosition {
+                shouldRestorePosition = false
             }
             hasInitialLoad = true
             return
@@ -236,13 +305,14 @@ class MapViewModel: ObservableObject {
                 self.cacheTimestamp = Date()
                 
                 self.chargingStations = loadedStations
-                self.filteredStations = loadedStations
+                self.applyFilters()
                 self.isLoading = false
                 
                 self.initializeFilterRanges()
 
-                if !hasInitialLoad {
-                    setAlmatyRegion()
+                // Не сбрасываем позицию при загрузке данных
+                if !hasInitialLoad && shouldRestorePosition {
+                    shouldRestorePosition = false
                 }
                 hasInitialLoad = true
 
@@ -275,7 +345,7 @@ class MapViewModel: ObservableObject {
         
         if preloader.isLoaded && !preloader.stations.isEmpty {
             chargingStations = preloader.stations
-            filteredStations = chargingStations
+            applyFilters()
             isLoading = false
             hasInitialLoad = true
             initializeFilterRanges()
@@ -284,7 +354,7 @@ class MapViewModel: ObservableObject {
         
         if isCacheValid() {
             chargingStations = cachedStations
-            filteredStations = chargingStations
+            applyFilters()
             isLoading = false
             hasInitialLoad = true
             initializeFilterRanges()
@@ -301,7 +371,7 @@ class MapViewModel: ObservableObject {
             } else {
                 await MainActor.run {
                     self.chargingStations = preloader.stations
-                    self.filteredStations = preloader.stations
+                    self.applyFilters()
                     self.isLoading = false
                     self.hasInitialLoad = true
                     self.initializeFilterRanges()
@@ -331,6 +401,7 @@ class MapViewModel: ObservableObject {
         selectedOperators.removeAll()
         priceRange = minPrice...maxPrice
         powerRange = minPower...maxPower
+        saveFilters()
     }
     
     func applyFilters() {
@@ -358,6 +429,8 @@ class MapViewModel: ObservableObject {
             
             return matchesConnectorFilter && matchesOperatorFilter && matchesPriceFilter && matchesPowerFilter
         }
+        
+        saveFilters()
         
         if !filteredStations.isEmpty && shouldAdjustMapForFilteredStations() {
             updateMapRegionForFiltered()
@@ -391,7 +464,7 @@ class MapViewModel: ObservableObject {
         
         let center = CLLocationCoordinate2D(
             latitude: (minLat + maxLat) / 2,
-            longitude: (minLon + maxLon) / 2
+            longitude: (minLon + minLon) / 2
         )
         
         let span = MKCoordinateSpan(
@@ -422,4 +495,24 @@ class MapViewModel: ObservableObject {
             cameraPosition = .region(region)
         }
     }
+}
+
+// MARK: - SavedMapPosition Model
+
+struct SavedMapPosition: Codable {
+    let latitude: Double
+    let longitude: Double
+    let latitudeDelta: Double
+    let longitudeDelta: Double
+}
+
+// MARK: - SavedMapFilters Model
+
+struct SavedMapFilters: Codable {
+    let connectorTypes: [String]
+    let operators: [String]
+    let priceRangeLower: Double
+    let priceRangeUpper: Double
+    let powerRangeLower: Double
+    let powerRangeUpper: Double
 }

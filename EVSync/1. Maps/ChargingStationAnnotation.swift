@@ -1,6 +1,6 @@
 //
 //  ChargingStationAnnotation.swift
-//  EVSync
+//  Charge&Go
 //
 //  Created by Daulet Yerkinov on 28.08.25.
 //
@@ -20,8 +20,8 @@ struct ChargingStationAnnotation: View {
         ZStack {
             if isFavorite {
                 Circle()
-                    .stroke(Color.red, lineWidth: 5) //красное колечко
-                    .frame(width: circleSize, height: circleSize) // Тот же размер что и основной круг
+                    .stroke(Color.red, lineWidth: 5)
+                    .frame(width: circleSize, height: circleSize)
                     .opacity(shouldDisappear ? 0 : favoriteRingOpacity)
                     .scaleEffect(shouldDisappear ? 0.1 : (isSelected ? 1.0 : favoriteRingScale))
                     .animation(.spring(response: 0.3), value: isSelected)
@@ -39,7 +39,7 @@ struct ChargingStationAnnotation: View {
                 .font(.system(size: isSelected ? 14 : 12, weight: .bold))
                 .opacity(shouldDisappear ? 0 : logoOpacity)
         }
-        .frame(width: 28, height: 28)
+        .frame(width: containerSize, height: containerSize)
         .scaleEffect(shouldDisappear ? 0.1 : (isSelected ? 1.2 : 1.0))
         .animation(.spring(response: 0.3), value: isSelected)
         .animation(.easeOut(duration: 0.2), value: shouldDisappear)
@@ -88,5 +88,15 @@ struct ChargingStationAnnotation: View {
     
     private var circleSize: CGFloat {
         return isSelected ? 24 : 20
+    }
+    
+    private var containerSize: CGFloat {
+        // Учитываем scaleEffect 1.2 при isSelected и обводку favorite (5pt)
+        let maxCircleSize: CGFloat = 24
+        let favoriteRingWidth: CGFloat = 5
+        let scaleEffect: CGFloat = 1.2
+        let shadowPadding: CGFloat = 8
+        
+        return (maxCircleSize + favoriteRingWidth * 2) * scaleEffect + shadowPadding
     }
 }

@@ -133,7 +133,7 @@ struct ChargingCompatibilityView: View {
     }
     
     var body: some View {
-        if let car = selectedCar, let calc = calculation {
+        if let _ = selectedCar, let calc = calculation {
             // Автомобиль выбран
             if calc.isCompatible {
 

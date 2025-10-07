@@ -65,7 +65,7 @@ extension MapViewModel {
             break
         }
         
-        applyFilters()
+        applyFilters() // Это автоматически сохранит фильтры
     }
 }
 
