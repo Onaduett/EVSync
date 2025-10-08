@@ -328,7 +328,7 @@
 
 "compatible" = "Compatible";
 "not_compatible" = "Not compatible with your vehicle";
-"select_car_for_calculation" = "Select your car to calculate time and cost";
+"select_car_for_calculation" = "Select car to calculate cost and time";
 "hour_short" = "h";
 "min_short" = "min";
 "done" = "Done";
@@ -341,3 +341,4 @@
 
 "delete_vehicle_alert_title" = "Delete Vehicle";
 "delete_vehicle_alert_message" = "Are you sure you want to delete this vehicle? This action cannot be undone.";
+"no_support_number" = "No Support Number";

@@ -43,9 +43,13 @@ class ThemeManager: ObservableObject {
     private let themeKey = "selectedTheme"
     
     init() {
-        let savedTheme = userDefaults.integer(forKey: themeKey)
-        self.currentTheme = AppTheme(rawValue: savedTheme) ?? .auto
-    }
+            if let savedThemeValue = userDefaults.object(forKey: themeKey) as? Int,
+               let savedTheme = AppTheme(rawValue: savedThemeValue) {
+                self.currentTheme = savedTheme
+            } else {
+                self.currentTheme = .auto
+            }
+        }
     
     func setTheme(_ theme: AppTheme) {
         DispatchQueue.main.async {

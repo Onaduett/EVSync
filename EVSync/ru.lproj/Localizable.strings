@@ -320,7 +320,7 @@
 
 "compatible" = "Совместимо";
 "not_compatible" = "Не совместимо с вашим авто";
-"select_car_for_calculation" = "Выберите ваш авто для расчёта времени и цены";
+"select_car_for_calculation" = "Выберите авто для расчета";
 "hour_short" = "ч";
 "min_short" = "мин";
 "done" = "Готово";
@@ -334,3 +334,4 @@
 
 "delete_vehicle_alert_title" = "Удалить автомобиль";
 "delete_vehicle_alert_message" = "Вы уверены, что хотите удалить этот автомобиль? Это действие нельзя будет отменить.";
+"no_support_number" = "Нет номера поддержки";

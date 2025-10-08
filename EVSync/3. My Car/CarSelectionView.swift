@@ -136,7 +136,7 @@ struct CarSelectionView: View {
             }
             .alert(languageManager.localizedString("delete_vehicle_alert_title"), isPresented: $showingDeleteAlert) {
                 Button(languageManager.localizedString("cancel"), role: .cancel) { }
-                Button(languageManager.localizedString("delete"), role: .destructive) {
+                Button(languageManager.localizedString("delete_vehicle_alert_title"), role: .destructive) {
                     withAnimation {
                         selectedCarId = ""
                         hasInitialSelection = false
