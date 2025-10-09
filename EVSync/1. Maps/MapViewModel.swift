@@ -26,6 +26,7 @@ class MapViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var mapStyle: MKMapType = .standard
+    @Published var isAnimatingToStation = false
     
     // Filter properties
     @Published var showingFilterOptions = false
@@ -173,6 +174,11 @@ class MapViewModel: ObservableObject {
     // MARK: - Виртуализация станций (оптимизация рендеринга)
     
     var visibleStations: [ChargingStation] {
+        // Если анимируемся к станции, показываем все отфильтрованные станции
+        if isAnimatingToStation {
+            return filteredStations
+        }
+        
         let region = currentRegion
         let buffer = 0.15 // 15% буфер для плавной подгрузки
         
@@ -214,9 +220,17 @@ class MapViewModel: ObservableObject {
     
     func focusOnStation(_ station: ChargingStation, animated: Bool = true) {
         selectedStation = station
+        isAnimatingToStation = true
+        
         let region = MKCoordinateRegion(center: station.coordinate, span: focusSpan)
         updateCurrentRegion(region)
         setCamera(.region(region), animated: animated, duration: 0.8)
+        
+        // Отключаем флаг после завершения анимации
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 800_000_000) // 0.8 секунды
+            isAnimatingToStation = false
+        }
     }
     
     func subtleZoomOut(animated: Bool = true) {

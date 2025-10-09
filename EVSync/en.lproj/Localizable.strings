@@ -319,7 +319,7 @@
 // Loss items
 "lose_favorite_stations" = "Your favorites - Was always with you.";
 "lose_charging_map" = "One single map for all Stations.";
-"lose_settings" = "Your settings and personalization (theme, language, notifications, etc.).";
+"lose_settings" = "Your settings and personalization";
 
 // Final warning
 "delete_account_warning" = "After confirmation, we will completely delete your account and all related data from the system. Nothing will be kept, and it will not be possible to recover any information.";
