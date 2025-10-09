@@ -10,11 +10,13 @@ import SwiftUI
 struct SettingsFooter: View {
     var body: some View {
         VStack(spacing: 4) {
-            Text("© Developed by Daulét Yerkinov")
+
+            Text("Developed by Daulét Yerkinov")
                 .font(.caption)
                 .foregroundColor(.secondary)
+
             
-            Text("2025 | Based in Almaty")
+            Text("© 2025 Charge&Go | Based in Almaty")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

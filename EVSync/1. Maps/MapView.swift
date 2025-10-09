@@ -61,19 +61,29 @@ struct MapView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ZoomOutFromStation"))) { _ in
-            viewModel.clearSelectedStation()
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                viewModel.clearSelectedStation()
+            }
         }
         .onChange(of: viewModel.selectedConnectorTypes) {
-            viewModel.applyFilters()
+            withAnimation(.easeInOut(duration: 0.3)) {
+                viewModel.applyFilters()
+            }
         }
         .onChange(of: viewModel.selectedOperators) { _, _ in
-            viewModel.applyFilters()
+            withAnimation(.easeInOut(duration: 0.3)) {
+                viewModel.applyFilters()
+            }
         }
         .onChange(of: viewModel.priceRange) { _, _ in
-            viewModel.applyFilters()
+            withAnimation(.easeInOut(duration: 0.3)) {
+                viewModel.applyFilters()
+            }
         }
         .onChange(of: viewModel.powerRange) { _, _ in
-            viewModel.applyFilters()
+            withAnimation(.easeInOut(duration: 0.3)) {
+                viewModel.applyFilters()
+            }
         }
         .onChange(of: selectedStationFromFavorites) { _, station in
             if let station = station {
@@ -83,7 +93,9 @@ struct MapView: View {
         }
         .onChange(of: viewModel.chargingStations.count) { oldValue, newValue in
             if oldValue == 0 && newValue > 0 {
-                viewModel.applyFilters()
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    viewModel.applyFilters()
+                }
             }
         }
         .onChange(of: shouldResetMap) { _, shouldReset in
@@ -111,9 +123,6 @@ struct MapView: View {
         }
         .mapStyle(mapStyleForType(viewModel.mapStyle))
         .ignoresSafeArea()
-        .transaction { transaction in
-            transaction.animation = nil
-        }
         .onMapCameraChange { context in
             handleMapCameraChange(context)
         }
@@ -128,6 +137,8 @@ struct MapView: View {
                     isFavorite: supabaseManager.favoriteIds.contains(station.id)
                 )
                 .drawingGroup()
+                .scaleEffect(viewModel.selectedStation?.id == station.id ? 1.15 : 1.0)
+                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: viewModel.selectedStation?.id == station.id)
                 .onTapGesture {
                     handleStationTap(station)
                 }
@@ -155,7 +166,7 @@ struct MapView: View {
     private var overlaysContent: some View {
         if viewModel.isLoading && isMapReady {
             LoadingOverlay()
-                .transition(.opacity)
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
                 .zIndex(1)
         }
         
@@ -163,6 +174,7 @@ struct MapView: View {
             ErrorOverlay(message: errorMessage) {
                 viewModel.loadChargingStations(forceRefresh: true)
             }
+            .transition(.opacity.combined(with: .move(edge: .top)))
         }
     }
     
@@ -182,7 +194,8 @@ struct MapView: View {
                 colorScheme: colorScheme
             )
             .opacity(isMapReady ? 1.0 : 0.0)
-            .animation(.easeInOut(duration: 0.3), value: isMapReady)
+            .offset(y: isMapReady ? 0 : -20)
+            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1), value: isMapReady)
             
             Spacer()
         }
@@ -203,13 +216,16 @@ struct MapView: View {
             isShowing: $viewModel.showingFilterOptions
         )
         .opacity(viewModel.showingFilterOptions ? 1.0 : 0.0)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.showingFilterOptions)
+        .scaleEffect(viewModel.showingFilterOptions ? 1.0 : 0.95)
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showingFilterOptions)
         .zIndex(3)
     }
     
     private func handleMapCameraChange(_ context: MapCameraUpdateContext) {
         if !isMapReady {
-            isMapReady = true
+            withAnimation(.easeOut(duration: 0.5)) {
+                isMapReady = true
+            }
             return
         }
         
@@ -230,26 +246,28 @@ struct MapView: View {
     private func handleMapReset() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         
-        if isStationCardShown {
-            withAnimation(.easeInOut(duration: 0.25)) {
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            if isStationCardShown {
                 isStationCardShown = false
                 presentedStation = nil
             }
+            
+            viewModel.resetToDefaultPosition()
         }
-        
-        viewModel.resetToDefaultPosition()
     }
     
     private func handleStationTap(_ station: ChargingStation) {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         
         if let currentStation = presentedStation, currentStation.id != station.id {
-            viewModel.selectStation(station)
-            presentedStation = station
-        } else if !isStationCardShown {
-            viewModel.selectStation(station)
-            presentedStation = station
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                viewModel.selectStation(station)
+                presentedStation = station
+            }
+        } else if !isStationCardShown {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                viewModel.selectStation(station)
+                presentedStation = station
                 isStationCardShown = true
             }
         }
@@ -276,27 +294,29 @@ struct MapView: View {
                         viewModel.chargingStations = preloader.stations
                         viewModel.filteredStations = preloader.stations
                         viewModel.isLoading = false
-                        viewModel.navigateToStationFromFavorites(station)
                         
-                        presentedStation = station
-                        isStationCardShown = true
+                        withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                            viewModel.navigateToStationFromFavorites(station)
+                            presentedStation = station
+                            isStationCardShown = true
+                        }
                     }
                 } else {
                     viewModel.loadChargingStations()
                     
                     await MainActor.run {
-                        viewModel.navigateToStationFromFavorites(station)
-                        
-                        presentedStation = station
-                        isStationCardShown = true
+                        withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                            viewModel.navigateToStationFromFavorites(station)
+                            presentedStation = station
+                            isStationCardShown = true
+                        }
                     }
                 }
             }
         } else {
-            viewModel.navigateToStationFromFavorites(station)
-            
-            presentedStation = station
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                viewModel.navigateToStationFromFavorites(station)
+                presentedStation = station
                 isStationCardShown = true
             }
         }
@@ -310,6 +330,7 @@ struct MapView: View {
         }
         
         if let userLocation = locationManager.userLocation {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
             viewModel.centerOnUserLocation(userLocation)
         } else {
             locationManager.startLocationUpdates()

@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 @main
@@ -18,12 +17,14 @@ struct EVSyncApp: App {
                 .environmentObject(fontManager)
                 .environmentObject(stationsPreloader)
                 .animation(.easeInOut(duration: 0.3), value: themeManager.currentTheme)
-                .onAppear {
-                    stationsPreloader.preloadStations()
+                .task {
+                    await stationsPreloader.preloadStations()
                 }
                 .onChange(of: authManager.isAuthenticated) { _, isAuthenticated in
                     if isAuthenticated {
-                        stationsPreloader.forceRefresh()
+                        Task {
+                            await stationsPreloader.forceRefresh()
+                        }
                     }
                 }
         }

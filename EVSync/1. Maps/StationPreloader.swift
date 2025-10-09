@@ -16,6 +16,7 @@ class StationsPreloader: ObservableObject {
     @Published var stations: [ChargingStation] = []
     @Published var isLoaded = false
     @Published var isLoading = false
+    @Published var error: Error?
     
     private var cacheTimestamp: Date?
     private let cacheExpirationTime: TimeInterval = 300 // 5 минут
@@ -25,50 +26,78 @@ class StationsPreloader: ObservableObject {
         supabaseKey: SupabaseConfig.supabaseKey
     )
     
-    private init() {}
+    private init() {
+        print("🔄 StationsPreloader initialized")
+    }
     
-    func preloadStations() {
-        guard !isLoading else { return }
-        
-        // Если данные свежие, не перезагружаем
-        if isCacheValid() {
+    func preloadStations() async {
+        guard !isLoading else {
+            print("⚠️ Already loading, skipping...")
             return
         }
         
-        isLoading = true
+        // Если данные свежие, не перезагружаем
+        if isCacheValid() {
+            print("✅ Cache is valid, using cached data (\(stations.count) stations)")
+            return
+        }
         
-        Task {
-            do {
-                let response: [DatabaseChargingStation] = try await supabase
-                    .from("charging_stations")
-                    .select()
-                    .execute()
-                    .value
-                
-                let loadedStations = response.map { $0.toChargingStation() }
-                
-                await MainActor.run {
-                    self.stations = loadedStations
-                    self.isLoaded = true
-                    self.isLoading = false
-                    self.cacheTimestamp = Date()
-                }
-                
-            } catch {
-                await MainActor.run {
-                    self.isLoading = false
-                }
-            }
+        print("🔄 Starting to preload stations...")
+        isLoading = true
+        error = nil
+        
+        do {
+            let response: [DatabaseChargingStation] = try await supabase
+                .from("charging_stations")
+                .select()
+                .execute()
+                .value
+            
+            let loadedStations = response.map { $0.toChargingStation() }
+            
+            self.stations = loadedStations
+            self.isLoaded = true
+            self.isLoading = false
+            self.cacheTimestamp = Date()
+            
+            print("✅ Successfully loaded \(loadedStations.count) stations")
+            
+        } catch {
+            print("❌ Failed to preload stations: \(error.localizedDescription)")
+            self.error = error
+            self.isLoading = false
         }
     }
     
-    func forceRefresh() {
+    func forceRefresh() async {
+        print("🔄 Force refreshing stations...")
         cacheTimestamp = nil
-        preloadStations()
+        isLoaded = false
+        await preloadStations()
     }
     
     private func isCacheValid() -> Bool {
         guard let timestamp = cacheTimestamp else { return false }
-        return isLoaded && !stations.isEmpty && Date().timeIntervalSince(timestamp) < cacheExpirationTime
+        let isValid = isLoaded && !stations.isEmpty && Date().timeIntervalSince(timestamp) < cacheExpirationTime
+        
+        if !isValid {
+            if !isLoaded {
+                print("❌ Cache invalid: not loaded")
+            } else if stations.isEmpty {
+                print("❌ Cache invalid: stations empty")
+            } else {
+                print("❌ Cache invalid: expired (\(Date().timeIntervalSince(timestamp))s old)")
+            }
+        }
+        
+        return isValid
+    }
+    
+    func clearCache() {
+        print("🗑️ Clearing preloader cache")
+        stations.removeAll()
+        isLoaded = false
+        cacheTimestamp = nil
+        error = nil
     }
 }

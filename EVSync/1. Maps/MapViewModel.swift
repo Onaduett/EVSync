@@ -185,10 +185,9 @@ class MapViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Cinematic Map Methods
+    // MARK: - Cinematic Map Methods with Smooth Animations
     
     func updateCurrentRegion(_ region: MKCoordinateRegion) {
-        // Обновляем только если реально изменилось (порог 0.0001 градуса)
         let threshold = 0.0001
         guard abs(currentRegion.center.latitude - region.center.latitude) > threshold ||
               abs(currentRegion.center.longitude - region.center.longitude) > threshold ||
@@ -199,9 +198,9 @@ class MapViewModel: ObservableObject {
         saveMapPosition()
     }
     
-    private func setCamera(_ position: MapCameraPosition, animated: Bool) {
+    private func setCamera(_ position: MapCameraPosition, animated: Bool, duration: Double = 0.6) {
         if animated && !isLoading {
-            withAnimation(.easeInOut(duration: 0.6)) {
+            withAnimation(.easeInOut(duration: duration)) {
                 cameraPosition = position
             }
         } else {
@@ -217,7 +216,7 @@ class MapViewModel: ObservableObject {
         selectedStation = station
         let region = MKCoordinateRegion(center: station.coordinate, span: focusSpan)
         updateCurrentRegion(region)
-        setCamera(.region(region), animated: animated)
+        setCamera(.region(region), animated: animated, duration: 0.8)
     }
     
     func subtleZoomOut(animated: Bool = true) {
@@ -228,7 +227,7 @@ class MapViewModel: ObservableObject {
         
         let newRegion = MKCoordinateRegion(center: currentRegion.center, span: newSpan)
         updateCurrentRegion(newRegion)
-        setCamera(.region(newRegion), animated: animated)
+        setCamera(.region(newRegion), animated: animated, duration: 0.7)
         
         selectedStation = nil
     }
@@ -242,7 +241,7 @@ class MapViewModel: ObservableObject {
     func clearSelectedStation() {
         selectedStation = nil
         showingStationDetail = false
-        subtleZoomOut()
+        subtleZoomOut(animated: true)
     }
     
     func centerOnUserLocation(_ userLocation: CLLocationCoordinate2D) {
@@ -253,7 +252,7 @@ class MapViewModel: ObservableObject {
         
         updateCurrentRegion(newRegion)
         
-        withAnimation(.easeInOut(duration: 1.0)) {
+        withAnimation(.spring(response: 0.8, dampingFraction: 0.75)) {
             cameraPosition = .region(newRegion)
         }
     }
@@ -265,7 +264,7 @@ class MapViewModel: ObservableObject {
         let region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
         updateCurrentRegion(region)
         
-        withAnimation(.easeInOut(duration: 0.6)) {
+        withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
             cameraPosition = .region(region)
         }
     }
@@ -280,7 +279,6 @@ class MapViewModel: ObservableObject {
             
             initializeFilterRanges()
             
-            // Не сбрасываем позицию при загрузке данных
             if !hasInitialLoad && shouldRestorePosition {
                 shouldRestorePosition = false
             }
@@ -310,7 +308,6 @@ class MapViewModel: ObservableObject {
                 
                 self.initializeFilterRanges()
 
-                // Не сбрасываем позицию при загрузке данных
                 if !hasInitialLoad && shouldRestorePosition {
                     shouldRestorePosition = false
                 }
@@ -325,7 +322,7 @@ class MapViewModel: ObservableObject {
     
     func navigateToStationFromFavorites(_ station: ChargingStation) {
         let stationToShow = chargingStations.first(where: { $0.id == station.id }) ?? station
-        focusOnStation(stationToShow)
+        focusOnStation(stationToShow, animated: true)
         showingStationDetail = true
     }
     
@@ -343,16 +340,9 @@ class MapViewModel: ObservableObject {
     func preloadStations() {
         let preloader = StationsPreloader.shared
         
-        if preloader.isLoaded && !preloader.stations.isEmpty {
-            chargingStations = preloader.stations
-            applyFilters()
-            isLoading = false
-            hasInitialLoad = true
-            initializeFilterRanges()
-            return
-        }
-        
+        // Проверяем локальный кэш первым делом
         if isCacheValid() {
+            print("📦 Using local cache (\(cachedStations.count) stations)")
             chargingStations = cachedStations
             applyFilters()
             isLoading = false
@@ -361,21 +351,40 @@ class MapViewModel: ObservableObject {
             return
         }
         
+        // Проверяем preloader кэш
+        if preloader.isLoaded && !preloader.stations.isEmpty {
+            print("📦 Using preloader cache (\(preloader.stations.count) stations)")
+            chargingStations = preloader.stations
+            cachedStations = preloader.stations
+            cacheTimestamp = Date()
+            applyFilters()
+            isLoading = false
+            hasInitialLoad = true
+            initializeFilterRanges()
+            return
+        }
+        
+        // Загружаем через preloader
+        isLoading = true
+        
         Task {
-            preloader.preloadStations()
+            await preloader.preloadStations()
             
-            if preloader.stations.isEmpty {
-                await MainActor.run {
-                    self.loadChargingStations()
-                }
+            if !preloader.stations.isEmpty {
+                print("✅ Loaded from preloader (\(preloader.stations.count) stations)")
+                self.chargingStations = preloader.stations
+                self.cachedStations = preloader.stations
+                self.cacheTimestamp = Date()
+                self.applyFilters()
+                self.isLoading = false
+                self.hasInitialLoad = true
+                self.initializeFilterRanges()
+            } else if let error = preloader.error {
+                print("❌ Preloader failed, falling back to direct load: \(error)")
+                self.loadChargingStations()
             } else {
-                await MainActor.run {
-                    self.chargingStations = preloader.stations
-                    self.applyFilters()
-                    self.isLoading = false
-                    self.hasInitialLoad = true
-                    self.initializeFilterRanges()
-                }
+                print("⚠️ Preloader returned empty, trying direct load")
+                self.loadChargingStations()
             }
         }
     }
@@ -464,7 +473,7 @@ class MapViewModel: ObservableObject {
         
         let center = CLLocationCoordinate2D(
             latitude: (minLat + maxLat) / 2,
-            longitude: (minLon + minLon) / 2
+            longitude: (minLon + maxLon) / 2
         )
         
         let span = MKCoordinateSpan(
@@ -481,7 +490,7 @@ class MapViewModel: ObservableObject {
         let region = MKCoordinateRegion(center: almatyCenter, span: almatySpan)
         updateCurrentRegion(region)
         
-        withAnimation(.easeInOut(duration: 1.0)) {
+        withAnimation(.spring(response: 0.8, dampingFraction: 0.75)) {
             cameraPosition = .region(region)
         }
     }
@@ -491,7 +500,7 @@ class MapViewModel: ObservableObject {
         
         updateCurrentRegion(region)
         
-        withAnimation(.easeInOut(duration: 0.5)) {
+        withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
             cameraPosition = .region(region)
         }
     }
